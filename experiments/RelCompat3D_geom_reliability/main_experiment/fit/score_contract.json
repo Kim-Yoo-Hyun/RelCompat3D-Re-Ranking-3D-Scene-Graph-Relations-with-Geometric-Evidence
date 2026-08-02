@@ -1,0 +1,25 @@
+{
+  "compatibility": "orbit_pairwise heads followed by transformation averaging",
+  "family_selection": "a_i selects the family head, normalization statistics, transformation set, and ranking scope",
+  "inputs": {
+    "family_indicator": false,
+    "predicate": true,
+    "predicate_independent_geometry": true,
+    "predicate_signed_vertical_interactions": true,
+    "predictor_identity": false,
+    "predictor_score": false
+  },
+  "ks": [
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
+  "ranking": {
+    "proximity_and_vertical": "u_i = Z_i * C_i^tr within the source family-label sequence",
+    "support_contact": "exact source-ranking subsequence",
+    "ties": "exact relation-candidate identity in re-ranked families"
+  },
+  "schema_version": "relcompat3d_main_experiment_score_contract_v1"
+}

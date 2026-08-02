@@ -1,6 +1,6 @@
 # RelCompat3D Result Summary
 
-This summary covers the active `no_family_indicator_v1` method only. Exact
+This summary covers the active `main_experiment` method only. Exact
 all-K values, paired intervals, controls, and audits are stored in the paths
 listed by `manifest.json`.
 
@@ -65,7 +65,7 @@ reported in the canonical evaluation artifacts.
   MLP variation is small overall; one VL-SAT \(K=50\) seed loses one
   exact-label relation while still reducing Violation, so the evidence does
   not support seed-uniform Pareto improvement.
-- A de-identified row-level reproducer regenerates Tables 1--3 and Figure 3
+- A local row-level reproducer regenerates Tables 1--3 and Figure 3
   data and checks 291 canonical cells with maximum absolute error zero.
 - Candidate-pool coverage is 99.72% for VL-SAT and SGFN and 79.68% for
   Open3DSG. At \(K=50\), the active-route oracle reaches 96.73%, 86.05%, and

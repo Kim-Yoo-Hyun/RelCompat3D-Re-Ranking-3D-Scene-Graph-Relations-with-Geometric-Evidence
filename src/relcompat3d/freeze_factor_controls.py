@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 
-SCHEMA_VERSION = "relcompat3d_factor_isolation_protocol_v1"
+SCHEMA_VERSION = "relcompat3d_factor_controls_v1"
 FAMILIES = ("support_contact", "proximity", "relative_vertical")
 PREDICATES = (
     "close by",
@@ -846,7 +846,7 @@ def evaluation_contract() -> dict[str, Any]:
         "docker": {
             "freeze_command": (
                 "env UID=$(id -u) GID=$(id -g) docker compose -f "
-                "configs/relcompat3d/compose.yaml run --rm factor_isolation_protocol_freeze"
+                "configs/relcompat3d/compose.yaml run --rm relcompat3d_freeze_factor_controls"
             ),
             "future_metric_command_reserved": (
                 "env UID=$(id -u) GID=$(id -g) docker compose -f "
@@ -930,7 +930,7 @@ def frozen_contract_validations(
         "post_hoc_classification_exact": evaluation["classification"]
         == "post_hoc_mechanism_diagnostic_not_original_sgfn_confirmatory_gate",
         "Docker_freeze_command_fixed": evaluation["docker"]["freeze_command"].endswith(
-            "factor_isolation_protocol_freeze"
+            "relcompat3d_freeze_factor_controls"
         ),
     }
 
@@ -1035,8 +1035,8 @@ def main() -> int:
             "existing_framework_score_changed": False,
             "existing_sgfn_gate_changed": False,
             "H002_metrics_imported": False,
-            "factor_necessity_claim_authorized": False,
-            "support_contact_endpoint_swap_authorized": False,
+            "factor_necessity_claim_supported": False,
+            "support_contact_endpoint_swap_supported": False,
         },
         "calibration_contract": calibration,
         "denominator_contract": gt,

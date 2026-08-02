@@ -7,18 +7,18 @@ prediction rows, geometry, and checkpoints remain external.
 
 | Artifact | Location |
 | --- | --- |
-| Tables 1--3 | `experiments/RelCompat3D_geom_reliability/row_reproduction_v1/evaluation/` |
+| Tables 1--3 | `experiments/RelCompat3D_geom_reliability/paper_reproduction/evaluation/` |
 | Figure 3 data and rendering | same directory |
 | Active method lock | `experiments/RelCompat3D_geom_reliability/active_method.json` |
-| Main model/evaluation protocols | `experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/` |
+| Main model/evaluation protocols | `experiments/RelCompat3D_geom_reliability/main_experiment/` |
 | Paper-facing evidence map | `results/relcompat3d_geom_reliability/manifest.json` |
 | Compact claim summary | `results/relcompat3d_geom_reliability/report.md` |
 
 ## Extended evidence
 
-Versioned directories contain score-mapping sensitivity, simple baselines,
-routing controls, component removals, training-seed checks, construct
-dependence, point/mesh audits, and candidate-pool oracle Recall. These analyses
+Named experiment directories contain score-mapping sensitivity, simple baselines,
+routing controls, component removals, training-seed checks, measurement
+dependence checks, point/mesh audits, and candidate-pool oracle Recall. These analyses
 do not change the active method lock.
 
 ## Evaluation scope

@@ -510,7 +510,7 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = read_json(paths["protocol"])
-    if protocol.get("schema_version") != "relcompat3d_factor_isolation_protocol_v1":
+    if protocol.get("schema_version") != "relcompat3d_factor_controls_v1":
         raise ValueError("protocol_not_frozen_v1")
     model_payload = read_json(paths["models"])
     models = model_payload["models"]

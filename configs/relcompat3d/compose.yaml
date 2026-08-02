@@ -19,9 +19,9 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/row_reproduction_v1/protocol.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/row_reproduction_v1/artifacts/derived_rows
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/artifacts/table_rows
 
   relcompat3d_reproduce_rows:
     build:
@@ -43,11 +43,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/row_reproduction_v1/protocol.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/protocol.json
       - --rows
-      - /workspace/experiments/RelCompat3D_geom_reliability/row_reproduction_v1/artifacts/derived_rows
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/artifacts/table_rows
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/row_reproduction_v1/regenerated
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated
 
   relcompat3d_candidate_oracle:
     build:
@@ -68,13 +68,13 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/candidate_oracle_v1/protocol.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/candidate_oracle/protocol.json
       - --rows
-      - /workspace/experiments/RelCompat3D_geom_reliability/row_reproduction_v1/artifacts/derived_rows
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/artifacts/table_rows
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/candidate_oracle_v1/regenerated
+      - /workspace/experiments/RelCompat3D_geom_reliability/candidate_oracle/regenerated
 
-  relcompat3d_component_diagnostics:
+  relcompat3d_component_analysis:
     build:
       context: ../..
       dockerfile: configs/relcompat3d/Dockerfile
@@ -93,9 +93,9 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/component_diagnostics_v1/protocol.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/component_analysis/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/component_diagnostics_v1/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/component_analysis/evaluation
 
   relcompat3d_seed_robustness:
     build:
@@ -116,11 +116,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/seed_robustness_v1/protocol.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/seed_robustness/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/seed_robustness_v1/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/seed_robustness/evaluation
 
-  relcompat3d_construct_dependence:
+  relcompat3d_measurement_audit:
     build:
       context: ../..
       dockerfile: configs/relcompat3d/Dockerfile
@@ -134,9 +134,9 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/construct_dependence_v1/protocol.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/measurement_audit/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/construct_dependence_v1/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/measurement_audit/evaluation
 
   relcompat3d_routing_constraints:
     build:
@@ -157,9 +157,9 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/routing_controls_v1/protocol.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/routing_controls/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/routing_controls_v1/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/routing_controls/evaluation
 
   relcompat3d_score_robustness:
     build:
@@ -180,11 +180,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/score_robustness_v1/protocol.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/score_robustness/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/score_robustness_v1/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/score_robustness/evaluation
 
-  no_family_indicator_fit:
+  relcompat3d_fit:
     build:
       context: ../..
       dockerfile: configs/relcompat3d/Dockerfile
@@ -198,11 +198,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocol.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/fit
 
-  no_family_indicator_freeze_initial:
+  relcompat3d_freeze_initial:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -211,7 +211,7 @@ services:
     entrypoint: [python, /workspace/src/relcompat3d/freeze_protocols.py]
     command: [--repo-root, /workspace, --phase, initial]
 
-  no_family_indicator_structured_main:
+  relcompat3d_evaluate_linear:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -222,11 +222,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/structured_main.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/structured_main.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/structured_main
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/structured_main
 
-  no_family_indicator_support_routing:
+  relcompat3d_support_routing:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -237,11 +237,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/support_routing.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/support_routing.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/support_routing
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/support_routing
 
-  no_family_indicator_open3dsg_route:
+  relcompat3d_open3dsg_route:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -252,11 +252,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/open3dsg_route.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/open3dsg_route.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/open3dsg_route
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/open3dsg_route
 
-  no_family_indicator_nonlinear:
+  relcompat3d_evaluate_mlp:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -267,11 +267,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/nonlinear.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/nonlinear.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/nonlinear
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/nonlinear
 
-  no_family_indicator_freeze_downstream:
+  relcompat3d_freeze_downstream:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -280,7 +280,7 @@ services:
     entrypoint: [python, /workspace/src/relcompat3d/freeze_protocols.py]
     command: [--repo-root, /workspace, --phase, downstream]
 
-  no_family_indicator_routed_comparators:
+  relcompat3d_compare_rankings:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -291,11 +291,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/routed_comparators.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/routed_comparators.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/routed_comparators
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_comparators
 
-  no_family_indicator_routed_ablation:
+  relcompat3d_linear_controls:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -306,9 +306,9 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/routed_ablation.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/routed_ablation.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/routed_ablation
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_ablation
 
   relcompat3d_mlp_ablation:
     image: relcompat3d-geom-reliability:latest
@@ -321,11 +321,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/mlp_ablation.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/mlp_ablation.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/mlp_ablation
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/mlp_ablation
 
-  no_family_indicator_scan_cluster:
+  relcompat3d_bootstrap:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -336,11 +336,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/scan_cluster.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/scan_cluster.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/scan_cluster
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/scan_cluster
 
-  no_family_indicator_structured_scan_cluster:
+  relcompat3d_linear_bootstrap:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -351,11 +351,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/structured_scan_cluster.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/structured_scan_cluster.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/structured_scan_cluster
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/structured_scan_cluster
 
-  no_family_indicator_surface_audit:
+  relcompat3d_surface_audit:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -371,9 +371,9 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/surface_audit.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/surface_audit.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/surface_audit
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/surface_audit
 
   relcompat3d_mlp_surface_audit:
     image: relcompat3d-geom-reliability:latest
@@ -391,11 +391,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/mlp_surface_audit.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/mlp_surface_audit.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/mlp_surface_audit
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/mlp_surface_audit
 
-  no_family_indicator_held_out_primitive:
+  relcompat3d_feature_removal:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -406,11 +406,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/held_out_primitive.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/held_out_primitive.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/held_out_primitive
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/held_out_primitive
 
-  no_family_indicator_counterfactual_sensitivity:
+  relcompat3d_counterfactual_controls:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -421,9 +421,9 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/counterfactual_sensitivity.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/counterfactual_sensitivity.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/counterfactual_sensitivity
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/counterfactual_sensitivity
 
   relcompat3d_component_removals:
     image: relcompat3d-geom-reliability:latest
@@ -441,11 +441,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/component_removals.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/component_removals.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/component_removals
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/component_removals
 
-  no_family_indicator_runtime:
+  relcompat3d_runtime:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -461,11 +461,11 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/runtime.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/runtime.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/runtime
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/runtime
 
-  no_family_indicator_external_transfer:
+  relcompat3d_transfer_audit:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -476,6 +476,6 @@ services:
       - --repo-root
       - /workspace
       - --protocol
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/external_transfer.json
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/external_transfer.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/external_transfer
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/external_transfer

@@ -87,7 +87,7 @@ def strip_family_indicator(model: dict[str, Any]) -> dict[str, Any]:
     result["weights"] = [float(model["weights"][index]) for index in keep]
     result["families"] = []
     result["parameterization"] = {
-        "id": "no_family_indicator_v1",
+        "id": "main_experiment",
         "removed_feature": removed,
         "family_selected_by": "family-specific head",
     }
@@ -159,7 +159,7 @@ def refit_strict_family_models(
     strict_models = copy.deepcopy(current_models)
     strict_models["family_models"] = family_models
     strict_models["parameterization"] = {
-        "id": "no_family_indicator_v1",
+        "id": "main_experiment",
         "change": "remove the constant family one-hot from each family-specific head",
         "factor_models": "unchanged; family indicators remain meaningful in pooled heads",
     }
@@ -183,7 +183,7 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_no_family_indicator_fit":
+    if protocol.get("status") != "frozen_before_relcompat3d_fit":
         raise ValueError("protocol_not_frozen")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     missing = [name for name, path in paths.items() if not path.exists()]
@@ -214,7 +214,7 @@ def main() -> int:
         "source_score_used": False,
         "source_identity_used": False,
         "parameterization": {
-            "id": "no_family_indicator_v1",
+            "id": "main_experiment",
             "family_indicator_input": False,
             "family_selected_by": "family-specific head",
         },
@@ -267,7 +267,7 @@ def main() -> int:
     write_json(
         score_path,
         {
-            "schema_version": "relcompat3d_no_family_indicator_score_contract_v1",
+            "schema_version": "relcompat3d_main_experiment_score_contract_v1",
             "compatibility": "orbit_pairwise heads followed by transformation averaging",
             "inputs": {
                 "predicate": True,
@@ -354,7 +354,7 @@ def main() -> int:
     write_json(
         lock_path,
         {
-            "schema_version": "relcompat3d_no_family_indicator_final_lock_v1",
+            "schema_version": "relcompat3d_main_experiment_final_lock_v1",
             "status": "locked_before_official_validation" if status == "completed" else "not_locked",
             "locked_at_utc": datetime.now(timezone.utc).isoformat(),
             "protocol_sha256": sha256_file(protocol_path),
@@ -376,7 +376,7 @@ def main() -> int:
     write_json(
         manifest_path,
         {
-            "schema_version": "relcompat3d_no_family_indicator_fit_manifest_v1",
+            "schema_version": "relcompat3d_relcompat3d_fit_manifest_v1",
             "status": status,
             "created_at_utc": datetime.now(timezone.utc).isoformat(),
             "protocol": {
@@ -393,7 +393,7 @@ def main() -> int:
             },
             "validations": validations,
             "warnings": warnings,
-            "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm no_family_indicator_fit",
+            "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit",
         },
     )
     print(

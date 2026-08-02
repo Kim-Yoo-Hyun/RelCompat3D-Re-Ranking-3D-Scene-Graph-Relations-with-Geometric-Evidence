@@ -4,7 +4,7 @@
   "promoted_at": "2026-07-20T06:24:53+09:00",
   "capacity_variant_update_at": "2026-07-20T08:50:11+09:00",
   "method_name": "RelCompat3D",
-  "active_root": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1",
+  "active_root": "experiments/RelCompat3D_geom_reliability/main_experiment",
   "factor_contract": {
     "predicate_semantics": "T_i = p_i",
     "family_role": "a_i selects the Linear family head and common procedure without entering that head; it is an input to the shared MLP and selects the common transformation and ranking scope",
@@ -12,10 +12,10 @@
     "source_score_excluded_from_compatibility": true
   },
   "locks": {
-    "protocol_sha256": "011b460c0a5706559d3a5bd6da5f94719417f81bb4d68a9a5b9447fcbd0c41c6",
+    "protocol_sha256": "5bd5126b7df4ad8473090088e27b5ea749bdb41682bb65e6d706713eb486595d",
     "structured_model_sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194",
     "strict_model_sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2",
-    "score_contract_sha256": "a92e3fb99c897bc2ad791b6004c47560da5b603f21f6056c50f156f10373f9f0",
+    "score_contract_sha256": "aa0b648f9e4ac388ddbdd6ff8961462e93c8f53ffbaf24c7ebb1071a01d21ac2",
     "mlp_model_sha256": "ccf4107c06d95161df8ecb1948b37f781025407d7b3596ddd6886394a2976c3e",
     "mlp_ablation_summary_sha256": "6eb64771c9483102b47b167ff0bde6e81425daa6fbaca885a1eb9d02f870951d",
     "mlp_surface_audit_summary_sha256": "3fc9e42b7554b4df4be620ad8d89ca22d99e652d835f141755cd662b1c90fa01"
@@ -36,15 +36,15 @@
     "fitted_fusion_parameters": 0
   },
   "canonical_evaluation": {
-    "main": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/routed_comparators",
-    "all_family": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/structured_main",
-    "ablation": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/routed_ablation",
-    "mlp_ablation": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/mlp_ablation",
-    "scan_cluster": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/scan_cluster",
-    "surface_audit": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/surface_audit",
-    "mlp_surface_audit": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/mlp_surface_audit",
-    "runtime": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/runtime",
-    "external_transfer_stress_test": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/external_transfer"
+    "main": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_comparators",
+    "all_family": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/structured_main",
+    "ablation": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_ablation",
+    "mlp_ablation": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/mlp_ablation",
+    "scan_cluster": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/scan_cluster",
+    "surface_audit": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/surface_audit",
+    "mlp_surface_audit": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/mlp_surface_audit",
+    "runtime": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/runtime",
+    "external_transfer_stress_test": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/external_transfer"
   },
   "external_transfer_scope": {
     "status": "previously_observed_target_stress_test",

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-ROOT_REL = Path("experiments/RelCompat3D_geom_reliability/no_family_indicator_v1")
+ROOT_REL = Path("experiments/RelCompat3D_geom_reliability/main_experiment")
 
 
 def parse_args() -> argparse.Namespace:
@@ -69,8 +69,8 @@ def freeze_initial(root: Path, exp: Path, protocols: Path) -> list[Path]:
         load(root / "experiments/RelCompat3D_geom_reliability/structured_main_v1/protocol.json")
     )
     structured["created_at_kst"] = "2026-07-20"
-    structured["classification"] = "no_family_indicator_v1_fixed_model_benchmark_evaluation"
-    structured["main_compatibility"]["artifact_id"] = "no_family_indicator_v1_orbit_pairwise_projected"
+    structured["classification"] = "main_experiment_fixed_model_benchmark_evaluation"
+    structured["main_compatibility"]["artifact_id"] = "main_experiment_orbit_pairwise_projected"
     structured["main_compatibility"]["definition"] = (
         "family-specific logistic compatibility without a family-indicator input, trained with the unchanged "
         "BCE, relation-preserving augmentation, and linked-counterfactual margin; inference transformation "
@@ -125,7 +125,7 @@ def freeze_initial(root: Path, exp: Path, protocols: Path) -> list[Path]:
     for path, payload in zip(outputs, (structured, routing, open_route, nonlinear)):
         write(path, payload)
     freeze = {
-        "schema_version": "relcompat3d_no_family_indicator_initial_protocol_freeze_v1",
+        "schema_version": "relcompat3d_main_experiment_initial_protocol_freeze_v1",
         "status": "frozen_before_official_validation",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "model_lock": lock,
@@ -182,7 +182,7 @@ def freeze_downstream(root: Path, exp: Path, protocols: Path) -> list[Path]:
     ablation["created_at_kst"] = "2026-07-20"
     ablation["classification"] = "fixed no-family-indicator model ablation on the public/full 548-context target"
     ablation["method"]["model_sha256"] = lock["structured_model_sha256"]
-    ablation["method"]["fit"] = "no_family_indicator_v1 strict 1061-scan train-only refit"
+    ablation["method"]["fit"] = "main_experiment strict 1061-scan train-only refit"
     ablation["inputs"]["structured_models"] = {
         "path": structured_rel,
         "sha256": lock["structured_model_sha256"],
@@ -267,7 +267,7 @@ def freeze_downstream(root: Path, exp: Path, protocols: Path) -> list[Path]:
         "removing the constant family indicator from every family-specific head."
     )
     counterfactual["parameterization"] = {
-        "id": "no_family_indicator_v1",
+        "id": "main_experiment",
         "remove_constant_family_indicator": True,
         "other_changes": "none",
     }
@@ -306,7 +306,7 @@ def freeze_downstream(root: Path, exp: Path, protocols: Path) -> list[Path]:
     ):
         write(path, payload)
     freeze = {
-        "schema_version": "relcompat3d_no_family_indicator_downstream_protocol_freeze_v1",
+        "schema_version": "relcompat3d_main_experiment_downstream_protocol_freeze_v1",
         "status": "frozen_before_downstream_evaluation",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "model_lock": lock,

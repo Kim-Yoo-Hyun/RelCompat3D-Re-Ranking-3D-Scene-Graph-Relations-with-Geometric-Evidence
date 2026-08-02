@@ -302,7 +302,7 @@ def main() -> int:
     write_csv(out / "evidence_index.csv", evidence_rows)
     write_json(out / "claims.json", claims)
     summary = {
-        "schema_version": "relcompat3d_construct_dependence_package_v1",
+        "schema_version": "relcompat3d_measurement_audit_package_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "claims": claims,
@@ -321,7 +321,7 @@ def main() -> int:
     write_json(
         out / "manifest.json",
         {
-            "schema_version": "relcompat3d_construct_dependence_manifest_v1",
+            "schema_version": "relcompat3d_measurement_audit_manifest_v1",
             "status": status,
             "protocol": {
                 "path": relpath(root, protocol_path),
@@ -345,7 +345,7 @@ def main() -> int:
             "docker_command": (
                 "env UID=$(id -u) GID=$(id -g) docker compose "
                 "-f configs/relcompat3d/compose.yaml run --rm "
-                "relcompat3d_construct_dependence"
+                "relcompat3d_measurement_audit"
             ),
         },
     )

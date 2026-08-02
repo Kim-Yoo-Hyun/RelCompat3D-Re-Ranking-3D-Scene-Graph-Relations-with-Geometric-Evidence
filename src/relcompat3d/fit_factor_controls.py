@@ -154,7 +154,7 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(paths["protocol"].read_text(encoding="utf-8"))
-    if protocol.get("schema_version") != "relcompat3d_factor_isolation_protocol_v1":
+    if protocol.get("schema_version") != "relcompat3d_factor_controls_v1":
         raise ValueError("factor_protocol_not_frozen_v1")
     train_scans = read_scan_list(paths["train_scans"])
     dev_scans = read_scan_list(paths["dev_scans"])

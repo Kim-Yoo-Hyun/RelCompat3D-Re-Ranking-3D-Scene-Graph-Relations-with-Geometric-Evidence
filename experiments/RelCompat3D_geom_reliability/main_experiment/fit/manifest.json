@@ -1,0 +1,85 @@
+{
+  "created_at_utc": "2026-07-19T20:05:08.787303+00:00",
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.structured.yaml run --rm relcompat3d_fit",
+  "inputs": {
+    "calibration_table": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/calibration/export/table.jsonl",
+      "sha256": "ada87676faf0df67c8d8873ceb8efa54ab29507306fca24d4020b21d5e39af6e"
+    },
+    "current_strict_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/calibration/fitted/models.json",
+      "sha256": "5661d4a54c992438cf728afe9184f215efc54f886513e1898ae237475f072151"
+    },
+    "final_validation_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/splits/final_validation_scans.txt",
+      "sha256": "3687b892938c25a44a07d6e0e26788b98ffe5c5319f04407d446247c2a67e7e4"
+    },
+    "internal_dev_ground_truth": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/internal_dev_ground_truth.jsonl",
+      "sha256": "3425be6aba974345a8aadc279b06e6a56dca6407c123ad45374adcfc137e199b"
+    },
+    "internal_dev_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/splits/internal_dev_scans.txt",
+      "sha256": "25fb5aba714b0c9bf00f36b04fb890de6dd4a197628dd179812189511c01343b"
+    },
+    "internal_dev_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/internal_dev/geometry/verification.jsonl",
+      "sha256": "458bdf95447052bd71f297ce2c2a0ee70af84447c75e56201180f58106e18618"
+    },
+    "train_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/splits/train_scans.txt",
+      "sha256": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53"
+    }
+  },
+  "outputs": {
+    "final_lock.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/final_lock.json",
+      "sha256": "1596ed42b8d9dddee369945ac5e536dece9485da5a2c9d8fef52737d4e2343e5"
+    },
+    "internal_dev_diagnostics.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/internal_dev_diagnostics.json",
+      "sha256": "86b4c6348bde098d1d474bab65b50bb9b4b51564b2a6bce0b84197dfd554ee7f"
+    },
+    "internal_dev_source.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/internal_dev_source.json",
+      "sha256": "ed5870e4faddaa0148a388781ac3e1f1dd69caff5ed5dfca66f8326cb03481ee"
+    },
+    "score_contract.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/score_contract.json",
+      "sha256": "aa0b648f9e4ac388ddbdd6ff8961462e93c8f53ffbaf24c7ebb1071a01d21ac2"
+    },
+    "strict_models.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/strict_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2"
+    },
+    "structured_models.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/structured_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    }
+  },
+  "protocol": {
+    "path": "experiments/RelCompat3D_geom_reliability/main_experiment/protocol.json",
+    "sha256": "5bd5126b7df4ad8473090088e27b5ea749bdb41682bb65e6d706713eb486595d"
+  },
+  "schema_version": "relcompat3d_relcompat3d_fit_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_parameters_finite": true,
+    "factor_models_unchanged": true,
+    "internal_dev_contexts_354": true,
+    "internal_dev_gt_denominator_2730": true,
+    "internal_dev_only_before_lock": true,
+    "internal_dev_rows_6246": true,
+    "normalization_statistics_unchanged": true,
+    "one_family_feature_removed_per_head": true,
+    "optimizer_exactly_preserved": true,
+    "source_score_and_identity_excluded": true,
+    "split_counts_1061_117_157": true,
+    "split_sets_pairwise_disjoint": true,
+    "strict_family_features_absent": true,
+    "structured_family_features_absent": true,
+    "train_rows_60208": true,
+    "zero_final_rows_in_calibration": true
+  },
+  "warnings": []
+}

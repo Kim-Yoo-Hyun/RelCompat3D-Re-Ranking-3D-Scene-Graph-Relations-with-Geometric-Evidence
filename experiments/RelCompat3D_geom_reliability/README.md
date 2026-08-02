@@ -5,16 +5,16 @@ paper and supplement.
 
 | Directory | Purpose |
 | --- | --- |
-| `no_family_indicator_v1/` | active fitting and main evaluation protocols |
-| `row_reproduction_v1/` | Tables 1--3 and Figure 3 regeneration |
-| `score_robustness_v1/` | source-score mappings and simple baselines |
-| `routing_controls_v1/` | family-aware routing controls |
-| `construct_dependence_v1/` | measurement-dependence evidence index |
-| `component_diagnostics_v1/` | pairwise-loss and transformation checks |
-| `seed_robustness_v1/` | five-seed fitting analysis |
-| `candidate_oracle_v1/` | fixed-candidate Recall upper bounds |
-| `factor_isolation_protocol/` | factor-separation protocol and locks |
-| `train_only_reestablishment_v1/` | split firewall and train-only provenance |
+| `main_experiment/` | active fitting and main evaluation protocols |
+| `paper_reproduction/` | Tables 1--3 and Figure 3 regeneration |
+| `score_robustness/` | source-score mappings and simple baselines |
+| `routing_controls/` | family-aware routing controls |
+| `measurement_audit/` | measurement-dependence evidence index |
+| `component_analysis/` | pairwise-loss and transformation checks |
+| `seed_robustness/` | five-seed fitting analysis |
+| `candidate_oracle/` | fixed-candidate Recall upper bounds |
+| `factor_controls/` | factor-separation protocol and locks |
+| `training_protocol/` | split firewall and train-only provenance |
 
 `evaluation/` directories are frozen references. Reproduction services write
 to ignored `regenerated/` directories. Fitted JSON models are restored with

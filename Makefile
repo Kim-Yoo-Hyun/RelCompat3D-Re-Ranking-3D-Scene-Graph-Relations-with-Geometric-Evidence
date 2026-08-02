@@ -18,8 +18,8 @@ export-rows:
 	$(COMPOSE) run --rm relcompat3d_export_rows
 
 train:
-	$(COMPOSE) run --rm no_family_indicator_fit
-	$(COMPOSE) run --rm no_family_indicator_freeze_initial
+	$(COMPOSE) run --rm relcompat3d_fit
+	$(COMPOSE) run --rm relcompat3d_freeze_initial
 	scripts/run_pipeline.sh initial
 
 evaluate:

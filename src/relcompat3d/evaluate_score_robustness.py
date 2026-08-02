@@ -979,11 +979,11 @@ def main() -> int:
     }
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_score_robustness_v1",
+        "schema_version": "relcompat3d_score_robustness",
         "protocol_frozen_at_kst": protocol["created_at_kst"],
         "status": status,
         "classification": "post-hoc robustness and closest-simple-baseline analysis; no method selection",
-        "candidate_pool": "active no_family_indicator_v1 routed comparator pool",
+        "candidate_pool": "active main_experiment routed comparator pool",
         "score_mappings": protocol["score_mappings"],
         "simple_baselines": protocol["simple_baselines"],
         "density_fit": {

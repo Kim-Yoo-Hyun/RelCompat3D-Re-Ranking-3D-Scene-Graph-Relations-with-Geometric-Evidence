@@ -1,0 +1,91 @@
+{
+  "schema_version": "relcompat3d_five_seed_robustness_protocol_v1",
+  "status": "frozen_before_five_seed_execution",
+  "created_at_kst": "2026-07-27",
+  "purpose": "Separate model-fitting variation from scan-resampling uncertainty by refitting both promoted compatibility estimators under five predeclared seed identifiers.",
+  "inputs": {
+    "calibration_table": {
+      "path": "local_dataset/RelCompat3D/calibration/table.jsonl",
+      "sha256": "ada87676faf0df67c8d8873ceb8efa54ab29507306fca24d4020b21d5e39af6e"
+    },
+    "train_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/splits/train_scans.txt",
+      "sha256": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53"
+    },
+    "internal_dev_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/splits/internal_dev_scans.txt",
+      "sha256": "25fb5aba714b0c9bf00f36b04fb890de6dd4a197628dd179812189511c01343b"
+    },
+    "final_validation_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/splits/final_validation_scans.txt",
+      "sha256": "3687b892938c25a44a07d6e0e26788b98ffe5c5319f04407d446247c2a67e7e4"
+    },
+    "current_strict_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/training_protocol/calibration/fitted/models.json",
+      "sha256": "5661d4a54c992438cf728afe9184f215efc54f886513e1898ae237475f072151"
+    },
+    "active_linear_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/structured_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    },
+    "active_mlp_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/nonlinear/models.json",
+      "sha256": "ccf4107c06d95161df8ecb1948b37f781025407d7b3596ddd6886394a2976c3e"
+    },
+    "main_reference": {
+      "path": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_comparators/summary.json",
+      "sha256": "de89026f74375668b36b870af3e512be8e766baf9b0bc5bd5d4248c516df0ba1"
+    },
+    "ground_truth": {
+      "path": "local_dataset/RelCompat3D/canonical/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "official_context_annotations": {
+      "path": "local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json",
+      "sha256": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e"
+    },
+    "vlsat_verification": {
+      "path": "local_dataset/RelCompat3D/canonical/vlsat/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+    },
+    "open3dsg_verification": {
+      "path": "local_dataset/RelCompat3D/canonical/open3dsg/verification.jsonl",
+      "sha256": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720"
+    },
+    "sgfn_verification": {
+      "path": "local_dataset/RelCompat3D/canonical/sgfn/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+    }
+  },
+  "model_seeds": [20260714, 20260715, 20260716, 20260717, 20260718],
+  "active_mlp_seed": 20260714,
+  "selection_policy": "active model fixed before robustness analysis; no reselection",
+  "construction_seed_policy": "frozen calibration table and linked-pair identities; no resampling",
+  "linear_optimizer": {
+    "epochs": 800,
+    "learning_rate": 0.2,
+    "l2": 0.0001,
+    "initial_weights": 0.0,
+    "batching": "deterministic_full_batch",
+    "pairwise_loss": "softplus(margin - (logit_positive - logit_negative))",
+    "pairwise_margin": 1.0,
+    "pairwise_weight": 0.25
+  },
+  "mlp_optimizer": {
+    "epochs": 120,
+    "l2": 0.0001,
+    "learning_rate": 0.02,
+    "pairwise_margin": 1.0,
+    "pairwise_weight": 0.25
+  },
+  "evaluation": {
+    "target": "shared official 3DSSG validation target",
+    "scans": 157,
+    "contexts": 548,
+    "exact_label_denominator": 3972,
+    "ks": [5, 10, 20, 50, 100],
+    "summary": ["mean", "standard deviation", "minimum", "maximum"],
+    "source_direction_check": "Recall no lower and Violation no higher than the corresponding Source point estimate"
+  },
+  "claim_boundary": "This analysis measures fitting-seed variation with constructed rows held fixed. It is reported separately from scan-resampling intervals and does not establish dataset-level generalization."
+}

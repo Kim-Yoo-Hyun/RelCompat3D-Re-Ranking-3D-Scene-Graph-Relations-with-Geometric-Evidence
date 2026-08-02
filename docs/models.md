@@ -17,8 +17,9 @@ scripts/validate.sh --require-models
 ```
 
 The archive contains the eight JSON parameter files listed in
-`configs/model_files.sha256`. Filenames encode the experiment stage and are
-extracted directly into their expected paths.
+`configs/model_files.sha256`. The download script maps the frozen archive
+paths to the concise public experiment directories and verifies every model
+after extraction.
 
 ## Source predictors
 

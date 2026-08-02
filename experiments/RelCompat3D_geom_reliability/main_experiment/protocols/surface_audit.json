@@ -1,0 +1,149 @@
+{
+  "claim_boundary": "Agreement under point, mesh, and strict consensus reduces exact OBB-rule circularity. It remains an automatic construct-validity audit of reconstructed 3RScan surfaces, not human physical-validity ground truth or evidence of cross-dataset generalization.",
+  "created_at_kst": "2026-07-20",
+  "firewall": {
+    "compatibility_score_in_audit": false,
+    "internal_dev_use": "none",
+    "main_verifier_status_in_audit": false,
+    "obb_measurements_in_audit": false,
+    "predictor_identity_in_audit": false,
+    "source_relation_score_in_audit": false,
+    "threshold_reference": "GT-positive proximity and relative-vertical relations whose scan_id is in the frozen 1,061-scan training split",
+    "threshold_selection": "training split only",
+    "validation_use": "evaluation only; no threshold, support, family, K, or status-rule changes"
+  },
+  "inputs": {
+    "final_validation_scans": "experiments/RelCompat3D_geom_reliability/training_protocol/splits/final_validation_scans.txt",
+    "ground_truth": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+    "official_context_annotations": "local_dataset/3DSSG_subset/relationships_validation.json",
+    "open3dsg_verification": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/geometry/verification.jsonl",
+    "raw_scan_root": "local_dataset/3RScan/scans",
+    "sgfn_verification": "experiments/RelCompat3D_geom_reliability/sources/sgfn/geometry/verification.jsonl",
+    "strict_models": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/strict_models.json",
+    "structured_models": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/structured_models.json",
+    "train_scans": "experiments/RelCompat3D_geom_reliability/training_protocol/splits/train_scans.txt",
+    "training_table": "experiments/RelCompat3D_geom_reliability/training_protocol/calibration/export/table.jsonl",
+    "vlsat_verification": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/geometry/verification.jsonl"
+  },
+  "locked_sha256": {
+    "strict_models": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2",
+    "structured_models": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+  },
+  "metrics": {
+    "audit_coverage": "(satisfied + uncertain + violated) / selected proximity/relative-vertical predictions",
+    "audit_decidable_coverage": "(satisfied + violated) / selected proximity/relative-vertical predictions",
+    "audit_uncertainty": "uncertain / (satisfied + uncertain + violated)",
+    "audit_violation": "violated / (satisfied + uncertain + violated) among selected proximity/relative-vertical predictions",
+    "audits_reported": [
+      "point",
+      "mesh",
+      "consensus"
+    ],
+    "recall": "exact-label Recall@K, reported both over all 3,972 GT relations and over proximity/relative-vertical GT relations"
+  },
+  "parent_lock": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/final_lock.json",
+  "purpose": "Re-evaluate the locked no-family-indicator ranking with the unchanged point-, mesh-, and consensus-surface audit.",
+  "ranking": {
+    "missing_contexts": "retain in Recall denominators with no selected prediction",
+    "relcompat3d": "preserve the source sequence of relation-family labels; order support/contact by the source score and proximity/relative-vertical by source score times transformation-consistent compatibility",
+    "source": "descending original source relation score",
+    "synthetic_fill": false,
+    "tie_break": "frozen candidate identity"
+  },
+  "raw_surface_contract": {
+    "input": "labels.instances.annotated.v2.ply",
+    "mesh_audit": {
+      "maximum_triangles_per_object": 96,
+      "object_scale": "square root of object triangle area divided by pi",
+      "proximity_measurement": "area-weighted symmetric 10th percentile of cross-object nearest-triangle-centroid distances divided by an area-equivalent pair scale",
+      "representation": "triangle centroids and triangle areas from faces whose three instance-labeled vertices belong to the same object",
+      "sampling": "deterministic SHA-256-seeded uniform triangle sampling without replacement",
+      "vertical_measurement": "predicate-signed difference between subject and object area-weighted median triangle-centroid elevation divided by the area-equivalent pair scale"
+    },
+    "minimum_metric_scale_m": 0.05,
+    "non_overlap_with_model": "The audit never reads semseg OBB centroids, axes, distances, projected overlap, or vertical-gap features. Point and mesh estimators share the reconstructed surface but use distinct vertex-unweighted and face-area-weighted statistics.",
+    "point_audit": {
+      "maximum_vertices_per_object": 128,
+      "object_scale": "90th percentile Euclidean radius about the coordinate-wise vertex median",
+      "proximity_measurement": "symmetric 10th percentile of cross-object nearest-vertex distances divided by the mean robust point radius",
+      "representation": "instance-labeled mesh vertices",
+      "sampling": "deterministic SHA-256-seeded uniform sampling without replacement",
+      "vertical_measurement": "predicate-signed difference between subject and object median vertex elevation divided by the mean robust point radius"
+    }
+  },
+  "schema_version": "relcompat3d_orthogonal_geometry_audit_protocol_v1",
+  "scope": {
+    "excluded_from_primary_audit": {
+      "attachment_deferred": "outside the current paper claim",
+      "support_contact": "kept in source order by the primary ranking rule and excluded because point contact requires a separate relation-specific construct"
+    },
+    "ks": [
+      5,
+      10,
+      20,
+      50,
+      100
+    ],
+    "methods": [
+      "source",
+      "relcompat3d"
+    ],
+    "primary_families": [
+      "proximity",
+      "relative_vertical"
+    ],
+    "sources": [
+      "vlsat",
+      "open3dsg",
+      "sgfn"
+    ],
+    "target": "official 157-scan, 548-context 3DSSG validation universe"
+  },
+  "status": "frozen_before_orthogonal_audit_execution",
+  "synthetic_intervention": {
+    "compatibility_intervention": "apply the corresponding monotone distance/overlap or predicate-aligned elevation change to a copy of the candidate geometry features and recompute the frozen compatibility score",
+    "levels_in_pair_scale_units": [
+      0.0,
+      0.5,
+      1.0,
+      2.0
+    ],
+    "maximum_cases_per_family": 512,
+    "proximity_surface_intervention": "translate the subject horizontally away from the object along the ordered-pair median direction",
+    "reported": [
+      "point-measurement monotonicity rate",
+      "mesh-measurement monotonicity rate",
+      "frozen-compatibility monotonicity rate",
+      "mean endpoint change"
+    ],
+    "role": "mechanism test only; it is not included in the observational audit metric",
+    "selection": "deterministic SHA-256 order from the union of Source and RelCompat3D K=100 proximity/relative-vertical selections",
+    "vertical_surface_intervention": "translate the subject in the predicate-consistent vertical direction"
+  },
+  "train_only_status_rules": {
+    "consensus": "satisfied or violated only when point and mesh return the same decided status; otherwise uncertain when both audits are supported, and unsupported when either audit is unsupported",
+    "minimum_surface_support": {
+      "mesh": "max(16, floor(P01)) endpoint triangles over training-positive endpoints",
+      "point": "max(32, floor(P01)) endpoint vertices over training-positive endpoints"
+    },
+    "proximity": {
+      "satisfied": "normalized surface distance <= training-positive P90",
+      "uncertain": "training-positive P90 < normalized surface distance <= training-positive P99",
+      "violated": "normalized surface distance > training-positive P99"
+    },
+    "relative_vertical": {
+      "margin": "training-positive P10 of the absolute predicate-signed normalized surface-elevation difference",
+      "satisfied": "signed difference >= margin",
+      "uncertain": "absolute signed difference < margin",
+      "violated": "signed difference <= -margin"
+    },
+    "unsupported": "either endpoint falls below the frozen representation-specific surface-support threshold or the required surface statistic is unavailable"
+  },
+  "uncertainty": {
+    "bootstrap_unit": "scan_id cluster",
+    "paired_comparison": "RelCompat3D minus Source",
+    "resamples": 1000,
+    "seed": 20260717,
+    "shared_scan_indices": "the same 157-scan resampling indices are used for every source, method, K, metric, and audit"
+  }
+}

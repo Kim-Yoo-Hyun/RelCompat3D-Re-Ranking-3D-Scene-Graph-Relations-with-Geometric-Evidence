@@ -207,15 +207,15 @@ def main() -> int:
         raise ValueError("protocol_not_frozen")
     manifest_path = rows_dir / "manifest.json"
     manifest_sha = sha256_file(manifest_path)
-    if manifest_sha != protocol["input_bundle"]["manifest_sha256"]:
-        raise ValueError(f"row_bundle_manifest_hash_mismatch:{manifest_sha}")
+    if manifest_sha != protocol["input_rows"]["manifest_sha256"]:
+        raise ValueError(f"table_rows_manifest_hash_mismatch:{manifest_sha}")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("status") != "completed":
-        raise ValueError("row_bundle_incomplete")
+        raise ValueError("table_rows_incomplete")
     for name, spec in manifest["files"].items():
         path = rows_dir / name
         if sha256_file(path) != spec["sha256"]:
-            raise ValueError(f"row_bundle_file_hash_mismatch:{name}")
+            raise ValueError(f"table_rows_file_hash_mismatch:{name}")
 
     ground_truth, ground_truth_by_family, denominator = load_ground_truth(
         rows_dir / "ground_truth.csv.gz"
@@ -242,7 +242,7 @@ def main() -> int:
             )
 
     validations = {
-        "row_bundle_hashes_match": True,
+        "table_rows_hashes_match": True,
         "ground_truth_denominator": (
             denominator == protocol["scope"]["ground_truth_denominator"]
         ),
@@ -355,7 +355,7 @@ def main() -> int:
                 "path": relpath(root, protocol_path),
                 "sha256": sha256_file(protocol_path),
             },
-            "row_bundle": {
+            "table_rows": {
                 "path": relpath(root, rows_dir),
                 "manifest_sha256": manifest_sha,
             },

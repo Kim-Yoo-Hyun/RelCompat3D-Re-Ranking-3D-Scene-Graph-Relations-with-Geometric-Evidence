@@ -1,0 +1,43 @@
+{
+  "claim_boundary": "This is an apples-to-apples fusion comparison on a shared 3DSSG target. It tests score construction under fixed routing, not dataset-level generalization or universal formula superiority.",
+  "created_at_kst": "2026-07-20",
+  "evaluation": {
+    "bootstrap_resamples": 1000,
+    "bootstrap_seed": 20260715,
+    "bootstrap_unit": "scan_id cluster",
+    "ks": [
+      5,
+      10,
+      20,
+      50,
+      100
+    ]
+  },
+  "inputs": {
+    "ground_truth": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+    "nonlinear_models": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/nonlinear/models.json",
+    "official_context_annotations": "local_dataset/3DSSG_subset/relationships_validation.json",
+    "open3dsg_reference": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/open3dsg_route/summary.json",
+    "open3dsg_verification": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/geometry/verification.jsonl",
+    "routing_reference": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/support_routing/summary.json",
+    "sgfn_verification": "experiments/RelCompat3D_geom_reliability/sources/sgfn/geometry/verification.jsonl",
+    "strict_models": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/strict_models.json",
+    "structured_models": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/structured_models.json",
+    "vlsat_verification": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/geometry/verification.jsonl"
+  },
+  "locked_sha256": {
+    "nonlinear_models": "ccf4107c06d95161df8ecb1948b37f781025407d7b3596ddd6886394a2976c3e",
+    "strict_models": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2",
+    "structured_models": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+  },
+  "parent_lock": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/final_lock.json",
+  "purpose": "All-K matched comparison for the locked no-family-indicator compatibility.",
+  "routing": {
+    "family_slots": "preserve the source-ranked predicate-family sequence",
+    "proximity_and_relative_vertical": "rerank within family using the comparator-specific score",
+    "source_specific_refitting": false,
+    "support_contact": "retain source order"
+  },
+  "schema_version": "relcompat3d_routed_comparator_protocol_v1",
+  "status": "frozen_before_routed_comparator_evaluation"
+}

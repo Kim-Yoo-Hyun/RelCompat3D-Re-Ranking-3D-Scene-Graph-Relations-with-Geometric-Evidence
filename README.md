@@ -70,23 +70,24 @@ Obtain 3RScan/3DSSG and the source predictors from their official projects:
 - [Open3DSG](https://github.com/boschresearch/Open3DSG)
 
 The repository does not redistribute licensed scans, meshes, annotations,
-dataset-derived candidate rows, or third-party checkpoints. Authorized users
-can create the derived evaluation bundle with:
+dataset-derived candidate rows, or third-party checkpoints. After obtaining
+the official data and generating fixed predictions with the official source
+predictor repositories, prepare the canonical inputs described in
+[docs/data.md](docs/data.md). Then create the local table rows with:
 
 ```bash
 docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_export_rows
 ```
 
-The required input layout and hashes are specified in
-[docs/data.md](docs/data.md). The resulting bundle belongs at:
+The resulting local intermediate belongs at:
 
 ```text
-experiments/RelCompat3D_geom_reliability/row_reproduction_v1/artifacts/derived_rows/
+experiments/RelCompat3D_geom_reliability/paper_reproduction/artifacts/table_rows/
 ```
 
 ## 4. Reproduce Tables 1--3 and Figure 3
 
-After restoring the derived rows, run:
+After creating the local table rows, run:
 
 ```bash
 scripts/reproduce_tables.sh
@@ -95,7 +96,7 @@ scripts/reproduce_tables.sh
 Outputs are written to:
 
 ```text
-experiments/RelCompat3D_geom_reliability/row_reproduction_v1/regenerated/
+experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/
 ```
 
 The command regenerates CSV and LaTeX versions of Tables 1--3, Figure 3 data
@@ -110,8 +111,8 @@ The full RelCompat3D pipeline requires the licensed inputs listed in
 place, run:
 
 ```bash
-docker compose -f configs/relcompat3d/compose.yaml run --rm no_family_indicator_fit
-docker compose -f configs/relcompat3d/compose.yaml run --rm no_family_indicator_freeze_initial
+docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit
+docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_freeze_initial
 scripts/run_pipeline.sh initial
 scripts/run_pipeline.sh downstream
 ```
@@ -124,7 +125,7 @@ Additional controls, robustness analyses, and audit services are listed in
 Frozen compact outputs are tracked for inspection and integrity checks. The
 active result map is [results/relcompat3d_geom_reliability/manifest.json](results/relcompat3d_geom_reliability/manifest.json),
 and the main table files are under
-[`row_reproduction_v1/evaluation`](experiments/RelCompat3D_geom_reliability/row_reproduction_v1/evaluation).
+[`paper_reproduction/evaluation`](experiments/RelCompat3D_geom_reliability/paper_reproduction/evaluation).
 See [docs/results.md](docs/results.md) for scope and metric definitions.
 
 At `K=50`, the reported Recall/Violation percentages are:
@@ -146,8 +147,9 @@ There are three supported levels:
    results.
 2. Git plus the public RelCompat3D model archive restores all learned
    compatibility parameters.
-3. Git plus authorized 3RScan/3DSSG inputs and source-predictor outputs
-   regenerates the paper tables and supports full fitting and evaluation.
+3. A Git checkout combined with officially obtained 3RScan/3DSSG data and
+   outputs generated with the official source-predictor repositories supports
+   local row export, paper-table regeneration, fitting, and evaluation.
 
 Source-predictor inference remains governed by the official VL-SAT, SGFN, and
 Open3DSG repositories. This project does not repackage their environments or

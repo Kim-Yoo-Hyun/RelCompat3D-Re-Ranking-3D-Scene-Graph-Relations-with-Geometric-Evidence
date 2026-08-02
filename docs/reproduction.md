@@ -22,16 +22,17 @@ scripts/validate.sh --require-models
 
 The download script verifies both the archive and each extracted model file.
 
-## C. Regenerate paper tables from authorized rows
+## C. Regenerate paper tables from local rows
 
-Place the derived bundle at the path documented in `docs/data.md`, then run:
+Generate the local rows from official inputs as described in `docs/data.md`,
+then run:
 
 ```bash
 scripts/reproduce_tables.sh
 ```
 
 The output directory is
-`experiments/RelCompat3D_geom_reliability/row_reproduction_v1/regenerated/`.
+`experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/`.
 The command creates Tables 1--3 as CSV and LaTeX, Figure 3 data and renderings,
 and `canonical_validation.csv`. A valid reproduction reports 291 passing cells
 with maximum absolute error no larger than `1e-12`.
@@ -41,8 +42,8 @@ with maximum absolute error no larger than `1e-12`.
 After all protocol inputs are mounted at their expected paths:
 
 ```bash
-docker compose -f configs/relcompat3d/compose.yaml run --rm no_family_indicator_fit
-docker compose -f configs/relcompat3d/compose.yaml run --rm no_family_indicator_freeze_initial
+docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit
+docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_freeze_initial
 scripts/run_pipeline.sh initial
 scripts/run_pipeline.sh downstream
 ```
@@ -52,7 +53,7 @@ whose manifest already records `completed`.
 
 ## E. Supplementary analyses
 
-Each command below uses a frozen protocol and writes into its versioned
+Each command below uses a frozen protocol and writes into its corresponding
 experiment directory. Public protocol paths use the `local_dataset/` layout
 while retaining the input content hashes from the reported runs.
 
@@ -61,11 +62,11 @@ compose="docker compose -f configs/relcompat3d/compose.yaml"
 
 $compose run --rm relcompat3d_score_robustness
 $compose run --rm relcompat3d_routing_constraints
-$compose run --rm relcompat3d_construct_dependence
-$compose run --rm relcompat3d_component_diagnostics
+$compose run --rm relcompat3d_measurement_audit
+$compose run --rm relcompat3d_component_analysis
 $compose run --rm relcompat3d_seed_robustness
 $compose run --rm relcompat3d_candidate_oracle
-$compose run --rm no_family_indicator_runtime
+$compose run --rm relcompat3d_runtime
 ```
 
 ## F. Source-predictor inference
@@ -81,10 +82,10 @@ rows.
 
 | Task | Output |
 | --- | --- |
-| Model fitting | `no_family_indicator_v1/fit/` |
-| Main evaluation | `no_family_indicator_v1/evaluation/` |
-| Table regeneration | `row_reproduction_v1/regenerated/` |
-| Candidate oracle | `candidate_oracle_v1/regenerated/` |
+| Model fitting | `main_experiment/fit/` |
+| Main evaluation | `main_experiment/evaluation/` |
+| Table regeneration | `paper_reproduction/regenerated/` |
+| Candidate oracle | `candidate_oracle/regenerated/` |
 | Compact result index | `results/relcompat3d_geom_reliability/manifest.json` |
 
 ## What a fresh server still needs
@@ -93,8 +94,8 @@ rows.
 - official 3RScan/3DSSG access
 - source-predictor environments and checkpoints for source inference
 - the public RelCompat3D model archive
-- either authorized canonical inputs for row export or an authorized derived
-  row bundle for paper-table regeneration
+- canonical geometry and prediction inputs prepared locally from the official
+  data and source-predictor repositories
 
 The Git repository alone intentionally cannot reconstruct licensed geometry or
 third-party predictions.

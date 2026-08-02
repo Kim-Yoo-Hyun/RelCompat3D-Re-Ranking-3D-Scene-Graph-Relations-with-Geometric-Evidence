@@ -4,7 +4,7 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
 
-rows="experiments/RelCompat3D_geom_reliability/row_reproduction_v1/artifacts/derived_rows"
+rows="experiments/RelCompat3D_geom_reliability/paper_reproduction/artifacts/table_rows"
 required=(
   ground_truth.csv.gz
   open3dsg_candidates.csv.gz

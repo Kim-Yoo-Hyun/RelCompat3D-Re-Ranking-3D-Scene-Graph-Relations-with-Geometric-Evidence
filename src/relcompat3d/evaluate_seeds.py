@@ -373,7 +373,7 @@ def main() -> int:
     }
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_five_seed_robustness_v1",
+        "schema_version": "relcompat3d_five_seed_robustness",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "model_seeds": seeds,

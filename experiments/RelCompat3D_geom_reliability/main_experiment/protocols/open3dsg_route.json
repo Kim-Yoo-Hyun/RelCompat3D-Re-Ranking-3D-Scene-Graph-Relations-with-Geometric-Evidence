@@ -1,0 +1,39 @@
+{
+  "claim_boundary": "The 533 route is public-pipeline-faithful but has a reduced eligibility denominator. The 548 recovery is not the unmodified public route. Neither is a full Open3DSG paper reproduction claim.",
+  "created_at_kst": "2026-07-20",
+  "evaluation": {
+    "bootstrap_resamples": 1000,
+    "bootstrap_seed": 20260714,
+    "ks": [
+      5,
+      10,
+      20,
+      50,
+      100
+    ]
+  },
+  "inputs": {
+    "ground_truth": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+    "missing15_diagnosis": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/preprocess_missing15_diagnosis/summary.json",
+    "official_context_annotations": "local_dataset/3DSSG_subset/relationships_validation.json",
+    "official_verification": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/geometry/verification.jsonl",
+    "recovered_verification": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+    "strict_models": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/strict_models.json",
+    "structured_models": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/structured_models.json"
+  },
+  "parent_lock": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/final_lock.json",
+  "public_pipeline": {
+    "drop_reason": "fewer than four annotation objects retain object2image view metadata after the public visibility filter",
+    "dropped_contexts": 15,
+    "eligible_contexts": 533,
+    "visible_object_gate": 4
+  },
+  "purpose": "Re-evaluate Open3DSG coverage routes with the locked no-family-indicator compatibility.",
+  "routes": {
+    "official_eligible_533": "unmodified public pipeline and eligible-context denominator",
+    "official_strict_full_548": "unmodified predictions with all 548 GT contexts retained; missing 15 receive no predictions",
+    "recovered_full_548": "OPEN3DSG_MIN_VISIBLE_OBJECTS=2 plus relaxed view regeneration for two scans"
+  },
+  "schema_version": "relcompat3d_open3dsg_official_route_protocol_v1",
+  "status": "frozen_before_official_route_sensitivity"
+}

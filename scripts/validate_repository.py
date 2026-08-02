@@ -12,8 +12,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPERIMENT = ROOT / "experiments/RelCompat3D_geom_reliability"
-REFERENCE = EXPERIMENT / "row_reproduction_v1/evaluation"
-REGENERATED = EXPERIMENT / "row_reproduction_v1/regenerated"
+REFERENCE = EXPERIMENT / "paper_reproduction/evaluation"
+REGENERATED = EXPERIMENT / "paper_reproduction/regenerated"
 
 
 def sha256(path: Path) -> str:
@@ -80,13 +80,13 @@ def validate_result_index() -> tuple[int, int]:
         artifact_count += 1
 
     manifest_paths = {
-        "score_robustness_manifest_sha256": "score_robustness_v1",
-        "routing_controls_manifest_sha256": "routing_controls_v1",
-        "construct_dependence_manifest_sha256": "construct_dependence_v1",
-        "component_diagnostics_manifest_sha256": "component_diagnostics_v1",
-        "seed_robustness_manifest_sha256": "seed_robustness_v1",
-        "row_reproduction_manifest_sha256": "row_reproduction_v1",
-        "candidate_oracle_manifest_sha256": "candidate_oracle_v1",
+        "score_robustness_manifest_sha256": "score_robustness",
+        "routing_controls_manifest_sha256": "routing_controls",
+        "measurement_audit_manifest_sha256": "measurement_audit",
+        "component_analysis_manifest_sha256": "component_analysis",
+        "seed_robustness_manifest_sha256": "seed_robustness",
+        "paper_reproduction_manifest_sha256": "paper_reproduction",
+        "candidate_oracle_manifest_sha256": "candidate_oracle",
     }
     verified = 0
     for key, directory in manifest_paths.items():

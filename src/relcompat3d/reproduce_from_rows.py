@@ -766,17 +766,17 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_derived_row_export":
+    if protocol.get("status") != "frozen_before_table_row_export":
         raise ValueError("protocol_not_frozen")
 
     manifest_path = rows_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("status") != "completed":
-        raise ValueError("row_bundle_incomplete")
+        raise ValueError("table_rows_incomplete")
     for name, spec in manifest["files"].items():
         path = rows_dir / name
         if not path.exists() or sha256_file(path) != spec["sha256"]:
-            raise ValueError(f"row_bundle_hash_mismatch:{name}")
+            raise ValueError(f"table_rows_hash_mismatch:{name}")
     for name, spec in protocol["canonical_references"].items():
         path = resolve(root, spec["path"])
         if sha256_file(path) != spec["sha256"]:
@@ -796,7 +796,7 @@ def main() -> int:
     )
     figure_rows = figure_data_rows(table1)
     validations = {
-        "row_bundle_hashes_match": True,
+        "table_rows_hashes_match": True,
         "canonical_reference_hashes_match": True,
         "ground_truth_denominator_3972": (
             ground_truth_rows
@@ -865,7 +865,7 @@ def main() -> int:
         "schema_version": "relcompat3d_row_reproduction_summary_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
-        "row_bundle_manifest_sha256": sha256_file(manifest_path),
+        "table_rows_manifest_sha256": sha256_file(manifest_path),
         "ground_truth_rows": ground_truth_rows,
         "candidate_row_audits": row_audits,
         "canonical_cells": len(validation_rows),
@@ -895,7 +895,7 @@ def main() -> int:
                 f"- Maximum absolute error: {max_error:.3e}",
                 f"- Required tolerance: {float(protocol['scope']['numerical_tolerance']):.1e}",
                 "",
-                "The regenerated Tables 1--3 and Figure 3 data are derived only from the de-identified row bundle. The rendering verifies the numerical figure data.",
+                "The regenerated Tables 1--3 and Figure 3 use only the local table rows. The rendering verifies the numerical figure data.",
                 "",
             )
         ),
@@ -912,7 +912,7 @@ def main() -> int:
                 "path": relpath(root, protocol_path),
                 "sha256": sha256_file(protocol_path),
             },
-            "row_bundle": {
+            "table_rows": {
                 "path": relpath(root, rows_dir),
                 "manifest_sha256": sha256_file(manifest_path),
             },

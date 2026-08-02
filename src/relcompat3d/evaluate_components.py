@@ -121,7 +121,7 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_component_diagnostics":
+    if protocol.get("status") != "frozen_before_component_analysis":
         raise ValueError("protocol_not_frozen")
     if tuple(protocol["conditions"]) != CONDITIONS:
         raise ValueError("condition_contract_mismatch")
@@ -342,7 +342,7 @@ def main() -> int:
     }
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_component_diagnostics_v1",
+        "schema_version": "relcompat3d_component_analysis",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "conditions": protocol["condition_definitions"],
@@ -422,7 +422,7 @@ def main() -> int:
     controls.write_json(
         out / "manifest.json",
         {
-            "schema_version": "relcompat3d_component_diagnostics_manifest_v1",
+            "schema_version": "relcompat3d_component_analysis_manifest_v1",
             "status": status,
             "protocol": {
                 "path": controls.relpath(root, protocol_path),
@@ -440,7 +440,7 @@ def main() -> int:
             "docker_command": (
                 "env UID=$(id -u) GID=$(id -g) docker compose -f "
                 "configs/relcompat3d/compose.yaml run --rm "
-                "relcompat3d_component_diagnostics"
+                "relcompat3d_component_analysis"
             ),
         },
     )

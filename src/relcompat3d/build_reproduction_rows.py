@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export a deterministic pseudonymized row bundle for paper reproduction."""
+"""Export deterministic local table rows for paper reproduction."""
 
 from __future__ import annotations
 
@@ -357,7 +357,7 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_derived_row_export":
+    if protocol.get("status") != "frozen_before_table_row_export":
         raise ValueError("protocol_not_frozen")
 
     paths: dict[str, Path] = {}
@@ -528,7 +528,7 @@ def main() -> int:
     write_json(
         manifest_path,
         {
-            "schema_version": "relcompat3d_row_bundle_manifest_v1",
+            "schema_version": "relcompat3d_table_rows_manifest_v1",
             "created_at_utc": datetime.now(timezone.utc).isoformat(),
             "status": status,
             "protocol": {
