@@ -76,7 +76,8 @@ Run VL-SAT, SGFN, and Open3DSG with their official environments, then adapt
 their fixed candidates to the hash-locked RelCompat3D row contracts. This
 keeps third-party dependencies and licenses separate. Exact source-predictor
 versions and checkpoints should be recorded alongside any newly generated
-rows.
+rows. Restore the selected Open3DSG checkpoint with
+`scripts/download_open3dsg_checkpoint.sh` when reproducing that source model.
 
 ## Expected outputs
 

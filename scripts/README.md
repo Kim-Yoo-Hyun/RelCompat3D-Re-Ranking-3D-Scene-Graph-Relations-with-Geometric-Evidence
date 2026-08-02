@@ -1,6 +1,8 @@
 # Scripts
 
 - `download_models.sh`: download and verify the external RelCompat3D model archive.
+- `download_open3dsg_checkpoint.sh`: restore and verify the selected Open3DSG
+  source checkpoint at its expected local path.
 - `validate.sh`: validate Compose, Python sources, JSON artifacts, model hashes,
   and frozen table cells.
 - `reproduce_tables.sh`: regenerate Tables 1--3 and Figure 3 from table rows

@@ -58,6 +58,13 @@ scripts/validate.sh --require-models
 See [docs/models.md](docs/models.md) for the file list, model hashes, source
 predictor links, and the Open3DSG checkpoint path.
 
+For exact Open3DSG source-model inference, restore the selected checkpoint
+separately:
+
+```bash
+scripts/download_open3dsg_checkpoint.sh
+```
+
 ## 3. Prepare data and prediction rows
 
 Obtain 3RScan/3DSSG and the source predictors from their official projects:

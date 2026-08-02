@@ -38,14 +38,21 @@ local_dataset/Open3DSG_staged/training_repro/mlops/opensg/mlflow/
 epoch=13-step=13104.ckpt
 ```
 
-The current checkpoint file is stored separately at:
+The selected checkpoint is stored separately at:
 
-https://drive.google.com/file/d/1PJNduscoRAB6cQcggBOo-ErzkiBs_QDG/view
+https://drive.google.com/file/d/1PJNduscoRAB6cQcggBOo-ErzkiBs_QDG/view?usp=sharing
 
-This link currently requires Google Drive access. Before a public release, the
-repository owner must either enable link-based download or publish a replacement
-URL and checksum. The fixed prediction rows are sufficient for table
-regeneration; the checkpoint is required only for source-model inference.
+The shared file is named `epoch=13-step=13104.ckpt` and has size
+419,735,447 bytes. Its SHA-256 digest is
+`c1302882da43a7b985c10dd4f50177d5161ff6619090cd0eb4d5ff0411d64511`.
+Restore and verify it at the path above with:
+
+```bash
+scripts/download_open3dsg_checkpoint.sh
+```
+
+The checkpoint is not needed for table regeneration from locally prepared
+fixed prediction rows.
 
 ## License boundary
 
