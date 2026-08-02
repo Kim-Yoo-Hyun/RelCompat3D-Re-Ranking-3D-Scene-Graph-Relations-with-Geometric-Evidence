@@ -29,8 +29,8 @@ Docker is the canonical environment. The image uses Python 3.11.9 and the
 fully pinned `requirements.lock.txt` environment.
 
 ```bash
-git clone https://github.com/Kim-Yoo-Hyun/RelCompat3D.git
-cd RelCompat3D
+git clone https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence.git
+cd RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence
 docker compose -f configs/relcompat3d/compose.yaml build relcompat3d_reproduce_rows
 scripts/validate.sh
 ```
@@ -161,6 +161,10 @@ There are three supported levels:
 Source-predictor inference remains governed by the official VL-SAT, SGFN, and
 Open3DSG repositories. This project does not repackage their environments or
 weights.
+
+The repository does not provide a single command from raw dataset download
+through inference of all three source predictors; data access and
+source-predictor inference follow their official repositories.
 
 ## Citation
 
