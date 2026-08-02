@@ -1,0 +1,64 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.structured.yaml run --rm open3dsg_official_route_sensitivity",
+  "inputs": {
+    "ground_truth": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "missing15_diagnosis": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/preprocess_missing15_diagnosis/summary.json",
+      "sha256": "0f3f2a9da190d82e1fdd6b996854029e0774234b5793c6490429852bbfa7df7f"
+    },
+    "official_context_annotations": {
+      "path": "local_dataset/3DSSG_subset/relationships_validation.json",
+      "sha256": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e"
+    },
+    "official_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/geometry/verification.jsonl",
+      "sha256": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720"
+    },
+    "recovered_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+      "sha256": "89ab2324654d07e8c2bde2c4aec3b5bdf9b916898b7e0bb40d4f9c582d58c58e"
+    },
+    "strict_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/strict_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2"
+    },
+    "structured_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/structured_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    }
+  },
+  "outputs": {
+    "metrics.csv": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/open3dsg_route/metrics.csv",
+      "sha256": "76edbabdfe24c1adc2d9dafcfbd2fca23a811437d144072a3ddb0526b8b917c7"
+    },
+    "summary.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/open3dsg_route/summary.json",
+      "sha256": "3ba923e319061f4e35b547b9ba14b9ee4f2711e93d048ab001c5ce6c2955ab5d"
+    },
+    "summary.md": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/open3dsg_route/summary.md",
+      "sha256": "ded76ac5c399281aa8d2a65dec16e50580d5173b8d6d0d7375f241161e6d90e5"
+    }
+  },
+  "protocol": {
+    "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/open3dsg_route.json",
+    "sha256": "ee7a6aaf26cada366d685ba10651d2e0413f9be9bf399283ccf440fed598f413"
+  },
+  "schema_version": "relcompat3d_open3dsg_official_route_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_routes_methods_and_k": true,
+    "full_routes_gt_denominator_3972": true,
+    "missing_contexts_15": true,
+    "official_candidate_contexts_533": true,
+    "official_context_universe_548": true,
+    "official_eligible_evaluation_contexts_533": true,
+    "public_gate_is_four_visible_objects": true,
+    "recovered_contexts_548": true,
+    "strict_full_has_15_zero_prediction_contexts": true
+  }
+}

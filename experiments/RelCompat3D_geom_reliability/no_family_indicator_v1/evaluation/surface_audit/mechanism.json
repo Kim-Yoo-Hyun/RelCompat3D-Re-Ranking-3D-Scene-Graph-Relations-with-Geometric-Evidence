@@ -1,0 +1,52 @@
+{
+  "families": {
+    "proximity": {
+      "compatibility": {
+        "covered_cases": 512,
+        "mean_endpoint_change": -0.5159384582694311,
+        "median_endpoint_change": -0.5420823980104353,
+        "monotonicity_rate": 1.0
+      },
+      "mesh": {
+        "covered_cases": 512,
+        "mean_endpoint_change": 1.5773886152496766,
+        "median_endpoint_change": 1.778559863226416,
+        "monotonicity_rate": 0.9453125
+      },
+      "point": {
+        "covered_cases": 512,
+        "mean_endpoint_change": 1.6296539830634238,
+        "median_endpoint_change": 1.80802867642654,
+        "monotonicity_rate": 0.962890625
+      },
+      "selected_cases": 512
+    },
+    "relative_vertical": {
+      "compatibility": {
+        "covered_cases": 512,
+        "mean_endpoint_change": 0.17983650540222576,
+        "median_endpoint_change": 0.01344336296770543,
+        "monotonicity_rate": 1.0
+      },
+      "mesh": {
+        "covered_cases": 512,
+        "mean_endpoint_change": 2.0,
+        "median_endpoint_change": 2.0,
+        "monotonicity_rate": 1.0
+      },
+      "point": {
+        "covered_cases": 512,
+        "mean_endpoint_change": 2.0,
+        "median_endpoint_change": 2.0,
+        "monotonicity_rate": 1.0
+      },
+      "selected_cases": 512
+    }
+  },
+  "levels_in_pair_scale_units": [
+    0.0,
+    0.5,
+    1.0,
+    2.0
+  ]
+}

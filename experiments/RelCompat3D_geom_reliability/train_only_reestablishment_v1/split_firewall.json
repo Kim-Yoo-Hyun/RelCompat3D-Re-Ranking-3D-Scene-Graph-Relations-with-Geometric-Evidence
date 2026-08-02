@@ -1,0 +1,46 @@
+{
+  "counts": {
+    "final_validation": {
+      "contexts": 548,
+      "directed_pairs": 36808,
+      "in_scope_gt": 3972,
+      "scans": 157
+    },
+    "internal_dev": {
+      "contexts": 354,
+      "directed_pairs": 23228,
+      "in_scope_gt": 2730,
+      "scans": 117
+    },
+    "train": {
+      "contexts": 3498,
+      "directed_pairs": 233228,
+      "in_scope_gt": 26253,
+      "scans": 1061
+    }
+  },
+  "hashes": {
+    "final_validation_annotations": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e",
+    "final_validation_scans": "a3ce6f256add950ea74e15680c5743e34351bc3ce663dc3a3aa5bd9cf4a6c2d9",
+    "internal_dev_scans": "56f342ef63d5944b65abff2c53fc493db1aad97ce46d3d83b72fe7f0156fa3c4",
+    "train_annotations": "88b88bf87948b18a907b7bc9e23222cac428449f5a04512f550f8b220127fd15",
+    "train_scans": "cb78163a49904f121ba548aeda8e3a862dd885489604c21d2c981eaa9b54fbe8"
+  },
+  "roles": {
+    "final_validation": "evaluation only after final lock; never selection or repair",
+    "internal_dev": "method acceptance and diagnostics only; never fit statistics or weights",
+    "train": "all fitting, normalization, imputation, counterfactual construction"
+  },
+  "schema_version": "relcompat3d_train_only_reestablishment_v1",
+  "status": "split_firewall_ready",
+  "validations": {
+    "all_raw_scan_directories_present": true,
+    "annotation_train_final_disjoint": true,
+    "context_counts_3498_354_548": true,
+    "denominators_26253_2730_3972": true,
+    "final_annotations_exactly_cover_final_split": true,
+    "split_counts_1061_117_157": true,
+    "split_sets_pairwise_disjoint": true,
+    "train_annotations_exactly_cover_train_plus_internal_dev": true
+  }
+}

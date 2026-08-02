@@ -1,0 +1,71 @@
+{
+  "counts": {
+    "dev_rows": 1193,
+    "dev_scans": 8,
+    "input_rows": 5809,
+    "labels_dev": {
+      "0": 678,
+      "1": 515
+    },
+    "labels_train": {
+      "0": 2566,
+      "1": 2050
+    },
+    "train_rows": 4616,
+    "train_scans": 24
+  },
+  "created_at_utc": "2026-07-10T11:55:08.376730+00:00",
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm factor_isolation_model_fit",
+  "inputs": {
+    "calibration_table": {
+      "path": "archive/hypothesis_records/hypothesis/CAND-001/RelCompat3D_geometry-grounded-verification/artifacts/calibration/train_dev_calib/table.jsonl",
+      "sha256": "276283ae03b2a72f30e660a4e00d36b3a9303ec825d41d2b3a0cf1ea3b8bacb5"
+    },
+    "dev_scans": {
+      "path": "archive/hypothesis_records/hypothesis/CAND-001/RelCompat3D_geometry-grounded-verification/artifacts/subset/relcompat3d_calib_pilot/dev_scans.txt",
+      "sha256": "3c4ff879d1c7c0ce1d2d7eb76155e1946e1d5b635f2e063e92162ed8087b3cff"
+    },
+    "protocol": {
+      "path": "experiments/RelCompat3D_geom_reliability/factor_isolation_protocol/frozen_v1/manifest.json",
+      "sha256": "a7d73d2f576a5759d4d14f78a35f6e3981a94712575314bf839c27812b1924d2"
+    },
+    "train_scans": {
+      "path": "archive/hypothesis_records/hypothesis/CAND-001/RelCompat3D_geometry-grounded-verification/artifacts/subset/relcompat3d_calib_pilot/train_scans.txt",
+      "sha256": "74087d220a87fc8f27fc1976e893bfbb86ca12e3753c580dc4fbdc8cb3cbf375"
+    }
+  },
+  "outputs": {
+    "dev_diagnostics": {
+      "path": "experiments/RelCompat3D_geom_reliability/factor_isolation_protocol/fitted_v1/dev_diagnostics.json",
+      "sha256": "3a1fb0bdcb5acaf85302dc7bc718c41cf5a8b7d20f1e37f54e9a93152b75b54c"
+    },
+    "models": {
+      "path": "experiments/RelCompat3D_geom_reliability/factor_isolation_protocol/fitted_v1/models.json",
+      "sha256": "a70884488bf1ded14a1d39c36c29fb3bfce92126615f70e95c9bd9945a4c9222"
+    }
+  },
+  "schema_version": "relcompat3d_factor_isolation_fitted_models_v1",
+  "selection_boundary": "No target/source output was read; dev diagnostics did not select features, conditions, or hyperparameters.",
+  "status": "factor_models_frozen_pre_fresh_source_inference",
+  "validations": {
+    "M_G:finite_weights": true,
+    "M_G:parameter_count_18": true,
+    "M_G:train_only_stats": true,
+    "M_T:finite_weights": true,
+    "M_T:parameter_count_10": true,
+    "M_T:train_only_stats": true,
+    "M_add:finite_weights": true,
+    "M_add:parameter_count_27": true,
+    "M_add:train_only_stats": true,
+    "M_int:finite_weights": true,
+    "M_int:parameter_count_29": true,
+    "M_int:train_only_stats": true,
+    "dev_rows_1193": true,
+    "dev_scans_8": true,
+    "no_source_or_Z_features": true,
+    "train_dev_disjoint": true,
+    "train_rows_4616": true,
+    "train_scans_24": true
+  },
+  "warnings": []
+}

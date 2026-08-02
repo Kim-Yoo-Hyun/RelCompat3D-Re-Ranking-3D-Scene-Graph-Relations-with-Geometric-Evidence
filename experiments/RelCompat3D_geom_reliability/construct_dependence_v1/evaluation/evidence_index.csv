@@ -1,0 +1,7 @@
+evidence,artifact,supports,does_not_support
+feature_removal,held_out_primitive,"Sensitivity after removing the exact verifier scalar, the complete related primitive family, or retaining only alternative evidence.",Independence between training targets and the primary verifier.
+point_mesh_linear,surface_audit,Direction of Linear ranking changes under labels derived without OBB inputs or primary status labels.,Human physical-validity ground truth or dataset-level generalization.
+point_mesh_mlp,mlp_surface_audit,Direction of MLP ranking changes under the same alternative point/mesh construct.,Independent ontology or sensor evidence.
+uncertainty_policy,score_robustness_v1/evaluation/summary.json,"Primary conclusions under all-row, decidable-only, and uncertain-as-violated denominators.",Correctness of any individual uncertain label.
+counterfactual_sensitivity,counterfactual_sensitivity,Stability to pre-specified negative-construction and pair-weight variations.,Fully independent target construction.
+component_removals,component_removals,Direct effects of the linked pairwise loss and transformation averaging for the Linear estimator.,Component necessity for the MLP estimator.

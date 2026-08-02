@@ -1,0 +1,192 @@
+{
+  "definition": "independent factor-ledger scorer versus canonical frozen family scorer; semantic Z is read only for product continuity",
+  "no_overwrite_rule": {
+    "existing_metric_mutation": false,
+    "existing_prediction_or_verification_mutation": false,
+    "family_model_refit": false,
+    "new_factor_conditions_may_not_replace_existing_score_on_seen_sources": true
+  },
+  "schema_version": "relcompat3d_factor_isolation_protocol_v1",
+  "sources": {
+    "open3dsg_recovery_full_validation": {
+      "counts": {
+        "family:proximity": 26766,
+        "family:relative_vertical": 53532,
+        "family:support_contact": 80298,
+        "in_scope_rows": 160596,
+        "in_scope_subgraphs": 548,
+        "input_rows": 695916,
+        "input_subgraphs": 548
+      },
+      "equivalence": {
+        "canonical_score_stream_sha256": "8c61932f0002db9766a95da78f6d4f704356aff5b2a48132349b3c5819aa7b9f",
+        "compatibility_exact_matches": 160596,
+        "independent_score_stream_sha256": "8c61932f0002db9766a95da78f6d4f704356aff5b2a48132349b3c5819aa7b9f",
+        "max_abs_compatibility_error": 0.0,
+        "max_abs_product_error": 0.0,
+        "mismatch_examples": [],
+        "product_exact_matches": 160596,
+        "rank_average_invariance": {
+          "compatibility_operand_bit_exact": true,
+          "semantic_operand": "unchanged_source_score_Z",
+          "status": "proven_by_identical_semantic_and_compatibility_operands",
+          "tie_breaker": "unchanged_prediction_key"
+        }
+      },
+      "expected": {
+        "evaluation_subgraphs": 548,
+        "in_scope_rows": 160596,
+        "input_rows": 695916
+      },
+      "input_paths": {
+        "predictions": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/recovery_relaxed_views_min2/adapter/predictions.jsonl",
+        "verification": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl"
+      },
+      "input_sha256": {
+        "predictions": "3f6d1b3ecb6b7572e648abc664b9c76df7e1aefd247bc6ee5e5df29bfc149d91",
+        "verification": "89ab2324654d07e8c2bde2c4aec3b5bdf9b916898b7e0bb40d4f9c582d58c58e"
+      },
+      "role": "retrospective_open_vocabulary_case_post_hoc_mechanism_diagnostic",
+      "source": "open3dsg_recovery_full_validation",
+      "validations": {
+        "all_in_scope_rows_scored": true,
+        "compatibility_bit_exact_all_rows": true,
+        "evaluation_subgraph_count_exact": true,
+        "in_scope_row_count_exact": true,
+        "in_scope_rows_cover_all_evaluation_subgraphs": true,
+        "input_row_count_exact": true,
+        "product_bit_exact_all_rows": true,
+        "score_stream_sha256_equal": true
+      }
+    },
+    "sgfn_official_full_l160": {
+      "counts": {
+        "family:proximity": 36808,
+        "family:relative_vertical": 73616,
+        "family:support_contact": 110424,
+        "in_scope_rows": 220848,
+        "in_scope_subgraphs": 548,
+        "input_rows": 957008,
+        "input_subgraphs": 548
+      },
+      "equivalence": {
+        "canonical_score_stream_sha256": "d5ecd7b1e9821c99cb2231ad540dd3c7fb3825eb32c5c8c591519b593048bf5f",
+        "compatibility_exact_matches": 220848,
+        "independent_score_stream_sha256": "d5ecd7b1e9821c99cb2231ad540dd3c7fb3825eb32c5c8c591519b593048bf5f",
+        "max_abs_compatibility_error": 0.0,
+        "max_abs_product_error": 0.0,
+        "mismatch_examples": [],
+        "product_exact_matches": 220848,
+        "rank_average_invariance": {
+          "compatibility_operand_bit_exact": true,
+          "semantic_operand": "unchanged_source_score_Z",
+          "status": "proven_by_identical_semantic_and_compatibility_operands",
+          "tie_breaker": "unchanged_prediction_key"
+        }
+      },
+      "expected": {
+        "evaluation_subgraphs": 548,
+        "in_scope_rows": 220848,
+        "input_rows": 957008
+      },
+      "input_paths": {
+        "predictions": "experiments/RelCompat3D_geom_reliability/sources/sgfn/adapter/predictions.jsonl",
+        "verification": "experiments/RelCompat3D_geom_reliability/sources/sgfn/geometry/verification.jsonl"
+      },
+      "input_sha256": {
+        "predictions": "3512ae501bb701a572d556118e564b8d3474046bf73a2a369b51ca24f192a575",
+        "verification": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+      },
+      "role": "originally_confirmatory_source_but_new_controls_strictly_post_hoc",
+      "source": "sgfn_official_full_l160",
+      "validations": {
+        "all_in_scope_rows_scored": true,
+        "compatibility_bit_exact_all_rows": true,
+        "evaluation_subgraph_count_exact": true,
+        "in_scope_row_count_exact": true,
+        "in_scope_rows_cover_all_evaluation_subgraphs": true,
+        "input_row_count_exact": true,
+        "product_bit_exact_all_rows": true,
+        "score_stream_sha256_equal": true
+      }
+    },
+    "vlsat_closed_set_full_validation": {
+      "counts": {
+        "family:proximity": 36808,
+        "family:relative_vertical": 73616,
+        "family:support_contact": 110424,
+        "in_scope_rows": 220848,
+        "in_scope_subgraphs": 548,
+        "input_rows": 957008,
+        "input_subgraphs": 548
+      },
+      "equivalence": {
+        "canonical_score_stream_sha256": "cf7b3c2c09dfacd6a752e21bddcd0537fafda14fc165fa45305a3b14a784fcc9",
+        "compatibility_exact_matches": 220848,
+        "independent_score_stream_sha256": "cf7b3c2c09dfacd6a752e21bddcd0537fafda14fc165fa45305a3b14a784fcc9",
+        "max_abs_compatibility_error": 0.0,
+        "max_abs_product_error": 0.0,
+        "mismatch_examples": [],
+        "product_exact_matches": 220848,
+        "rank_average_invariance": {
+          "compatibility_operand_bit_exact": true,
+          "semantic_operand": "unchanged_source_score_Z",
+          "status": "proven_by_identical_semantic_and_compatibility_operands",
+          "tie_breaker": "unchanged_prediction_key"
+        }
+      },
+      "expected": {
+        "evaluation_subgraphs": 548,
+        "in_scope_rows": 220848,
+        "input_rows": 957008
+      },
+      "input_paths": {
+        "predictions": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/adapter/predictions.jsonl",
+        "verification": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/geometry/verification.jsonl"
+      },
+      "input_sha256": {
+        "predictions": "ea590d6b514b5f064f97079e216264638c50885788b7265d1bab6b740ee522d4",
+        "verification": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+      },
+      "role": "retrospective_controlled_anchor_post_hoc_mechanism_diagnostic",
+      "source": "vlsat_closed_set_full_validation",
+      "validations": {
+        "all_in_scope_rows_scored": true,
+        "compatibility_bit_exact_all_rows": true,
+        "evaluation_subgraph_count_exact": true,
+        "in_scope_row_count_exact": true,
+        "in_scope_rows_cover_all_evaluation_subgraphs": true,
+        "input_row_count_exact": true,
+        "product_bit_exact_all_rows": true,
+        "score_stream_sha256_equal": true
+      }
+    }
+  },
+  "status": "bit_exact",
+  "validations": {
+    "open3dsg_recovery_full_validation:all_in_scope_rows_scored": true,
+    "open3dsg_recovery_full_validation:compatibility_bit_exact_all_rows": true,
+    "open3dsg_recovery_full_validation:evaluation_subgraph_count_exact": true,
+    "open3dsg_recovery_full_validation:in_scope_row_count_exact": true,
+    "open3dsg_recovery_full_validation:in_scope_rows_cover_all_evaluation_subgraphs": true,
+    "open3dsg_recovery_full_validation:input_row_count_exact": true,
+    "open3dsg_recovery_full_validation:product_bit_exact_all_rows": true,
+    "open3dsg_recovery_full_validation:score_stream_sha256_equal": true,
+    "sgfn_official_full_l160:all_in_scope_rows_scored": true,
+    "sgfn_official_full_l160:compatibility_bit_exact_all_rows": true,
+    "sgfn_official_full_l160:evaluation_subgraph_count_exact": true,
+    "sgfn_official_full_l160:in_scope_row_count_exact": true,
+    "sgfn_official_full_l160:in_scope_rows_cover_all_evaluation_subgraphs": true,
+    "sgfn_official_full_l160:input_row_count_exact": true,
+    "sgfn_official_full_l160:product_bit_exact_all_rows": true,
+    "sgfn_official_full_l160:score_stream_sha256_equal": true,
+    "vlsat_closed_set_full_validation:all_in_scope_rows_scored": true,
+    "vlsat_closed_set_full_validation:compatibility_bit_exact_all_rows": true,
+    "vlsat_closed_set_full_validation:evaluation_subgraph_count_exact": true,
+    "vlsat_closed_set_full_validation:in_scope_row_count_exact": true,
+    "vlsat_closed_set_full_validation:in_scope_rows_cover_all_evaluation_subgraphs": true,
+    "vlsat_closed_set_full_validation:input_row_count_exact": true,
+    "vlsat_closed_set_full_validation:product_bit_exact_all_rows": true,
+    "vlsat_closed_set_full_validation:score_stream_sha256_equal": true
+  }
+}

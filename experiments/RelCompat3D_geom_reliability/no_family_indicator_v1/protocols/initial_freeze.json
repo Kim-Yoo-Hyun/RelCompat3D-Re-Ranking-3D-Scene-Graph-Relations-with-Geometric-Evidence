@@ -1,0 +1,22 @@
+{
+  "created_at_utc": "2026-07-19T20:08:48.566729+00:00",
+  "model_lock": {
+    "locked_at_utc": "2026-07-19T20:05:08.787114+00:00",
+    "official_validation_read_by_fit_stage": false,
+    "protocol_sha256": "011b460c0a5706559d3a5bd6da5f94719417f81bb4d68a9a5b9447fcbd0c41c6",
+    "schema_version": "relcompat3d_no_family_indicator_final_lock_v1",
+    "score_contract_sha256": "a92e3fb99c897bc2ad791b6004c47560da5b603f21f6056c50f156f10373f9f0",
+    "status": "locked_before_official_validation",
+    "strict_model_sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2",
+    "structured_model_sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+  },
+  "protocols": {
+    "nonlinear.json": "224fa3bd94ad0bbbed7d253a53622d8267d7c05c22add3e31679b4d921256b0f",
+    "open3dsg_route.json": "ee7a6aaf26cada366d685ba10651d2e0413f9be9bf399283ccf440fed598f413",
+    "structured_main.json": "7c417c2356e33c8f8690d8a13a380d750537388e6dc0e7dd422160b418e0fdf7",
+    "support_routing.json": "0bf059a0c9bcc42e2f35493d9e648afc0335a9c83eb3118fbbc1e5b66389a5c2"
+  },
+  "schema_version": "relcompat3d_no_family_indicator_initial_protocol_freeze_v1",
+  "selection_or_tuning_allowed": false,
+  "status": "frozen_before_official_validation"
+}

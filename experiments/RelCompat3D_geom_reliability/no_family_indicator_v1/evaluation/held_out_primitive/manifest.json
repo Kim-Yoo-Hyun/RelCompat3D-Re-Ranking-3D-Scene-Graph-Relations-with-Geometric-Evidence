@@ -1,0 +1,112 @@
+{
+  "created_at_utc": "2026-07-19T20:39:46.269702+00:00",
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.structured.yaml run --rm held_out_primitive_evaluation",
+  "inputs": {
+    "calibration_table": {
+      "path": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/calibration/export/table.jsonl",
+      "sha256": "ada87676faf0df67c8d8873ceb8efa54ab29507306fca24d4020b21d5e39af6e",
+      "size_bytes": 231788059
+    },
+    "final_validation_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/final_validation_scans.txt",
+      "sha256": "3687b892938c25a44a07d6e0e26788b98ffe5c5319f04407d446247c2a67e7e4",
+      "size_bytes": 5809
+    },
+    "ground_truth": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c",
+      "size_bytes": 7443974
+    },
+    "internal_dev_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/internal_dev_scans.txt",
+      "sha256": "25fb5aba714b0c9bf00f36b04fb890de6dd4a197628dd179812189511c01343b",
+      "size_bytes": 4329
+    },
+    "main_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/structured_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194",
+      "size_bytes": 84377
+    },
+    "official_context_annotations": {
+      "path": "local_dataset/3DSSG_subset/relationships_validation.json",
+      "sha256": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e",
+      "size_bytes": 398283
+    },
+    "open3dsg_official_summary": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/open3dsg_route/summary.json",
+      "sha256": "3ba923e319061f4e35b547b9ba14b9ee4f2711e93d048ab001c5ce6c2955ab5d",
+      "size_bytes": 2645635
+    },
+    "open3dsg_official_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/geometry/verification.jsonl",
+      "sha256": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720",
+      "size_bytes": 2575400829
+    },
+    "routing_summary": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/support_routing/summary.json",
+      "sha256": "a59eb3544560ede939f6fdc90ff2c3cfb34ef2fee58cc423669fffa101928736",
+      "size_bytes": 2017774
+    },
+    "sgfn_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32",
+      "size_bytes": 3574769466
+    },
+    "strict_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/strict_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2",
+      "size_bytes": 44819
+    },
+    "train_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/train_scans.txt",
+      "sha256": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53",
+      "size_bytes": 39257
+    },
+    "vlsat_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd",
+      "size_bytes": 3510883578
+    }
+  },
+  "outputs": {
+    "metrics.csv": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/held_out_primitive/metrics.csv",
+      "sha256": "28016e826fe017e9e90689a7f31ce85ce95df04ce23782ee36675be519c55c2f"
+    },
+    "models.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/held_out_primitive/models.json",
+      "sha256": "1249f91b215579be0af4a14a9823415641de295150c52f7d16a0b91038d4341b"
+    },
+    "summary.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/held_out_primitive/summary.json",
+      "sha256": "abf18c9d113c558be25cfaa6d3f166ec65f59574be138d17ab57f1ed546550e0"
+    },
+    "summary.md": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/held_out_primitive/summary.md",
+      "sha256": "b072c1e144827cfcb4e1f7bcfd359621592ce87c4287c52f0a2cbb99c3abaccd"
+    }
+  },
+  "protocol": {
+    "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/held_out_primitive.json",
+    "sha256": "05242809235e2fdca9014cd503b7d893ebef270f46807cd3f6ccd09e214d6c03"
+  },
+  "schema_version": "relcompat3d_held_out_primitive_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_k_and_conditions_reported": true,
+    "all_sources_548_contexts_157_scans": true,
+    "all_sources_gt_denominator_3972": true,
+    "all_weights_finite": true,
+    "exact_projection_all_conditions": true,
+    "exact_verifier_scalars_absent": true,
+    "internal_dev_rows_6246": true,
+    "main_route_point_estimates_match_promoted_references": true,
+    "no_source_features": true,
+    "primitive_families_absent": true,
+    "source_row_counts": true,
+    "split_counts_1061_117_157": true,
+    "split_sets_pairwise_disjoint": true,
+    "train_rows_60208": true,
+    "zero_final_validation_rows_in_fit": true
+  }
+}

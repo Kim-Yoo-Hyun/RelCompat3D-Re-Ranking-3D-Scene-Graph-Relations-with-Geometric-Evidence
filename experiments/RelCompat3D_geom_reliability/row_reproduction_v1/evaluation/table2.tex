@@ -1,0 +1,30 @@
+\begin{tabular}{llrrrr}
+\toprule
+Predictor & Condition & R@50 & V@50 & R@100 & V@100 \\
+\midrule
+Open3DSG & RelCompat3D-Linear & 44.18 & 3.42 & 56.85 & 3.24 \\
+Open3DSG & RelCompat3D-MLP & 46.70 & 4.13 & 59.89 & 3.71 \\
+Open3DSG & Wrong predicate & 42.65 & 21.98 & 53.47 & 20.96 \\
+Open3DSG & Wrong pair & 38.52 & 8.50 & 49.32 & 8.36 \\
+Open3DSG & Shuffled geometry & 38.42 & 12.93 & 48.79 & 12.42 \\
+Open3DSG & Fixed-predicate swap & 42.67 & 21.98 & 53.63 & 20.96 \\
+Open3DSG & Distance only & 51.16 & 8.24 & 63.22 & 9.55 \\
+Open3DSG & Compatibility only & 42.22 & 3.42 & 56.87 & 3.24 \\
+VL-SAT & RelCompat3D-Linear & 92.77 & 1.97 & 96.58 & 2.95 \\
+VL-SAT & RelCompat3D-MLP & 92.72 & 1.89 & 96.50 & 2.96 \\
+VL-SAT & Wrong predicate & 90.46 & 4.97 & 94.79 & 7.95 \\
+VL-SAT & Wrong pair & 90.56 & 2.61 & 94.96 & 4.73 \\
+VL-SAT & Shuffled geometry & 89.17 & 3.05 & 94.11 & 5.60 \\
+VL-SAT & Fixed-predicate swap & 90.46 & 4.97 & 94.81 & 7.95 \\
+VL-SAT & Distance only & 81.90 & 5.34 & 89.80 & 8.09 \\
+VL-SAT & Compatibility only & 67.65 & 1.61 & 83.89 & 2.03 \\
+SGFN & RelCompat3D-Linear & 74.50 & 2.63 & 93.03 & 3.50 \\
+SGFN & RelCompat3D-MLP & 74.57 & 2.58 & 92.88 & 3.50 \\
+SGFN & Wrong predicate & 71.58 & 9.42 & 89.93 & 12.99 \\
+SGFN & Wrong pair & 71.55 & 3.99 & 88.07 & 6.65 \\
+SGFN & Shuffled geometry & 70.59 & 4.73 & 86.83 & 8.36 \\
+SGFN & Fixed-predicate swap & 71.58 & 9.42 & 90.03 & 12.98 \\
+SGFN & Distance only & 63.19 & 10.00 & 84.06 & 12.66 \\
+SGFN & Compatibility only & 52.79 & 2.32 & 70.64 & 2.30 \\
+\bottomrule
+\end{tabular}

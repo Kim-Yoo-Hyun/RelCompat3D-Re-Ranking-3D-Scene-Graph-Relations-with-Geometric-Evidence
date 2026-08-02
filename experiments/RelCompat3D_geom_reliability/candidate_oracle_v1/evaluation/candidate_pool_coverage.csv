@@ -1,0 +1,4 @@
+predictor,candidate_rows,ground_truth_in_candidate_pool,ground_truth_denominator,candidate_pool_coverage,candidate_pool_coverage_percent
+VL-SAT,220848,3961,3972,0.9972306143001007,99.72306143001008
+Open3DSG,159444,3165,3972,0.7968277945619335,79.68277945619336
+SGFN,220848,3961,3972,0.9972306143001007,99.72306143001008

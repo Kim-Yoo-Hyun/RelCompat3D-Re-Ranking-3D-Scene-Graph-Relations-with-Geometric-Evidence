@@ -1,0 +1,34 @@
+{
+  "mesh": {
+    "available_training_endpoints": 29224,
+    "minimum_endpoint_count": 56,
+    "proximity": {
+      "satisfied_max_p90": 0.7229521796502849,
+      "training_rows": 11122,
+      "violated_min_p99": 1.4521063082387726
+    },
+    "relative_vertical": {
+      "absolute_signed_margin_p10": 0.08260268477154045,
+      "positive_direction_fraction": 0.9402241594022416,
+      "signed_median": 0.7349703314838536,
+      "training_rows": 3212
+    },
+    "support_count_p01": 56.0
+  },
+  "point": {
+    "available_training_endpoints": 29228,
+    "minimum_endpoint_count": 49,
+    "proximity": {
+      "satisfied_max_p90": 0.6217219820847278,
+      "training_rows": 11132,
+      "violated_min_p99": 1.1644886348462988
+    },
+    "relative_vertical": {
+      "absolute_signed_margin_p10": 0.09414311602180919,
+      "positive_direction_fraction": 0.925764192139738,
+      "signed_median": 0.6527898286018943,
+      "training_rows": 3206
+    },
+    "support_count_p01": 49.0
+  }
+}

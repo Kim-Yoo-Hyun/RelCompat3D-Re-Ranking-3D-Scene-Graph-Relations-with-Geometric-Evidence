@@ -1,0 +1,31 @@
+{
+  "claim_boundary": "leakage-controlled train-only reconstruction; prospective confirmation still requires a new target or independent human labels",
+  "components": {
+    "families_K_denominator_and_gates": {
+      "action": "freeze_without further change and disclose reconstruction status",
+      "historical_provenance": "previously observed validation"
+    },
+    "family_specific_product_promotion": {
+      "action": "freeze_now_as_theory_driven_default_in_reconstruction_not_prospective_original",
+      "historical_provenance": "promoted_after_validation_results"
+    },
+    "final_validation_metrics": {
+      "action": "re-evaluate locked method but never label untouched prospective",
+      "historical_provenance": "already observed"
+    },
+    "geometry_features_and_counterfactual_policy": {
+      "action": "reuse_code_and_regenerate_train_only",
+      "historical_provenance": "official_train_annotations"
+    },
+    "normalization_and_calibrator_weights": {
+      "action": "refit_on_strict_1061_vs_117_firewall",
+      "historical_provenance": "train_only_with_pilot_internal_dev_diagnostics"
+    },
+    "rank_average_and_rrf": {
+      "action": "comparators_only_never_default_method",
+      "historical_provenance": "added_after_validation inspection"
+    }
+  },
+  "schema_version": "relcompat3d_train_only_reestablishment_v1",
+  "verdict": "historical_parameter_fit_has_no_final_validation_rows_but_historical_method_selection_was_validation_informed"
+}

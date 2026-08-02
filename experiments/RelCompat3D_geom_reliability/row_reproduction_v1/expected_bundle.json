@@ -1,0 +1,38 @@
+{
+  "schema_version": "relcompat3d_expected_row_bundle_v1",
+  "status": "completed",
+  "bundle_manifest_sha256": "9881b2c6d3207cd68126edc516690033ed0204e937fa64ce530629fcaa48fd43",
+  "counts": {
+    "candidates": {
+      "open3dsg": 159444,
+      "sgfn": 220848,
+      "vlsat": 220848
+    },
+    "contexts": 548,
+    "ground_truth": 3972,
+    "scans": 157
+  },
+  "files": {
+    "ground_truth.csv.gz": {
+      "sha256": "cb81d82f7140360537cf00e5d7c5fa71953a6252aec77e0d3cdb4361d8f45d53",
+      "size_bytes": 141967
+    },
+    "open3dsg_candidates.csv.gz": {
+      "sha256": "02fed5aff54bedc107f2e2bd1090de2671f91be36a2f4f694c5d418dcd6c350f",
+      "size_bytes": 15604285
+    },
+    "sgfn_candidates.csv.gz": {
+      "sha256": "47cd24c7f6748243ab9407f520b7076f9b733f2db14c5a98e8721db7cd4935db",
+      "size_bytes": 23927349
+    },
+    "vlsat_candidates.csv.gz": {
+      "sha256": "21d4d872acc75a1f952d9814749f8c6b74868ad99d55fda397efefeb75dfe650",
+      "size_bytes": 23994427
+    },
+    "schema.json": {
+      "sha256": "f4309c69f08d026d1498c086b2c03d73bf2225a9eafa49d7f61c7f3e4793012b",
+      "size_bytes": 1824
+    }
+  },
+  "redistribution_status": "hold until the authors confirm derived-annotation redistribution with the 3RScan/3DSSG data owner or terms"
+}

@@ -1,0 +1,98 @@
+{
+  "created_at_utc": "2026-07-19T20:13:40.296331+00:00",
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm structured_main_evaluation",
+  "inputs": {
+    "final_validation_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/final_validation_scans.txt",
+      "sha256": "3687b892938c25a44a07d6e0e26788b98ffe5c5319f04407d446247c2a67e7e4",
+      "size_bytes": 5809
+    },
+    "ground_truth": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c",
+      "size_bytes": 7443974
+    },
+    "internal_dev_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/internal_dev_scans.txt",
+      "sha256": "25fb5aba714b0c9bf00f36b04fb890de6dd4a197628dd179812189511c01343b",
+      "size_bytes": 4329
+    },
+    "open3dsg_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+      "sha256": "89ab2324654d07e8c2bde2c4aec3b5bdf9b916898b7e0bb40d4f9c582d58c58e",
+      "size_bytes": 2628812470
+    },
+    "relation_diagnostics": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/internal_dev_diagnostics.json",
+      "sha256": "86b4c6348bde098d1d474bab65b50bb9b4b51564b2a6bce0b84197dfd554ee7f",
+      "size_bytes": 16127
+    },
+    "relation_manifest": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/manifest.json",
+      "sha256": "a590c2bc880a26749a78072a84509f69499ee98f77bf0c2643fce41a00656088",
+      "size_bytes": 4178
+    },
+    "sgfn_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32",
+      "size_bytes": 3574769466
+    },
+    "strict_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/strict_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2",
+      "size_bytes": 44819
+    },
+    "structured_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/structured_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194",
+      "size_bytes": 84377
+    },
+    "train_scans": {
+      "path": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/train_scans.txt",
+      "sha256": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53",
+      "size_bytes": 39257
+    },
+    "vlsat_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd",
+      "size_bytes": 3510883578
+    }
+  },
+  "outputs": {
+    "metrics.csv": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/structured_main/metrics.csv",
+      "sha256": "bfc8105018235862a7f6edeac5bd44b2b00279af3bf56e30ca14b1627d2f8408"
+    },
+    "summary.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/structured_main/summary.json",
+      "sha256": "49e2850af1dbb93ad97b3b11fc4281bc24322fbe36118054ae7303bea6620cef"
+    },
+    "summary.md": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/structured_main/summary.md",
+      "sha256": "9e9f19eb01028d21bee06c332eff02ab4862a4839c7ae27f172c056d96d929e4"
+    },
+    "uncertainty.csv": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/structured_main/uncertainty.csv",
+      "sha256": "ff7965a6341a4bfdb66ea97a7d09858e075b03501314eb50445aec41a15ae8a6"
+    }
+  },
+  "protocol": {
+    "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/structured_main.json",
+    "sha256": "7c417c2356e33c8f8690d8a13a380d750537388e6dc0e7dd422160b418e0fdf7"
+  },
+  "schema_version": "relcompat3d_structured_main_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_k_reported": true,
+    "all_methods_reported": true,
+    "familywise_intervals_reported": true,
+    "hard_filter_has_zero_violations": true,
+    "source_context_and_transform_checks": true,
+    "source_row_counts": true,
+    "split_counts_1061_117_157": true,
+    "split_sets_pairwise_disjoint": true,
+    "strict_model_schema": true,
+    "structured_model_excludes_source": true,
+    "structured_model_hash_locked": true
+  }
+}

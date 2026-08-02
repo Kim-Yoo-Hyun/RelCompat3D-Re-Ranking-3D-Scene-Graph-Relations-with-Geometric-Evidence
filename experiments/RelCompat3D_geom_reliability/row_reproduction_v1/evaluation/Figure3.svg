@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="580" viewBox="0 0 1500 580">
+<rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Arial,sans-serif;fill:#111}.axis{stroke:#111;stroke-width:2}.grid{stroke:#ddd;stroke-width:1}.line{fill:none;stroke-width:3}</style>
+<text x="80" y="55" font-size="26" font-weight="700">(a) VL-SAT</text>
+<line class="axis" x1="80" y1="490" x2="480" y2="490"/>
+<line class="axis" x1="80" y1="100" x2="80" y2="490"/>
+<text x="280.0" y="558" font-size="22" text-anchor="middle">Recall@K (%)</text>
+<text x="25" y="295.0" font-size="22" text-anchor="middle" transform="rotate(-90 25 295.0)">Violation@K (%)</text>
+<polyline class="line" points="107.59,468.66 241.86,429.99 352.46,385.98 428.10,294.49 450.98,141.79" stroke="#707070" stroke-dasharray="10 8"/>
+<circle cx="107.59" cy="468.66" r="6" fill="#707070"/>
+<text x="114.59" y="460.66" font-size="15">5</text>
+<circle cx="241.86" cy="429.99" r="6" fill="#707070"/>
+<text x="248.86" y="421.99" font-size="15">10</text>
+<circle cx="352.46" cy="385.98" r="6" fill="#707070"/>
+<text x="359.46" y="377.98" font-size="15">20</text>
+<circle cx="428.10" cy="294.49" r="6" fill="#707070"/>
+<text x="435.10" y="286.49" font-size="15">50</text>
+<circle cx="450.98" cy="141.79" r="6" fill="#707070"/>
+<text x="457.98" y="133.79" font-size="15">100</text>
+<polyline class="line" points="108.38,479.33 242.97,448.66 352.94,406.65 428.42,345.70 452.41,274.48" stroke="#008B8B"/>
+<rect x="102.38" y="473.33" width="12" height="12" fill="#008B8B"/>
+<rect x="236.97" y="442.66" width="12" height="12" fill="#008B8B"/>
+<rect x="346.94" y="400.65" width="12" height="12" fill="#008B8B"/>
+<rect x="422.42" y="339.70" width="12" height="12" fill="#008B8B"/>
+<rect x="446.41" y="268.48" width="12" height="12" fill="#008B8B"/>
+<polyline class="line" points="108.54,479.33 243.45,452.66 353.57,409.98 428.10,352.10 451.94,273.42" stroke="#6F42C1"/>
+<path d="M108.54,472.33 L101.54,485.33 L115.54,485.33 Z" fill="#6F42C1"/>
+<path d="M243.45,445.66 L236.45,458.66 L250.45,458.66 Z" fill="#6F42C1"/>
+<path d="M353.57,402.98 L346.57,415.98 L360.57,415.98 Z" fill="#6F42C1"/>
+<path d="M428.10,345.10 L421.10,358.10 L435.10,358.10 Z" fill="#6F42C1"/>
+<path d="M451.94,266.42 L444.94,279.42 L458.94,279.42 Z" fill="#6F42C1"/>
+<text x="550" y="55" font-size="26" font-weight="700">(b) Open3DSG</text>
+<line class="axis" x1="550" y1="490" x2="950" y2="490"/>
+<line class="axis" x1="550" y1="100" x2="550" y2="490"/>
+<text x="750.0" y="558" font-size="22" text-anchor="middle">Recall@K (%)</text>
+<polyline class="line" points="577.59,141.79 616.94,269.95 678.13,349.53 803.58,397.19 868.76,406.93" stroke="#707070" stroke-dasharray="10 8"/>
+<circle cx="577.59" cy="141.79" r="6" fill="#707070"/>
+<text x="584.59" y="133.79" font-size="15">5</text>
+<circle cx="616.94" cy="269.95" r="6" fill="#707070"/>
+<text x="623.94" y="261.95" font-size="15">10</text>
+<circle cx="678.13" cy="349.53" r="6" fill="#707070"/>
+<text x="685.13" y="341.53" font-size="15">20</text>
+<circle cx="803.58" cy="397.19" r="6" fill="#707070"/>
+<text x="810.58" y="389.19" font-size="15">50</text>
+<circle cx="868.76" cy="406.93" r="6" fill="#707070"/>
+<text x="875.76" y="398.93" font-size="15">100</text>
+<polyline class="line" points="579.43,483.72 626.17,474.43 700.88,469.04 826.48,467.09 903.81,468.33" stroke="#008B8B"/>
+<rect x="573.43" y="477.72" width="12" height="12" fill="#008B8B"/>
+<rect x="620.17" y="468.43" width="12" height="12" fill="#008B8B"/>
+<rect x="694.88" y="463.04" width="12" height="12" fill="#008B8B"/>
+<rect x="820.48" y="461.09" width="12" height="12" fill="#008B8B"/>
+<rect x="897.81" y="462.33" width="12" height="12" fill="#008B8B"/>
+<polyline class="line" points="579.28,456.86 628.63,456.74 707.34,459.50 841.86,462.37 922.41,465.15" stroke="#6F42C1"/>
+<path d="M579.28,449.86 L572.28,462.86 L586.28,462.86 Z" fill="#6F42C1"/>
+<path d="M628.63,449.74 L621.63,462.74 L635.63,462.74 Z" fill="#6F42C1"/>
+<path d="M707.34,452.50 L700.34,465.50 L714.34,465.50 Z" fill="#6F42C1"/>
+<path d="M841.86,455.37 L834.86,468.37 L848.86,468.37 Z" fill="#6F42C1"/>
+<path d="M922.41,458.15 L915.41,471.15 L929.41,471.15 Z" fill="#6F42C1"/>
+<text x="1020" y="55" font-size="26" font-weight="700">(c) SGFN</text>
+<line class="axis" x1="1020" y1="490" x2="1420" y2="490"/>
+<line class="axis" x1="1020" y1="100" x2="1020" y2="490"/>
+<text x="1220.0" y="558" font-size="22" text-anchor="middle">Recall@K (%)</text>
+<polyline class="line" points="1047.59,358.83 1095.44,297.28 1147.65,311.91 1286.45,277.30 1388.62,141.79" stroke="#707070" stroke-dasharray="10 8"/>
+<circle cx="1047.59" cy="358.83" r="6" fill="#707070"/>
+<text x="1054.59" y="350.83" font-size="15">5</text>
+<circle cx="1095.44" cy="297.28" r="6" fill="#707070"/>
+<text x="1102.44" y="289.28" font-size="15">10</text>
+<circle cx="1147.65" cy="311.91" r="6" fill="#707070"/>
+<text x="1154.65" y="303.91" font-size="15">20</text>
+<circle cx="1286.45" cy="277.30" r="6" fill="#707070"/>
+<text x="1293.45" y="269.30" font-size="15">50</text>
+<circle cx="1388.62" cy="141.79" r="6" fill="#707070"/>
+<text x="1395.62" y="133.79" font-size="15">100</text>
+<polyline class="line" points="1047.59,358.83 1095.44,298.29 1147.79,325.53 1289.12,344.50 1392.41,296.37" stroke="#008B8B"/>
+<rect x="1041.59" y="352.83" width="12" height="12" fill="#008B8B"/>
+<rect x="1089.44" y="292.29" width="12" height="12" fill="#008B8B"/>
+<rect x="1141.79" y="319.53" width="12" height="12" fill="#008B8B"/>
+<rect x="1283.12" y="338.50" width="12" height="12" fill="#008B8B"/>
+<rect x="1386.41" y="290.37" width="12" height="12" fill="#008B8B"/>
+<polyline class="line" points="1047.59,358.83 1095.44,298.29 1148.07,326.54 1289.54,347.53 1391.57,296.27" stroke="#6F42C1"/>
+<path d="M1047.59,351.83 L1040.59,364.83 L1054.59,364.83 Z" fill="#6F42C1"/>
+<path d="M1095.44,291.29 L1088.44,304.29 L1102.44,304.29 Z" fill="#6F42C1"/>
+<path d="M1148.07,319.54 L1141.07,332.54 L1155.07,332.54 Z" fill="#6F42C1"/>
+<path d="M1289.54,340.53 L1282.54,353.53 L1296.54,353.53 Z" fill="#6F42C1"/>
+<path d="M1391.57,289.27 L1384.57,302.27 L1398.57,302.27 Z" fill="#6F42C1"/>
+<line x1="1110" y1="32" x2="1146" y2="32" stroke="#707070" stroke-width="3"/>
+<text x="1155" y="39" font-size="18">Source</text>
+<line x1="1110" y1="57" x2="1146" y2="57" stroke="#008B8B" stroke-width="3"/>
+<text x="1155" y="64" font-size="18">RelCompat3D-Linear</text>
+<line x1="1110" y1="82" x2="1146" y2="82" stroke="#6F42C1" stroke-width="3"/>
+<text x="1155" y="89" font-size="18">RelCompat3D-MLP</text>
+</svg>

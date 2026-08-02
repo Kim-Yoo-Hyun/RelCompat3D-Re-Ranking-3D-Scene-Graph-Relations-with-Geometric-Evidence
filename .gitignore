@@ -1,0 +1,50 @@
+# External datasets, source predictions, and local secrets
+local_dataset/
+external/
+.env
+.env.*
+
+# Python and editor state
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.DS_Store
+.idea/
+.vscode/
+
+# Runtime and release outputs
+logs/
+release/
+artifacts/
+**/artifacts/
+**/regenerated/
+*.log
+
+# Large data and model files
+*.jsonl
+*.ply
+*.npy
+*.npz
+*.pkl
+*.pt
+*.pth
+*.ckpt
+*.zip
+*.tar
+*.tar.gz
+*.tar.zst
+
+# Fitted JSON parameters are restored from the external model archive.
+/experiments/RelCompat3D_geom_reliability/**/*models.json
+
+# LaTeX byproducts if users add local paper sources
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz

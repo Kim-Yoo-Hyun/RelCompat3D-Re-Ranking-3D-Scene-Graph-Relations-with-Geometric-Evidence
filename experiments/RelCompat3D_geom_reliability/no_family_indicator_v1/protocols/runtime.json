@@ -1,0 +1,56 @@
+{
+  "schema_version": "relcompat3d_relcompat3d_runtime_protocol_v1",
+  "status": "frozen_before_runtime_measurement",
+  "created_at_kst": "2026-07-20",
+  "purpose": "Measure the CPU overhead of the promoted no-family-indicator RelCompat3D compatibility and family-aware ranking layer on the paper-facing public-prediction route.",
+  "sources": [
+    "vlsat",
+    "open3dsg",
+    "sgfn"
+  ],
+  "measurement": {
+    "input_state": "preloaded verification rows with precomputed pair geometry",
+    "open3dsg_route": "public predictions; 533 nonempty contexts; the 15 official contexts without candidate lists require no scoring or sorting",
+    "included": [
+      "proximity and vertical compatibility scoring",
+      "endpoint/predicate transformation averaging",
+      "family-specific ordered-list construction and sorting",
+      "family-sequence-preserving output assembly"
+    ],
+    "excluded": [
+      "source-predictor inference",
+      "3D reconstruction and geometry join",
+      "JSONL parsing and raw-feature extraction",
+      "metric evaluation and bootstrap"
+    ],
+    "device": "CPU",
+    "processes": 1,
+    "threads": 1,
+    "warmup_runs": 1,
+    "timed_runs": 5
+  },
+  "inputs": {
+    "structured_models": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/structured_models.json",
+    "vlsat": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/geometry/verification.jsonl",
+    "open3dsg": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/geometry/verification.jsonl",
+    "sgfn": "experiments/RelCompat3D_geom_reliability/sources/sgfn/geometry/verification.jsonl"
+  },
+  "expected_counts": {
+    "vlsat": {
+      "input_rows": 957008,
+      "in_scope_rows": 220848,
+      "contexts": 548
+    },
+    "open3dsg": {
+      "input_rows": 690924,
+      "in_scope_rows": 159444,
+      "contexts": 533
+    },
+    "sgfn": {
+      "input_rows": 957008,
+      "in_scope_rows": 220848,
+      "contexts": 548
+    }
+  },
+  "locked_structured_model_sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+}

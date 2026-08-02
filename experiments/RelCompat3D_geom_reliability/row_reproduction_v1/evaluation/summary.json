@@ -1,0 +1,38 @@
+{
+  "candidate_row_audits": {
+    "open3dsg": {
+      "candidate_rows": 159444,
+      "pool_exact_match_rows": 3165,
+      "unique_row_uids": 159444
+    },
+    "sgfn": {
+      "candidate_rows": 220848,
+      "pool_exact_match_rows": 3961,
+      "unique_row_uids": 220848
+    },
+    "vlsat": {
+      "candidate_rows": 220848,
+      "pool_exact_match_rows": 3961,
+      "unique_row_uids": 220848
+    }
+  },
+  "canonical_cells": 291,
+  "claim_boundary": "The bundle reproduces evaluation from fixed derived candidates. It does not reproduce source-model inference or raw geometry extraction, and pseudonymization is not a legal determination that redistribution is permitted.",
+  "created_at_utc": "2026-07-26T18:58:54.594341+00:00",
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.structured.yaml run --rm relcompat3d_reproduce_rows",
+  "ground_truth_rows": 3972,
+  "maximum_absolute_error": 0.0,
+  "row_bundle_manifest_sha256": "9881b2c6d3207cd68126edc516690033ed0204e937fa64ce530629fcaa48fd43",
+  "schema_version": "relcompat3d_row_reproduction_summary_v1",
+  "status": "completed",
+  "tolerance": 1e-12,
+  "validations": {
+    "all_canonical_cells_within_tolerance": true,
+    "all_table1_selected_counts_bounded": true,
+    "candidate_row_counts_match": true,
+    "canonical_reference_hashes_match": true,
+    "ground_truth_denominator_3972": true,
+    "row_bundle_hashes_match": true,
+    "table3_all_selected_rows_have_accounted_status": true
+  }
+}

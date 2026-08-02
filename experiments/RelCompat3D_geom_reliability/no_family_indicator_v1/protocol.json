@@ -1,0 +1,63 @@
+{
+  "schema_version": "relcompat3d_no_family_indicator_protocol_v1",
+  "status": "frozen_before_no_family_indicator_fit",
+  "created_at_kst": "2026-07-20",
+  "purpose": "Remove only the constant family indicator from each family-specific compatibility head and refit without performance-driven selection.",
+  "change_contract": {
+    "removed": "one family:<a> indicator that is constant within family head a",
+    "retained": [
+      "all calibration rows and constructed targets",
+      "1061/117/157 split firewall",
+      "training-only feature normalization and missing-value imputation",
+      "predicate indicators",
+      "all numeric geometry features",
+      "two predicate-signed vertical interaction features",
+      "BCE, linked-pair margin, and transformation augmentation",
+      "transformation averaging",
+      "source-score multiplication and family-aware re-ranking",
+      "all K values, metrics, denominators, bootstrap units, and seeds"
+    ],
+    "forbidden": [
+      "feature or hyperparameter changes beyond the family indicator",
+      "official-validation-based model selection",
+      "restoring the family indicator after observing results",
+      "predictor-specific refitting or score normalization",
+      "overwriting active paper artifacts before user approval"
+    ],
+    "adoption_policy": "The refit is evaluated regardless of direction; results cannot be selected only if they improve."
+  },
+  "split_firewall": {
+    "train_scans": 1061,
+    "internal_dev_scans": 117,
+    "final_validation_scans": 157,
+    "fit": "training split only",
+    "internal_dev": "sanity diagnostic only; no selection",
+    "official_validation": "not read by fit stage"
+  },
+  "optimizer": {
+    "epochs": 800,
+    "learning_rate": 0.2,
+    "l2": 0.0001,
+    "initial_weights": 0.0,
+    "batching": "deterministic_full_batch",
+    "pairwise_loss": "softplus(margin - (logit_positive - logit_negative))",
+    "pairwise_margin": 1.0,
+    "pairwise_weight": 0.25
+  },
+  "internal_dev": {
+    "role": "sanity diagnostic only",
+    "bootstrap_resamples": 1000,
+    "bootstrap_seed": 20260720,
+    "selection_allowed": false
+  },
+  "inputs": {
+    "calibration_table": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/calibration/export/table.jsonl",
+    "train_scans": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/train_scans.txt",
+    "internal_dev_scans": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/internal_dev_scans.txt",
+    "final_validation_scans": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/final_validation_scans.txt",
+    "current_strict_models": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/calibration/fitted/models.json",
+    "internal_dev_verification": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/internal_dev/geometry/verification.jsonl",
+    "internal_dev_ground_truth": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/internal_dev_ground_truth.jsonl"
+  },
+  "claim_boundary": "Implementation-cleanup refit on the existing shared 3DSSG target. It does not increase the novelty, dataset-generalization, or independent-validity claim."
+}

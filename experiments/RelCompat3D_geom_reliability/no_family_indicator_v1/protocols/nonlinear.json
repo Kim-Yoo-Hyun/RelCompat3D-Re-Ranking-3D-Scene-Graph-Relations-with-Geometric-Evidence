@@ -1,0 +1,55 @@
+{
+  "claim_boundary": "The comparison tests supervision and transfer, not universal score-formula superiority. The SGFN exact-label rescorer is a stronger-supervision upper comparator, not a supervision-matched baseline.",
+  "created_at_kst": "2026-07-20",
+  "evaluation": {
+    "bootstrap_resamples": 1000,
+    "bootstrap_seed": 20260714,
+    "cross_predictor_policy": "one train-only compatibility model applied unchanged to VL-SAT, Open3DSG, and SGFN",
+    "ks": [
+      5,
+      10,
+      20,
+      50,
+      100
+    ]
+  },
+  "inputs": {
+    "calibration_table": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/calibration/export/table.jsonl",
+    "exact_label_open3dsg_summary": "experiments/RelCompat3D_geom_reliability/nonlinear_transfer_v1/open3dsg/summary.json",
+    "exact_label_sgfn_summary": "experiments/RelCompat3D_geom_reliability/nonlinear_fusion_baseline/evaluation_v1/summary.json",
+    "exact_label_vlsat_summary": "experiments/RelCompat3D_geom_reliability/nonlinear_transfer_v1/vlsat/summary.json",
+    "final_ground_truth": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+    "final_validation_scans": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/final_validation_scans.txt",
+    "internal_dev_ground_truth": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/internal_dev_ground_truth.jsonl",
+    "internal_dev_scans": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/internal_dev_scans.txt",
+    "internal_dev_verification": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/internal_dev/geometry/verification.jsonl",
+    "open3dsg_verification": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+    "sgfn_verification": "experiments/RelCompat3D_geom_reliability/sources/sgfn/geometry/verification.jsonl",
+    "structured_models": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/structured_models.json",
+    "train_scans": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/train_scans.txt",
+    "vlsat_verification": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/geometry/verification.jsonl"
+  },
+  "model": {
+    "architecture": "two-hidden-unit ReLU MLP with predicate-linear skip",
+    "conditions": {
+      "shared_nonlinear_bce": "constructed compatibility labels with BCE",
+      "shared_nonlinear_structured": "the same labels, linked counterfactual pairwise margin, relation-algebra augmentation, and inference projection"
+    },
+    "input": "family/predicate semantics plus raw same-pair geometry and predicate-aligned interactions",
+    "parameter_count": 69,
+    "source_identity_input": false,
+    "source_score_input": false
+  },
+  "optimizer": {
+    "epochs": 120,
+    "l2": 0.0001,
+    "learning_rate": 0.02,
+    "pairwise_margin": 1.0,
+    "pairwise_weight": 0.25,
+    "seed": 20260714
+  },
+  "parent_lock": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/final_lock.json",
+  "purpose": "Regenerate the unchanged shared nonlinear baseline and compare it with the locked no-family-indicator linear compatibility.",
+  "schema_version": "relcompat3d_supervision_matched_nonlinear_protocol_v1",
+  "status": "frozen_before_supervision_matched_nonlinear_execution"
+}

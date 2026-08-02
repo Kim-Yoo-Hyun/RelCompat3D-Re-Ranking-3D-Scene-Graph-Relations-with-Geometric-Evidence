@@ -1,0 +1,551 @@
+{
+  "diagnostics": {
+    "calibration": {
+      "algebra_basis": {
+        "by_family": {
+          "proximity": {
+            "auprc": 1.0,
+            "auroc": 1.0,
+            "brier": 0.0010330332944872267,
+            "negative": 966,
+            "nll": 0.011098138289945745,
+            "positive": 1140,
+            "rows": 2106
+          },
+          "relative_vertical": {
+            "auprc": 0.9993571420174915,
+            "auroc": 0.9984546703296703,
+            "brier": 0.006023150150890206,
+            "negative": 182,
+            "nll": 0.03974659757595113,
+            "positive": 384,
+            "rows": 566
+          },
+          "support_contact": {
+            "auprc": 0.990091804634893,
+            "auroc": 0.9932176813007036,
+            "brier": 0.025909031352088253,
+            "negative": 2368,
+            "nll": 0.09483898541586971,
+            "positive": 1206,
+            "rows": 3574
+          }
+        },
+        "overall": {
+          "auprc": 0.9972779847905393,
+          "auroc": 0.9972855642650864,
+          "brier": 0.015719428299064545,
+          "negative": 3516,
+          "nll": 0.0616112371666563,
+          "positive": 2730,
+          "rows": 6246
+        }
+      },
+      "family": {
+        "by_family": {
+          "proximity": {
+            "auprc": 1.0,
+            "auroc": 1.0,
+            "brier": 0.0008992119393479767,
+            "negative": 966,
+            "nll": 0.010544929673505166,
+            "positive": 1140,
+            "rows": 2106
+          },
+          "relative_vertical": {
+            "auprc": 0.9992551201129221,
+            "auroc": 0.9981684981684982,
+            "brier": 0.008274121190881546,
+            "negative": 182,
+            "nll": 0.050704344541366624,
+            "positive": 384,
+            "rows": 566
+          },
+          "support_contact": {
+            "auprc": 0.990091804634893,
+            "auroc": 0.9932176813007036,
+            "brier": 0.025909031352088253,
+            "negative": 2368,
+            "nll": 0.09483898541586971,
+            "positive": 1206,
+            "rows": 3574
+          }
+        },
+        "overall": {
+          "auprc": 0.997240219801164,
+          "auroc": 0.9972555601395192,
+          "brier": 0.0158782854612022,
+          "negative": 3516,
+          "nll": 0.062417677678375735,
+          "positive": 2730,
+          "rows": 6246
+        }
+      },
+      "orbit_augmented": {
+        "by_family": {
+          "proximity": {
+            "auprc": 1.0,
+            "auroc": 1.0,
+            "brier": 0.0008992119393479771,
+            "negative": 966,
+            "nll": 0.010544929673505165,
+            "positive": 1140,
+            "rows": 2106
+          },
+          "relative_vertical": {
+            "auprc": 0.9992551201129221,
+            "auroc": 0.9981684981684982,
+            "brier": 0.008274121190881542,
+            "negative": 182,
+            "nll": 0.05070434454136663,
+            "positive": 384,
+            "rows": 566
+          },
+          "support_contact": {
+            "auprc": 0.990091804634893,
+            "auroc": 0.9932176813007036,
+            "brier": 0.025909031352088253,
+            "negative": 2368,
+            "nll": 0.09483898541586971,
+            "positive": 1206,
+            "rows": 3574
+          }
+        },
+        "overall": {
+          "auprc": 0.997240219801164,
+          "auroc": 0.9972555601395192,
+          "brier": 0.0158782854612022,
+          "negative": 3516,
+          "nll": 0.062417677678375735,
+          "positive": 2730,
+          "rows": 6246
+        }
+      },
+      "orbit_pairwise": {
+        "by_family": {
+          "proximity": {
+            "auprc": 1.0,
+            "auroc": 1.0,
+            "brier": 0.0008673619388934496,
+            "negative": 966,
+            "nll": 0.010202457864515228,
+            "positive": 1140,
+            "rows": 2106
+          },
+          "relative_vertical": {
+            "auprc": 0.9992551201129221,
+            "auroc": 0.9981684981684982,
+            "brier": 0.007941699132720385,
+            "negative": 182,
+            "nll": 0.04925629672622431,
+            "positive": 384,
+            "rows": 566
+          },
+          "support_contact": {
+            "auprc": 0.9902921429741705,
+            "auroc": 0.9933405887230514,
+            "brier": 0.025606062325059145,
+            "negative": 2368,
+            "nll": 0.09354660528007289,
+            "positive": 1206,
+            "rows": 3574
+          }
+        },
+        "overall": {
+          "auprc": 0.9972943467887111,
+          "auroc": 0.9973016081377856,
+          "brier": 0.015664062232179154,
+          "negative": 3516,
+          "nll": 0.061431477342409786,
+          "positive": 2730,
+          "rows": 6246
+        }
+      },
+      "orbit_pairwise_projected": {
+        "by_family": {
+          "proximity": {
+            "auprc": 1.0,
+            "auroc": 1.0,
+            "brier": 0.0008658548291934549,
+            "negative": 966,
+            "nll": 0.010201540732218236,
+            "positive": 1140,
+            "rows": 2106
+          },
+          "relative_vertical": {
+            "auprc": 0.9992551201129221,
+            "auroc": 0.9981684981684982,
+            "brier": 0.007941106586076743,
+            "negative": 182,
+            "nll": 0.04925274441485213,
+            "positive": 384,
+            "rows": 566
+          },
+          "support_contact": {
+            "auprc": 0.9902921429741705,
+            "auroc": 0.9933405887230514,
+            "brier": 0.025606062325059145,
+            "negative": 2368,
+            "nll": 0.09354660528007289,
+            "positive": 1206,
+            "rows": 3574
+          }
+        },
+        "overall": {
+          "auprc": 0.9972944486411633,
+          "auroc": 0.9973010872328278,
+          "brier": 0.015663500375882523,
+          "negative": 3516,
+          "nll": 0.06143084620426478,
+          "positive": 2730,
+          "rows": 6246
+        }
+      },
+      "orbit_projection": {
+        "by_family": {
+          "proximity": {
+            "auprc": 1.0,
+            "auroc": 1.0,
+            "brier": 0.0008975027235808039,
+            "negative": 966,
+            "nll": 0.010543876241361364,
+            "positive": 1140,
+            "rows": 2106
+          },
+          "relative_vertical": {
+            "auprc": 0.9992551201129221,
+            "auroc": 0.9981684981684982,
+            "brier": 0.008273587814383304,
+            "negative": 182,
+            "nll": 0.050701486911222435,
+            "positive": 384,
+            "rows": 566
+          },
+          "support_contact": {
+            "auprc": 0.990091804634893,
+            "auroc": 0.9932176813007036,
+            "brier": 0.025909031352088253,
+            "negative": 2368,
+            "nll": 0.09483898541586971,
+            "positive": 1206,
+            "rows": 3574
+          }
+        },
+        "overall": {
+          "auprc": 0.9972399869644677,
+          "auroc": 0.9972547266915868,
+          "brier": 0.01587766082151223,
+          "negative": 3516,
+          "nll": 0.06241706353384226,
+          "positive": 2730,
+          "rows": 6246
+        }
+      },
+      "pairwise_margin": {
+        "by_family": {
+          "proximity": {
+            "auprc": 1.0,
+            "auroc": 1.0,
+            "brier": 0.0008674269924659627,
+            "negative": 966,
+            "nll": 0.010202161661930637,
+            "positive": 1140,
+            "rows": 2106
+          },
+          "relative_vertical": {
+            "auprc": 0.9992551201129221,
+            "auroc": 0.9981684981684982,
+            "brier": 0.007941699132720383,
+            "negative": 182,
+            "nll": 0.0492562967262243,
+            "positive": 384,
+            "rows": 566
+          },
+          "support_contact": {
+            "auprc": 0.9902921429741705,
+            "auroc": 0.9933405887230514,
+            "brier": 0.025606062325059145,
+            "negative": 2368,
+            "nll": 0.09354660528007289,
+            "positive": 1206,
+            "rows": 3574
+          }
+        },
+        "overall": {
+          "auprc": 0.9972941800767297,
+          "auroc": 0.9973013997758025,
+          "brier": 0.015664084166669,
+          "negative": 3516,
+          "nll": 0.06143137747006853,
+          "positive": 2730,
+          "rows": 6246
+        }
+      }
+    },
+    "fit_counts": {
+      "proximity": {
+        "linked_pairs": 9562,
+        "orbit_rows": 41804,
+        "parameters": 21,
+        "train_rows": 20902
+      },
+      "relative_vertical": {
+        "linked_pairs": 1644,
+        "orbit_rows": 9844,
+        "parameters": 22,
+        "train_rows": 4922
+      },
+      "support_contact": {
+        "linked_pairs": 22755,
+        "orbit_rows": 34384,
+        "parameters": 23,
+        "train_rows": 34384
+      }
+    },
+    "linked_counterfactual": {
+      "algebra_basis": {
+        "mean_logit_margin": 13.853711403843848,
+        "median_logit_margin": 12.81558349102565,
+        "pairs": 3516,
+        "positive_win_rate": 0.9917519908987485
+      },
+      "family": {
+        "mean_logit_margin": 13.620747688188024,
+        "median_logit_margin": 12.744441822317581,
+        "pairs": 3516,
+        "positive_win_rate": 0.9917519908987485
+      },
+      "orbit_augmented": {
+        "mean_logit_margin": 13.620747688188024,
+        "median_logit_margin": 12.744441822317581,
+        "pairs": 3516,
+        "positive_win_rate": 0.9917519908987485
+      },
+      "orbit_pairwise": {
+        "mean_logit_margin": 14.147853677169664,
+        "median_logit_margin": 13.325585329627273,
+        "pairs": 3516,
+        "positive_win_rate": 0.9926052332195677
+      },
+      "orbit_pairwise_projected": {
+        "mean_logit_margin": 14.141346773083383,
+        "median_logit_margin": 13.346198035213973,
+        "pairs": 3516,
+        "positive_win_rate": 0.9926052332195677
+      },
+      "orbit_projection": {
+        "mean_logit_margin": 13.614517485998487,
+        "median_logit_margin": 12.735989806901442,
+        "pairs": 3516,
+        "positive_win_rate": 0.9917519908987485
+      },
+      "pairwise_margin": {
+        "mean_logit_margin": 14.148131094071381,
+        "median_logit_margin": 13.325585329627273,
+        "pairs": 3516,
+        "positive_win_rate": 0.9926052332195677
+      }
+    },
+    "transformation": {
+      "algebra_basis": {
+        "proximity": {
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "p95_abs_error": 0.0,
+          "rows": 2106
+        },
+        "relative_vertical": {
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "p95_abs_error": 0.0,
+          "rows": 566
+        }
+      },
+      "family": {
+        "proximity": {
+          "max_abs_error": 0.03552497511102412,
+          "mean_abs_error": 0.0008143389984166351,
+          "p95_abs_error": 0.004127290795162025,
+          "rows": 2106
+        },
+        "relative_vertical": {
+          "max_abs_error": 0.008880786896669421,
+          "mean_abs_error": 0.0007041552221115631,
+          "p95_abs_error": 0.002478360115082137,
+          "rows": 566
+        }
+      },
+      "orbit_augmented": {
+        "proximity": {
+          "max_abs_error": 0.03552497511102414,
+          "mean_abs_error": 0.0008143389984166357,
+          "p95_abs_error": 0.004127290795162025,
+          "rows": 2106
+        },
+        "relative_vertical": {
+          "max_abs_error": 0.008880786896669421,
+          "mean_abs_error": 0.000704155222111569,
+          "p95_abs_error": 0.002478360115082151,
+          "rows": 566
+        }
+      },
+      "orbit_pairwise": {
+        "proximity": {
+          "max_abs_error": 0.03313360782890206,
+          "mean_abs_error": 0.0007618250102880829,
+          "p95_abs_error": 0.0038803019547962187,
+          "rows": 2106
+        },
+        "relative_vertical": {
+          "max_abs_error": 0.008944980370038463,
+          "mean_abs_error": 0.0007259886880032648,
+          "p95_abs_error": 0.0024958406282620006,
+          "rows": 566
+        }
+      },
+      "orbit_pairwise_projected": {
+        "proximity": {
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "p95_abs_error": 0.0,
+          "rows": 2106
+        },
+        "relative_vertical": {
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "p95_abs_error": 0.0,
+          "rows": 566
+        }
+      },
+      "orbit_projection": {
+        "proximity": {
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "p95_abs_error": 0.0,
+          "rows": 2106
+        },
+        "relative_vertical": {
+          "max_abs_error": 0.0,
+          "mean_abs_error": 0.0,
+          "p95_abs_error": 0.0,
+          "rows": 566
+        }
+      },
+      "pairwise_margin": {
+        "proximity": {
+          "max_abs_error": 0.03259020374378426,
+          "mean_abs_error": 0.0007538678151470736,
+          "p95_abs_error": 0.003829463233027783,
+          "rows": 2106
+        },
+        "relative_vertical": {
+          "max_abs_error": 0.008944980370038505,
+          "mean_abs_error": 0.0007259886880032642,
+          "p95_abs_error": 0.00249584062826199,
+          "rows": 566
+        }
+      }
+    },
+    "wrong_predicate": {
+      "algebra_basis": {
+        "correct_win_rate": 0.9739583333333334,
+        "mean_correct_minus_wrong": 0.5886207494025264,
+        "positive_rows": 384
+      },
+      "family": {
+        "correct_win_rate": 0.9739583333333334,
+        "mean_correct_minus_wrong": 0.5592226898173241,
+        "positive_rows": 384
+      },
+      "orbit_augmented": {
+        "correct_win_rate": 0.9739583333333334,
+        "mean_correct_minus_wrong": 0.5592226898173241,
+        "positive_rows": 384
+      },
+      "orbit_pairwise": {
+        "correct_win_rate": 0.9739583333333334,
+        "mean_correct_minus_wrong": 0.5640450292607432,
+        "positive_rows": 384
+      },
+      "orbit_pairwise_projected": {
+        "correct_win_rate": 0.9739583333333334,
+        "mean_correct_minus_wrong": 0.5640450292607432,
+        "positive_rows": 384
+      },
+      "orbit_projection": {
+        "correct_win_rate": 0.9739583333333334,
+        "mean_correct_minus_wrong": 0.559222689817324,
+        "positive_rows": 384
+      },
+      "pairwise_margin": {
+        "correct_win_rate": 0.9739583333333334,
+        "mean_correct_minus_wrong": 0.5640450292607432,
+        "positive_rows": 384
+      }
+    }
+  },
+  "role": "train_only_fit_internal_dev_sanity_no_selection",
+  "schema_version": "relcompat3d_relation_algebra_diagnostics_v1",
+  "strict_family_models": {
+    "proximity": {
+      "internal_dev_no_selection": {
+        "auprc": 1.0,
+        "auroc": 1.0,
+        "brier": 0.000899211939347977,
+        "negative": 966,
+        "nll": 0.010544929673505165,
+        "positive": 1140,
+        "rows": 2106
+      },
+      "train": {
+        "auprc": 0.9998071172489306,
+        "auroc": 0.9998309464233608,
+        "brier": 0.0016321822721068044,
+        "negative": 9562,
+        "nll": 0.012996312582115765,
+        "positive": 11340,
+        "rows": 20902
+      }
+    },
+    "relative_vertical": {
+      "internal_dev_no_selection": {
+        "auprc": 0.9992551201129221,
+        "auroc": 0.9981684981684982,
+        "brier": 0.008274121190881544,
+        "negative": 182,
+        "nll": 0.05070434454136663,
+        "positive": 384,
+        "rows": 566
+      },
+      "train": {
+        "auprc": 0.9996252649627392,
+        "auroc": 0.9991720219883645,
+        "brier": 0.008395309783497838,
+        "negative": 1644,
+        "nll": 0.04468051488819296,
+        "positive": 3278,
+        "rows": 4922
+      }
+    },
+    "support_contact": {
+      "internal_dev_no_selection": {
+        "auprc": 0.990091804634893,
+        "auroc": 0.9932176813007036,
+        "brier": 0.02590903135208825,
+        "negative": 2368,
+        "nll": 0.0948389854158697,
+        "positive": 1206,
+        "rows": 3574
+      },
+      "train": {
+        "auprc": 0.9884147342514251,
+        "auroc": 0.9928845968637156,
+        "brier": 0.029042137483165236,
+        "negative": 22755,
+        "nll": 0.10087764482943394,
+        "positive": 11629,
+        "rows": 34384
+      }
+    }
+  }
+}

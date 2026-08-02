@@ -1,0 +1,101 @@
+{
+  "counts": {
+    "input_rows": 66454,
+    "input_sha256": "ada87676faf0df67c8d8873ceb8efa54ab29507306fca24d4020b21d5e39af6e",
+    "missing_feature_cells": 0,
+    "train_positive_rows": 26247,
+    "used_rows": 14618
+  },
+  "stats": {
+    "close by": {
+      "normalized_distance_xy": {
+        "count": 11340,
+        "iqr": 0.2924022425952271,
+        "median": 0.5000517219973168,
+        "q25": 0.3517081500101817,
+        "q75": 0.6441103926054088
+      },
+      "projected_iou_xy": {
+        "count": 11340,
+        "iqr": 0.1573405582028874,
+        "median": 0.062025503725328494,
+        "q25": 0.0,
+        "q75": 0.1573405582028874
+      },
+      "projected_object_overlap_ratio": {
+        "count": 11340,
+        "iqr": 0.36456824532901294,
+        "median": 0.12960389385607018,
+        "q25": 0.0,
+        "q75": 0.36456824532901294
+      },
+      "projected_subject_overlap_ratio": {
+        "count": 11340,
+        "iqr": 0.36456824532901294,
+        "median": 0.12960389385607018,
+        "q25": 0.0,
+        "q75": 0.36456824532901294
+      }
+    },
+    "higher than": {
+      "predicate_aligned_normalized_center_delta_z": {
+        "count": 1639,
+        "iqr": 0.6935262900982901,
+        "median": 0.35781271229773304,
+        "q25": 0.13528259432886008,
+        "q75": 0.8288088844271502
+      },
+      "projected_iou_xy": {
+        "count": 1639,
+        "iqr": 0.10687246559120683,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.10687246559120683
+      },
+      "projected_object_overlap_ratio": {
+        "count": 1639,
+        "iqr": 0.1622736398368056,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.1622736398368056
+      },
+      "projected_subject_overlap_ratio": {
+        "count": 1639,
+        "iqr": 0.23897351583146653,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.23897351583146653
+      }
+    },
+    "lower than": {
+      "predicate_aligned_normalized_center_delta_z": {
+        "count": 1639,
+        "iqr": 0.6935262900982901,
+        "median": 0.35781271229773304,
+        "q25": 0.13528259432886008,
+        "q75": 0.8288088844271502
+      },
+      "projected_iou_xy": {
+        "count": 1639,
+        "iqr": 0.10687246559120683,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.10687246559120683
+      },
+      "projected_object_overlap_ratio": {
+        "count": 1639,
+        "iqr": 0.23897351583146653,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.23897351583146653
+      },
+      "projected_subject_overlap_ratio": {
+        "count": 1639,
+        "iqr": 0.1622736398368056,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.1622736398368056
+      }
+    }
+  }
+}

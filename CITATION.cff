@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the RelCompat3D paper and this repository."
+title: "RelCompat3D"
+type: software
+authors:
+  - family-names: "Kim"
+    given-names: "Yoo-Hyun"
+repository-code: "https://github.com/Kim-Yoo-Hyun/RelCompat3D"
+license: "Apache-2.0"
+version: "1.0.0"
+date-released: "2026-08-03"
+keywords:
+  - "3D scene graph"
+  - "geometric compatibility"
+  - "relation re-ranking"

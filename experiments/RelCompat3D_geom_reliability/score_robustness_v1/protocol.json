@@ -1,0 +1,114 @@
+{
+  "claim_boundary": "This is a post-hoc robustness and closest-simple-baseline analysis on the active shared-3DSSG candidate pool. It does not select a new source-score mapping, claim score-scale invariance, or treat evaluation-verifier baselines as deployable methods.",
+  "created_at_kst": "2026-07-27",
+  "evaluation": {
+    "bootstrap_resamples": 1000,
+    "bootstrap_seed": 20260715,
+    "bootstrap_unit": "scan_id cluster",
+    "ks": [
+      5,
+      10,
+      20,
+      50,
+      100
+    ]
+  },
+  "inputs": {
+    "canonical_summary": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/routed_comparators/summary.json",
+    "ground_truth": "local_dataset/RelCompat3D/canonical/ground_truth.jsonl",
+    "nonlinear_models": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/nonlinear/models.json",
+    "official_context_annotations": "local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json",
+    "open3dsg_verification": "local_dataset/RelCompat3D/canonical/open3dsg/verification.jsonl",
+    "sgfn_verification": "local_dataset/RelCompat3D/canonical/sgfn/verification.jsonl",
+    "structured_models": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/structured_models.json",
+    "train_scans": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/splits/train_scans.txt",
+    "training_table": "local_dataset/RelCompat3D/calibration/table.jsonl",
+    "vlsat_verification": "local_dataset/RelCompat3D/canonical/vlsat/verification.jsonl"
+  },
+  "locked_sha256": {
+    "canonical_summary": "de89026f74375668b36b870af3e512be8e766baf9b0bc5bd5d4248c516df0ba1",
+    "ground_truth": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c",
+    "nonlinear_models": "ccf4107c06d95161df8ecb1948b37f781025407d7b3596ddd6886394a2976c3e",
+    "official_context_annotations": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e",
+    "open3dsg_verification": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720",
+    "sgfn_verification": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32",
+    "structured_models": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194",
+    "train_scans": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53",
+    "training_table": "ada87676faf0df67c8d8873ceb8efa54ab29507306fca24d4020b21d5e39af6e",
+    "vlsat_verification": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+  },
+  "score_mappings": [
+    {
+      "kind": "identity",
+      "name": "identity"
+    },
+    {
+      "gamma": 0.5,
+      "kind": "power",
+      "name": "power_0p5"
+    },
+    {
+      "gamma": 2.0,
+      "kind": "power",
+      "name": "power_2"
+    },
+    {
+      "gamma": 4.0,
+      "kind": "power",
+      "name": "power_4"
+    },
+    {
+      "epsilon": 1e-06,
+      "kind": "logit_temperature",
+      "name": "temperature_0p5",
+      "temperature": 0.5
+    },
+    {
+      "epsilon": 1e-06,
+      "kind": "logit_temperature",
+      "name": "temperature_2",
+      "temperature": 2.0
+    },
+    {
+      "kind": "percentile",
+      "name": "context_family_percentile"
+    }
+  ],
+  "schema_version": "relcompat3d_score_robustness_protocol_v1",
+  "simple_baselines": {
+    "hard_drop": {
+      "definition": "Remove every primary-verifier-violated candidate, retain source order among the remaining candidates, and report the resulting selected count.",
+      "uses_evaluation_verifier": true
+    },
+    "hard_tail": {
+      "definition": "Within each re-ranked family, retain source order among non-violated rows and then among violated rows; preserve source family slots and support/contact order.",
+      "uses_evaluation_verifier": true
+    },
+    "positive_density": {
+      "definition": "Diagonal robust density around train-positive predicate medians, scaled by IQR, transformation-averaged and multiplied by the source score under the active family-slot route.",
+      "features": {
+        "close by": [
+          "normalized_distance_xy",
+          "projected_iou_xy",
+          "projected_subject_overlap_ratio",
+          "projected_object_overlap_ratio"
+        ],
+        "higher than": [
+          "predicate_aligned_normalized_center_delta_z",
+          "projected_iou_xy",
+          "projected_subject_overlap_ratio",
+          "projected_object_overlap_ratio"
+        ],
+        "lower than": [
+          "predicate_aligned_normalized_center_delta_z",
+          "projected_iou_xy",
+          "projected_subject_overlap_ratio",
+          "projected_object_overlap_ratio"
+        ]
+      },
+      "imputation": "training-positive predicate median",
+      "uses_evaluation_verifier": false
+    }
+  },
+  "status": "frozen_before_p0_score_mapping_and_simple_baselines"
+}

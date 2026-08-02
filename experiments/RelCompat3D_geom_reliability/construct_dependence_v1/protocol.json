@@ -1,0 +1,125 @@
+{
+  "schema_version": "relcompat3d_construct_dependence_protocol_v1",
+  "status": "frozen_before_construct_package",
+  "created_at_kst": "2026-07-27",
+  "inputs": {
+    "active_protocol": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocol.json",
+    "component_removal_manifest": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/component_removals/manifest.json",
+    "component_removal_metrics": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/component_removals/metrics.csv",
+    "counterfactual_manifest": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/counterfactual_sensitivity/manifest.json",
+    "counterfactual_metrics": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/counterfactual_sensitivity/metrics.csv",
+    "feature_removal_manifest": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/held_out_primitive/manifest.json",
+    "feature_removal_metrics": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/held_out_primitive/metrics.csv",
+    "point_mesh_linear_manifest": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/surface_audit/manifest.json",
+    "point_mesh_linear_metrics": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/surface_audit/metrics.csv",
+    "point_mesh_mlp_manifest": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/mlp_surface_audit/manifest.json",
+    "point_mesh_mlp_metrics": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/mlp_surface_audit/metrics.csv",
+    "score_robustness_manifest": "experiments/RelCompat3D_geom_reliability/score_robustness_v1/evaluation/manifest.json",
+    "score_robustness_summary": "experiments/RelCompat3D_geom_reliability/score_robustness_v1/evaluation/summary.json"
+  },
+  "locked_sha256": {
+    "active_protocol": "011b460c0a5706559d3a5bd6da5f94719417f81bb4d68a9a5b9447fcbd0c41c6",
+    "component_removal_manifest": "0323828548511ae28c05338fceab57bf60401c0256247ccffbe3e3ae98788d75",
+    "component_removal_metrics": "5accf19ce009d22e4c3d9597323b6eab2e1a5134b629ab733684e80878ff14aa",
+    "counterfactual_manifest": "4c0f2087b89369c288603d99b00b5631dbefc4065039aa62abe861064cec4ebf",
+    "counterfactual_metrics": "dc134834f72b5615c39276bab987ed51add8ef77d04ee9aa4d4558748480d11f",
+    "feature_removal_manifest": "bf048c5d1c70f9012ccd3600c9585dbe7f7057cc8369728b5a5772b0c5b0d3bf",
+    "feature_removal_metrics": "28016e826fe017e9e90689a7f31ce85ce95df04ce23782ee36675be519c55c2f",
+    "point_mesh_linear_manifest": "8393ccd5154b62bc7610d7463e3b64b017ff997b2edb774bb351f45488f8d44c",
+    "point_mesh_linear_metrics": "1df335d5d3f7575e5837a316c529814fd7804f2e075a36f41143b9dd2aa2c5a3",
+    "point_mesh_mlp_manifest": "f259ce1fb7a6e607fcf59133a1e27b663201f1e7953eea41a09bff1c92d6b035",
+    "point_mesh_mlp_metrics": "14af3dcff53dad4b8067a55f0bd0ee2b086ca5f23e1e7562b13a4cf48f8d9514",
+    "score_robustness_manifest": "2941b81a5d3ea0d6978f80bc0644b1ee3b80d3c5d8c75ed7cf97fd4efe8183f9",
+    "score_robustness_summary": "67922adae376e7a9307eec670564d262b1fad079729d6e484db3d55cd19062c8"
+  },
+  "dependency_matrix": [
+    {
+      "information": "evaluation_candidate_rows",
+      "training_construction": "No",
+      "primary_verifier": "Yes",
+      "point_mesh_audit": "Yes",
+      "interpretation": "Training examples are constructed only from the training split; both evaluations label the frozen evaluation candidates."
+    },
+    {
+      "information": "source_relation_score",
+      "training_construction": "No",
+      "primary_verifier": "No",
+      "point_mesh_audit": "No",
+      "interpretation": "The score selects rankings outside the label estimators but is not an input to compatibility training or either verifier."
+    },
+    {
+      "information": "primary_verifier_status_labels",
+      "training_construction": "No",
+      "primary_verifier": "Output",
+      "point_mesh_audit": "No",
+      "interpretation": "Primary status labels do not construct training rows and are not read by the point/mesh audit."
+    },
+    {
+      "information": "obb_derived_measurements",
+      "training_construction": "Some",
+      "primary_verifier": "Yes",
+      "point_mesh_audit": "No",
+      "interpretation": "Training counterfactuals and the primary verifier share a subset of OBB primitives and family thresholds."
+    },
+    {
+      "information": "point_mesh_measurements",
+      "training_construction": "No",
+      "primary_verifier": "No",
+      "point_mesh_audit": "Yes",
+      "interpretation": "The alternative audit measures reconstructed point-cloud vertices and mesh triangles directly."
+    },
+    {
+      "information": "evaluation_scene_identities",
+      "training_construction": "No",
+      "primary_verifier": "Yes",
+      "point_mesh_audit": "Yes",
+      "interpretation": "The two evaluations use the same official validation scenes and fixed candidate identities."
+    },
+    {
+      "information": "relation_ontology",
+      "training_construction": "Yes",
+      "primary_verifier": "Yes",
+      "point_mesh_audit": "Yes",
+      "interpretation": "All components share the scoped support/contact, proximity, and vertical-order ontology."
+    }
+  ],
+  "evidence_index": [
+    {
+      "evidence": "feature_removal",
+      "artifact": "held_out_primitive",
+      "supports": "Sensitivity after removing the exact verifier scalar, the complete related primitive family, or retaining only alternative evidence.",
+      "does_not_support": "Independence between training targets and the primary verifier."
+    },
+    {
+      "evidence": "point_mesh_linear",
+      "artifact": "surface_audit",
+      "supports": "Direction of Linear ranking changes under labels derived without OBB inputs or primary status labels.",
+      "does_not_support": "Human physical-validity ground truth or dataset-level generalization."
+    },
+    {
+      "evidence": "point_mesh_mlp",
+      "artifact": "mlp_surface_audit",
+      "supports": "Direction of MLP ranking changes under the same alternative point/mesh construct.",
+      "does_not_support": "Independent ontology or sensor evidence."
+    },
+    {
+      "evidence": "uncertainty_policy",
+      "artifact": "score_robustness_v1/evaluation/summary.json",
+      "supports": "Primary conclusions under all-row, decidable-only, and uncertain-as-violated denominators.",
+      "does_not_support": "Correctness of any individual uncertain label."
+    },
+    {
+      "evidence": "counterfactual_sensitivity",
+      "artifact": "counterfactual_sensitivity",
+      "supports": "Stability to pre-specified negative-construction and pair-weight variations.",
+      "does_not_support": "Fully independent target construction."
+    },
+    {
+      "evidence": "component_removals",
+      "artifact": "component_removals",
+      "supports": "Direct effects of the linked pairwise loss and transformation averaging for the Linear estimator.",
+      "does_not_support": "Component necessity for the MLP estimator."
+    }
+  ],
+  "claim_boundary": "The package documents partial construct dependence and verifies the existing sensitivity evidence. It does not convert verifier-derived Violation into independent physical-validity ground truth, add human labels, or support dataset-level generalization."
+}

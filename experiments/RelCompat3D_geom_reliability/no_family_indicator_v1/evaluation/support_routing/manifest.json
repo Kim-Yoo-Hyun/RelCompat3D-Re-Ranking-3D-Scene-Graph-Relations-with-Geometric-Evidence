@@ -1,0 +1,65 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.structured.yaml run --rm support_contact_routing",
+  "inputs": {
+    "final_ground_truth": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "internal_dev_ground_truth": {
+      "path": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/internal_dev_ground_truth.jsonl",
+      "sha256": "3425be6aba974345a8aadc279b06e6a56dca6407c123ad45374adcfc137e199b"
+    },
+    "internal_dev_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/internal_dev/geometry/verification.jsonl",
+      "sha256": "458bdf95447052bd71f297ce2c2a0ee70af84447c75e56201180f58106e18618"
+    },
+    "open3dsg_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+      "sha256": "89ab2324654d07e8c2bde2c4aec3b5bdf9b916898b7e0bb40d4f9c582d58c58e"
+    },
+    "sgfn_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+    },
+    "strict_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/strict_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2"
+    },
+    "structured_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/structured_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    },
+    "vlsat_verification": {
+      "path": "experiments/RelCompat3D_geom_reliability/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+    }
+  },
+  "outputs": {
+    "metrics.csv": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/support_routing/metrics.csv",
+      "sha256": "d1b9e3f199c89fc18735a66f4611ca44ecd72ad3b4fee0a61d95b9aeb926af9d"
+    },
+    "summary.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/support_routing/summary.json",
+      "sha256": "a59eb3544560ede939f6fdc90ff2c3cfb34ef2fee58cc423669fffa101928736"
+    },
+    "summary.md": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/support_routing/summary.md",
+      "sha256": "cb413668c7e0b3254925b830c608cd4f6b2d56efd831701f47e681bf1351955e"
+    }
+  },
+  "protocol": {
+    "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/protocols/support_routing.json",
+    "sha256": "0bf059a0c9bcc42e2f35493d9e648afc0335a9c83eb3118fbbc1e5b66389a5c2"
+  },
+  "schema_version": "relcompat3d_support_contact_routing_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_final_support_contact_slices_exact": true,
+    "all_sources_evaluated": true,
+    "inputs_exist": true,
+    "internal_dev_family_composition_exact": true,
+    "internal_dev_gate_selected_family_slot_rerank": true,
+    "internal_dev_support_selection_exact": true
+  }
+}

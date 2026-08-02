@@ -1,0 +1,40 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.structured.yaml run --rm relcompat3d_candidate_oracle",
+  "outputs": {
+    "candidate_pool_coverage.csv": {
+      "sha256": "eccedffe37eb9c5f8984091209f59f49d9c9f83813746a0d8b8d4a101688637c",
+      "size_bytes": 324
+    },
+    "oracle_recall.csv": {
+      "sha256": "4825d0aa0e53b521af460c6c4d692c712518539078ce6904cf334f3024d2ca4c",
+      "size_bytes": 6842
+    },
+    "summary.json": {
+      "sha256": "642d579a45ffef584931d436e3cab078e66a80b78619d06a8e26c9f16406bc69",
+      "size_bytes": 22336
+    },
+    "summary.md": {
+      "sha256": "f8b91491bca05fd0d1fa1d51b5389209f983d7a13ebb2dac73a639c20a8913e0",
+      "size_bytes": 1431
+    }
+  },
+  "protocol": {
+    "path": "experiments/RelCompat3D_geom_reliability/candidate_oracle_v1/protocol.json",
+    "sha256": "3591a5b2265310cfb426e31af24f4ee957c9172625d5e49ab15e219dc8415c86"
+  },
+  "row_bundle": {
+    "manifest_sha256": "9881b2c6d3207cd68126edc516690033ed0204e937fa64ce530629fcaa48fd43",
+    "path": "experiments/RelCompat3D_geom_reliability/row_reproduction_v1/artifacts/derived_rows"
+  },
+  "schema_version": "relcompat3d_candidate_oracle_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "active_methods_below_active_oracle": true,
+    "all_points_finite": true,
+    "candidate_identity_unique": true,
+    "ground_truth_denominator": true,
+    "oracle_ordering": true,
+    "oracle_recall_monotone_in_k": true,
+    "row_bundle_hashes_match": true
+  }
+}

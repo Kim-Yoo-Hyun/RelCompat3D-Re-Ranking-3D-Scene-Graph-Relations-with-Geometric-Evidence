@@ -1,0 +1,82 @@
+{
+  "classification": "leakage_controlled_train_only_reconstruction_not_untouched_prospective_confirmation",
+  "comparators_all_reported_no_winner_promotion": [
+    "semantic_only",
+    "pooled_product",
+    "geometry_only_family",
+    "rank_average_family",
+    "rrf_c60",
+    "product_M_T",
+    "product_M_G",
+    "product_M_add",
+    "product_M_int"
+  ],
+  "controls": {
+    "close_by_swap": "exact subject/object swap with predicate unchanged; absolute compatibility difference",
+    "support_contact_endpoint_swap": "prohibited; no blanket transform without exact predicate inverse and geometry rule",
+    "vertical_inverse_equivariance": "exact subject/object swap plus higher<->lower; absolute compatibility difference",
+    "wrong_T_on_GT_relative_vertical": "GT relative_vertical rows only; endpoints and raw G fixed; higher/lower predicate inverted; aligned interactions recomputed",
+    "wrong_pair_geometry_continuity": "GT rows only; replace raw G by the next lexicographic directed pair in the same subgraph under a cyclic shift; keep T fixed"
+  },
+  "created_at_utc": "2026-07-10T15:08:22.102474+00:00",
+  "default": {
+    "compatibility": "family_specific strict train-only logistic C_e",
+    "implementation": "semantic ranking_score multiplied by family_specific compatibility",
+    "lambda": 1.0,
+    "score": "Z_e * C_e",
+    "selection": "theory-driven frozen default; internal-dev may only accept or reject it"
+  },
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm train_only_execution_freeze",
+  "evaluation": {
+    "candidate_policy": "actual candidate count only; no synthetic padding",
+    "context_inclusion": "all contexts; GT presence never used for ranking/filtering/routing",
+    "final_validation": {
+      "bootstrap": 1000,
+      "contexts": 548,
+      "gt": 3972,
+      "seed": 20260712
+    },
+    "internal_dev": {
+      "bootstrap": 1000,
+      "contexts": 354,
+      "gt": 2730,
+      "seed": 20260711
+    },
+    "ks": [
+      5,
+      10,
+      20,
+      50,
+      100
+    ],
+    "primary_k": 100
+  },
+  "hashes": {
+    "evaluator_sha256": "b13f5975e9c189b0d552065b0ce5f24eae683539255594ec5c2b7bacf047e181",
+    "fit_manifest_sha256": "457705e4f04c42cccd9787ee81c02253c8610617de791eb140cac8382e9652b0",
+    "models_sha256": "5661d4a54c992438cf728afe9184f215efc54f886513e1898ae237475f072151",
+    "protocol_sha256": "0f5bb64ca91e405c55324ffe4106f104fd49074de2af28c77e1f81eef3fe1711",
+    "source_config_sha256": "69d82e36e76f7a5d36f5704eb6f4bff49fa76beb2d598ad86f56483617564392"
+  },
+  "inputs": {
+    "fit_manifest": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/calibration/fitted/manifest.json",
+    "models": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/calibration/fitted/models.json",
+    "protocol": "experiments/RelCompat3D_geom_reliability/train_only_reestablishment_v1/protocol.json"
+  },
+  "rank_fusions": {
+    "rank_average_family": "0.5*(within-context semantic percentile + within-context family compatibility percentile)",
+    "rrf_c60": "1/(60+within-context semantic rank)+1/(60+within-context family compatibility rank)"
+  },
+  "schema_version": "relcompat3d_train_only_execution_contract_v1",
+  "status": "execution_contract_frozen_pre_internal_dev_source_inference",
+  "validations": {
+    "evaluator_exists": true,
+    "factor_models_exact": true,
+    "family_models_exact": true,
+    "protocol_frozen": true,
+    "source_config_exists": true,
+    "strict_fit_ready": true,
+    "strict_model_schema": true,
+    "zero_final_rows_in_fit": true
+  }
+}

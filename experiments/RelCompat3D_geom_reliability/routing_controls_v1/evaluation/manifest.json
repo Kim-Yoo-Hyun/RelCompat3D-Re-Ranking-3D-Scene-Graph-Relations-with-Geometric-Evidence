@@ -1,0 +1,83 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.structured.yaml run --rm relcompat3d_routing_constraints",
+  "inputs": {
+    "canonical_summary": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/routed_comparators/summary.json",
+      "sha256": "de89026f74375668b36b870af3e512be8e766baf9b0bc5bd5d4248c516df0ba1"
+    },
+    "ground_truth": {
+      "path": "local_dataset/RelCompat3D/canonical/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "nonlinear_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/evaluation/nonlinear/models.json",
+      "sha256": "ccf4107c06d95161df8ecb1948b37f781025407d7b3596ddd6886394a2976c3e"
+    },
+    "official_context_annotations": {
+      "path": "local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json",
+      "sha256": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e"
+    },
+    "open3dsg_verification": {
+      "path": "local_dataset/RelCompat3D/canonical/open3dsg/verification.jsonl",
+      "sha256": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720"
+    },
+    "sgfn_verification": {
+      "path": "local_dataset/RelCompat3D/canonical/sgfn/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+    },
+    "structured_models": {
+      "path": "experiments/RelCompat3D_geom_reliability/no_family_indicator_v1/fit/structured_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    },
+    "vlsat_verification": {
+      "path": "local_dataset/RelCompat3D/canonical/vlsat/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+    }
+  },
+  "outputs": {
+    "canonical_validation.csv": {
+      "path": "experiments/RelCompat3D_geom_reliability/routing_controls_v1/evaluation/canonical_validation.csv",
+      "sha256": "38ab4238a936457cc9e23ebbb89935e2d13acb8fa38065c3c8b4e47439a9fb0a"
+    },
+    "family_metrics.csv": {
+      "path": "experiments/RelCompat3D_geom_reliability/routing_controls_v1/evaluation/family_metrics.csv",
+      "sha256": "ede595b72dccd45b13fc6269820a60f3d17fb8355a453527a2afd082d1132cd9"
+    },
+    "membership.csv": {
+      "path": "experiments/RelCompat3D_geom_reliability/routing_controls_v1/evaluation/membership.csv",
+      "sha256": "93f6e230cb63c972d872951bb1e7da5025502509b7cb46d29e9fe4f84d70bb86"
+    },
+    "metrics.csv": {
+      "path": "experiments/RelCompat3D_geom_reliability/routing_controls_v1/evaluation/metrics.csv",
+      "sha256": "dd9904635cdc988602a5e802eb5bc8f2a9d30f451f8180edcb69f5066c6738e8"
+    },
+    "summary.json": {
+      "path": "experiments/RelCompat3D_geom_reliability/routing_controls_v1/evaluation/summary.json",
+      "sha256": "16c3609cb0c4c5ef5d3ca7c751dd14dc5945115be597360dfe0d11da44f060df"
+    },
+    "summary.md": {
+      "path": "experiments/RelCompat3D_geom_reliability/routing_controls_v1/evaluation/summary.md",
+      "sha256": "d580da26a94955d7940fc43d9ce00d10080ec8b3d48f6b3f102586c124f07eda"
+    }
+  },
+  "protocol": {
+    "path": "experiments/RelCompat3D_geom_reliability/routing_controls_v1/protocol.json",
+    "sha256": "2f12d7736cde98ba640365647dfe3fff718b91c8420a810c8d57e943d20f8aec"
+  },
+  "schema_version": "relcompat3d_routing_constraint_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_input_hashes_match": true,
+    "all_prediction_ids_unique": true,
+    "all_source_scores_nonnegative": true,
+    "all_sources_have_157_scans": true,
+    "all_sources_have_548_contexts": true,
+    "canonical_points_exact": true,
+    "family_slots_preserve_family_sequence": true,
+    "family_slots_preserve_support_ids": true,
+    "identity_route_exact": true,
+    "pv_global_preserves_support_ids": true,
+    "pv_global_preserves_support_slots": true,
+    "support_order_only_preserves_support_subsequence": true
+  }
+}
