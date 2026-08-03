@@ -3,8 +3,8 @@
 - `download_models.sh`: download and verify the external RelCompat3D model archive.
 - `train_open3dsg.sh`: coordinate the pinned Open3DSG preparation, feature
   extraction, source-model training, and checkpoint-selection stages.
-- `restore_private_bundle.sh`: verify the maintainer recovery archive and map
-  its frozen legacy paths to the current repository layout.
+- `restore_recovery_archive.sh`: verify a maintainer recovery archive and map
+  its contents to the current repository layout.
 - `validate.sh`: validate Compose, Python sources, JSON artifacts, model hashes,
   and frozen table cells.
 - `reproduce_tables.sh`: regenerate Tables 1--3 and Figure 3 from table rows

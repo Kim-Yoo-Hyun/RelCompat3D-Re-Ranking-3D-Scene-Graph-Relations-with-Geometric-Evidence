@@ -68,8 +68,3 @@ The files above are canonical source-prediction rows. The final
 the frozen verifier output. That geometry join must use officially obtained
 3RScan/3DSSG data and the thresholds recorded by the frozen protocols. Do not
 substitute newly tuned thresholds and call the result an exact reproduction.
-
-For archival paper-level regeneration, restore the maintainer recovery
-archive with `scripts/restore_private_bundle.sh` and run
-`scripts/reproduce_tables.sh`. This route avoids redistributing licensed
-geometry and source-derived stable identifiers.

@@ -24,8 +24,8 @@ printf '%s  %s\n' "$archive_sha" "$archive" | sha256sum --check --status || {
 mkdir -p "$extracted"
 tar --zstd --extract --file "$archive" --directory "$extracted"
 
-# The published archive predates the public directory cleanup. Map its frozen
-# paths to the concise repository layout without changing model contents.
+# Map the experiment paths stored in the model archive to the current
+# repository layout without modifying model contents.
 while IFS='|' read -r source destination; do
   mkdir -p "$(dirname "$root/$destination")"
   cp "$extracted/$source" "$root/$destination"

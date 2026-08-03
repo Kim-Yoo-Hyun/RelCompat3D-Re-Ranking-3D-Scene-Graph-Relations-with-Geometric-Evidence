@@ -2,29 +2,29 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-bundle="${1:-}"
-mode="${2:-core}"
+archive="${1:-}"
+scope="${2:-tables}"
 
-if [[ -z "$bundle" ]]; then
-  echo "usage: $0 /path/to/RelCompat3D_AAAI27_release_20260730 [core|all]" >&2
+if [[ -z "$archive" ]]; then
+  echo "usage: $0 /path/to/recovery-archive [tables|complete]" >&2
   exit 2
 fi
 
-bundle="$(cd "$bundle" && pwd)"
+archive="$(cd "$archive" && pwd)"
 cd "$root"
-if [[ ! -f "$bundle/MANIFEST.sha256" ]]; then
-  echo "Missing recovery-archive manifest: $bundle/MANIFEST.sha256" >&2
+if [[ ! -f "$archive/MANIFEST.sha256" ]]; then
+  echo "Missing recovery-archive manifest: $archive/MANIFEST.sha256" >&2
   exit 1
 fi
-if [[ "$mode" != "core" && "$mode" != "all" ]]; then
-  echo "mode must be core or all" >&2
+if [[ "$scope" != "tables" && "$scope" != "complete" ]]; then
+  echo "scope must be tables or complete" >&2
   exit 2
 fi
 
 echo "Verifying maintainer recovery archive..."
-(cd "$bundle" && sha256sum --check MANIFEST.sha256)
+(cd "$archive" && sha256sum --check MANIFEST.sha256)
 
-tmp="$(mktemp -d "${TMPDIR:-/tmp}/relcompat3d_private_restore.XXXXXX")"
+tmp="$(mktemp -d "${TMPDIR:-/tmp}/relcompat3d_archive_restore.XXXXXX")"
 trap 'find "$tmp" -depth -delete' EXIT
 
 install_file() {
@@ -38,7 +38,7 @@ echo "Restoring fitted RelCompat3D models..."
 models="$tmp/models"
 mkdir -p "$models"
 tar --zstd --extract \
-  --file "$bundle/checkpoints/relcompat3d/relcompat3d_models_3dssg_v1.tar.zst" \
+  --file "$archive/checkpoints/relcompat3d/relcompat3d_models_3dssg_v1.tar.zst" \
   --directory "$models"
 
 while IFS='|' read -r source destination; do
@@ -55,11 +55,11 @@ experiments/RelCompat3D_geom_reliability/component_diagnostics_v1/evaluation/mod
 MODELS
 sha256sum --check configs/model_files.sha256
 
-echo "Mapping legacy paper rows to paper_reproduction/.../table_rows..."
+echo "Restoring archived paper-table rows..."
 rows="$tmp/rows"
 mkdir -p "$rows"
 tar --zstd --extract \
-  --file "$bundle/artifacts/relcompat3d_paper_table_rows_3dssg_v1.tar.zst" \
+  --file "$archive/artifacts/relcompat3d_paper_table_rows_3dssg_v1.tar.zst" \
   --directory "$rows" \
   row_reproduction_v1/artifacts/derived_rows
 for file in ground_truth.csv.gz open3dsg_candidates.csv.gz sgfn_candidates.csv.gz vlsat_candidates.csv.gz schema.json manifest.json; do
@@ -68,16 +68,16 @@ for file in ground_truth.csv.gz open3dsg_candidates.csv.gz sgfn_candidates.csv.g
     "experiments/RelCompat3D_geom_reliability/paper_reproduction/artifacts/table_rows/$file"
 done
 
-if [[ "$mode" == "all" ]]; then
+if [[ "$scope" == "complete" ]]; then
   echo "Restoring training/development and point/mesh inputs..."
   training="$tmp/training"
   surface="$tmp/surface"
   mkdir -p "$training" "$surface"
   tar --zstd --extract \
-    --file "$bundle/artifacts/relcompat3d_training_inputs_3dssg_train1061_dev117_v1.tar.zst" \
+    --file "$archive/artifacts/relcompat3d_training_inputs_3dssg_train1061_dev117_v1.tar.zst" \
     --directory "$training"
   tar --zstd --extract \
-    --file "$bundle/artifacts/relcompat3d_point_mesh_audit_measurements_v1.tar.zst" \
+    --file "$archive/artifacts/relcompat3d_point_mesh_audit_measurements_v1.tar.zst" \
     --directory "$surface"
 
   install_file "$training/training_inputs/train_table.jsonl" \
@@ -99,5 +99,5 @@ fi
 
 echo "Validating restored public paths..."
 "$root/scripts/validate.sh" --require-models
-echo "Maintainer recovery archive restored in '$mode' mode."
+echo "Maintainer recovery archive restored with '$scope' scope."
 echo "Run scripts/reproduce_tables.sh to regenerate Tables 1--3 and Figure 3."

@@ -199,14 +199,6 @@ The repository does not provide a single command from raw dataset download
 through inference of all three source predictors; data access and
 source-predictor inference follow their official repositories.
 
-Maintainers restoring the archival recovery bundle can map its legacy paths
-to the current repository layout with:
-
-```bash
-scripts/restore_private_bundle.sh /path/to/RelCompat3D_AAAI27_release_20260730 core
-scripts/reproduce_tables.sh
-```
-
 ## Citation
 
 The paper citation will be added after publication. For the software release,

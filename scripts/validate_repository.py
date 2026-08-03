@@ -113,6 +113,7 @@ def main() -> None:
         ROOT / "configs/open3dsg/development_scans.txt",
         ROOT / "docs/open3dsg-training.md",
         ROOT / "docs/source-adapters.md",
+        ROOT / "scripts/restore_recovery_archive.sh",
         ROOT / "scripts/train_open3dsg.sh",
         ROOT / "src/relcompat3d/adapt_source_predictions.py",
         ROOT / "src/relcompat3d/configure_open3dsg.py",

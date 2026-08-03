@@ -37,18 +37,6 @@ The command creates Tables 1--3 as CSV and LaTeX, Figure 3 data and renderings,
 and `canonical_validation.csv`. A valid reproduction reports 291 passing cells
 with maximum absolute error no larger than `1e-12`.
 
-For a maintainer recovery archive that uses the frozen pre-release directory
-names, restore and remap it with:
-
-```bash
-scripts/restore_private_bundle.sh /path/to/RelCompat3D_AAAI27_release_20260730 core
-scripts/reproduce_tables.sh
-```
-
-Use `all` instead of `core` to also restore the training/development and
-point/mesh inputs. The script verifies the bundle manifest before writing the
-current public paths.
-
 ## D. Refit and evaluate RelCompat3D
 
 After all protocol inputs are mounted at their expected paths:
@@ -114,3 +102,17 @@ configuration, and development-loss selection procedure in
 
 The Git repository alone intentionally cannot reconstruct licensed geometry or
 third-party predictions.
+
+## Optional maintainer archive recovery
+
+Maintainers with a verified recovery archive can restore the fitted models and
+paper-table inputs to the current repository layout with:
+
+```bash
+scripts/restore_recovery_archive.sh /path/to/recovery-archive tables
+scripts/reproduce_tables.sh
+```
+
+The `complete` scope additionally restores the training, development, and
+point/mesh inputs. The script verifies the archive manifest before writing to
+the repository.
