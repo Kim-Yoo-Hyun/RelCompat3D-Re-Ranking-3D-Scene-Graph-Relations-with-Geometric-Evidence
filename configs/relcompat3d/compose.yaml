@@ -1,4 +1,82 @@
 services:
+  relcompat3d_adapt_vlsat:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/adapt_source_predictions.py]
+    command:
+      - --source
+      - vlsat
+      - --raw
+      - /workspace/local_dataset/RelCompat3D/source_outputs/vlsat/raw.jsonl
+      - --subset
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json
+      - --relationships
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
+      - --out
+      - /workspace/local_dataset/RelCompat3D/canonical/vlsat/predictions.jsonl
+      - --baseline-run-id
+      - vlsat_full_official_validation_frozen_v1
+      - --split-name
+      - full_official_validation
+
+  relcompat3d_adapt_sgfn:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/adapt_source_predictions.py]
+    command:
+      - --source
+      - sgfn
+      - --raw
+      - /workspace/local_dataset/RelCompat3D/source_outputs/sgfn/raw.jsonl
+      - --subset
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json
+      - --relationships
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
+      - --out
+      - /workspace/local_dataset/RelCompat3D/canonical/sgfn/predictions.jsonl
+      - --baseline-run-id
+      - sgfn_official_validation_context_projection
+      - --split-name
+      - full_official_validation
+
+  relcompat3d_adapt_open3dsg:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/adapt_source_predictions.py]
+    command:
+      - --source
+      - open3dsg
+      - --raw
+      - /workspace/local_dataset/RelCompat3D/source_outputs/open3dsg/raw.jsonl
+      - --subset
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json
+      - --relationships
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
+      - --out
+      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg/predictions.jsonl
+      - --baseline-run-id
+      - open3dsg_nonavg_development_selected
+      - --split-name
+      - full_official_validation
+
   relcompat3d_export_rows:
     build:
       context: ../..

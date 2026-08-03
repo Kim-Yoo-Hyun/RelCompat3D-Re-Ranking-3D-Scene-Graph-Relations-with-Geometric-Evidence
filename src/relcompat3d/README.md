@@ -10,6 +10,11 @@ modules use file-relative imports and the packages pinned in
 
 - Training: `build_training_rows.py`, `fit_train_only.py`, `fit_linear.py`,
   `fit_mlp.py`, and `fit_factor_controls.py`.
+- Source preprocessing: `adapt_source_predictions.py` converts VL-SAT, SGFN,
+  and Open3DSG score dumps to one identity-preserving prediction schema.
+- Open3DSG source-model support: `configure_open3dsg.py`,
+  `prepare_open3dsg_splits.py`, and `select_open3dsg_checkpoint.py` implement
+  source revision, data coverage, and development-loss selection checks.
 - Core logic: `compatibility_features.py`, `relation_consistency.py`,
   `control_utils.py`, `evaluate_metrics.py`, and `paths.py`.
 - Main evaluation: `evaluate_main.py`, `evaluate_comparators.py`,

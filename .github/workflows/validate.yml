@@ -13,7 +13,9 @@ jobs:
         with:
           python-version: "3.11"
       - name: Validate Compose configuration
-        run: docker compose -f configs/relcompat3d/compose.yaml config --quiet
+        run: |
+          docker compose -f configs/relcompat3d/compose.yaml config --quiet
+          docker compose -f configs/open3dsg/compose.yaml config --quiet
       - name: Compile Python sources
         run: python -m compileall -q src/relcompat3d
       - name: Validate frozen evidence

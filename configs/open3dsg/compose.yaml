@@ -1,0 +1,124 @@
+x-open3dsg: &open3dsg
+  build:
+    context: ../..
+    dockerfile: configs/open3dsg/Dockerfile
+  image: relcompat3d-open3dsg:cu128
+  working_dir: /workspace/external/Open3DSG
+  user: "${UID:-1000}:${GID:-1000}"
+  shm_size: "${OPEN3DSG_SHM_SIZE:-16gb}"
+  environment:
+    OPEN3DSG_HOME: /workspace/local_dataset/Open3DSG
+    OPEN3DSG_BASE: /workspace/local_dataset/Open3DSG
+    OPEN3DSG_DATA: /workspace/local_dataset/Open3DSG/data
+    OPEN3DSG_DATA_OUT: /workspace/local_dataset/Open3DSG/output
+    HF_HOME: /workspace/local_dataset/model_cache/huggingface
+    TORCH_HOME: /workspace/local_dataset/model_cache/torch
+    TRANSFORMERS_CACHE: /workspace/local_dataset/model_cache/huggingface
+    HOME: /workspace/local_dataset/model_cache/home
+    XDG_CACHE_HOME: /workspace/local_dataset/model_cache/xdg
+    PYTORCH_CUDA_ALLOC_CONF: "${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True,max_split_size_mb:64}"
+  volumes:
+    - ../..:/workspace
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+
+services:
+  open3dsg_environment:
+    <<: *open3dsg
+    command: >-
+      bash -lc "python /workspace/src/relcompat3d/configure_open3dsg.py
+      --source-root /workspace/external/Open3DSG
+      --expected-commit a568358d6bb718929aa9ff67b2dfdecc4a4c3261
+      --manifest /workspace/local_dataset/Open3DSG/configuration.json
+      && pip install -e .
+      && python -c 'import torch, open3dsg; print(torch.__version__, torch.cuda.is_available())'"
+
+  open3dsg_stage_splits:
+    <<: *open3dsg
+    command: >-
+      python /workspace/src/relcompat3d/prepare_open3dsg_splits.py
+      --phase stage
+      --official-train /workspace/local_dataset/Open3DSG/input/3DSSG_subset/relationships_train.json
+      --official-validation /workspace/local_dataset/Open3DSG/input/3DSSG_subset/relationships_validation.json
+      --development-scans /workspace/configs/open3dsg/development_scans.txt
+      --output-dir /workspace/local_dataset/Open3DSG/data/3RScan/3DSSG_subset
+      --manifest /workspace/local_dataset/Open3DSG/split_stage.json
+      --strict
+
+  open3dsg_views_train:
+    <<: *open3dsg
+    command: >-
+      bash -lc "python /workspace/src/relcompat3d/configure_open3dsg.py
+      --source-root /workspace/external/Open3DSG
+      --expected-commit a568358d6bb718929aa9ff67b2dfdecc4a4c3261
+      && pip install -e .
+      && python open3dsg/data/get_object_frame.py --mode train --dataset R3SCAN"
+
+  open3dsg_views_development:
+    <<: *open3dsg
+    command: >-
+      bash -lc "python /workspace/src/relcompat3d/configure_open3dsg.py
+      --source-root /workspace/external/Open3DSG
+      --expected-commit a568358d6bb718929aa9ff67b2dfdecc4a4c3261
+      && pip install -e .
+      && python open3dsg/data/get_object_frame.py --mode validation --dataset R3SCAN"
+
+  open3dsg_preprocess:
+    <<: *open3dsg
+    command: >-
+      bash -lc "python /workspace/src/relcompat3d/configure_open3dsg.py
+      --source-root /workspace/external/Open3DSG
+      --expected-commit a568358d6bb718929aa9ff67b2dfdecc4a4c3261
+      && pip install -e .
+      && python open3dsg/data/preprocess_3rscan.py"
+
+  open3dsg_filter_splits:
+    <<: *open3dsg
+    command: >-
+      python /workspace/src/relcompat3d/prepare_open3dsg_splits.py
+      --phase filter
+      --official-train /workspace/local_dataset/Open3DSG/input/3DSSG_subset/relationships_train.json
+      --official-validation /workspace/local_dataset/Open3DSG/input/3DSSG_subset/relationships_validation.json
+      --development-scans /workspace/configs/open3dsg/development_scans.txt
+      --preprocessed-root /workspace/local_dataset/Open3DSG/output/datasets/OpenSG_3RScan/preprocessed
+      --output-dir /workspace/local_dataset/Open3DSG/data/3RScan/3DSSG_subset
+      --manifest /workspace/local_dataset/Open3DSG/split_filter.json
+      --strict
+
+  open3dsg_features:
+    <<: *open3dsg
+    command: >-
+      bash -lc "python /workspace/src/relcompat3d/configure_open3dsg.py
+      --source-root /workspace/external/Open3DSG
+      --expected-commit a568358d6bb718929aa9ff67b2dfdecc4a4c3261
+      && pip install -e .
+      && python open3dsg/scripts/run.py --dump_features --dataset 3rscan
+      --epochs 1 --gpus 1 --workers 0 --scales 3 --top_k_frames 5
+      --clip_model OpenSeg --blip --run_name relcompat3d_open3dsg_features"
+
+  open3dsg_train:
+    <<: *open3dsg
+    command: >-
+      bash -lc "test -n \"$${OPEN3DSG_FEATURE_DIR:-}\"
+      && python /workspace/src/relcompat3d/configure_open3dsg.py
+      --source-root /workspace/external/Open3DSG
+      --expected-commit a568358d6bb718929aa9ff67b2dfdecc4a4c3261
+      && pip install -e .
+      && python open3dsg/scripts/run.py --seed 42 --epochs 100 --batch_size 1
+      --gpus 1 --workers 0 --use_rgb --dataset 3rscan --clip_model OpenSeg
+      --blip --mixed_precision --accumulate_grad_batches 4
+      --load_features \"$${OPEN3DSG_FEATURE_DIR}\"
+      --run_name relcompat3d_open3dsg_train"
+
+  open3dsg_select_checkpoint:
+    <<: *open3dsg
+    command: >-
+      python /workspace/src/relcompat3d/select_open3dsg_checkpoint.py
+      --mlflow-root /workspace/local_dataset/Open3DSG/mlops/opensg/mlflow
+      --output /workspace/local_dataset/Open3DSG/selected_checkpoint.json
+      --link /workspace/local_dataset/Open3DSG/selected.ckpt

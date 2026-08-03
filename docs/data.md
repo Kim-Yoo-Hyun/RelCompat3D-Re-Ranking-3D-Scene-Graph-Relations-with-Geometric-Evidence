@@ -3,6 +3,8 @@
 RelCompat3D operates on fixed relation candidates and reconstructed geometry.
 The repository does not redistribute 3RScan/3DSSG data or source-predictor
 outputs. Obtain them from their official projects and follow their terms.
+The raw score contracts and Docker adapter commands are in
+[`docs/source-adapters.md`](source-adapters.md).
 
 ## Official sources
 
@@ -12,7 +14,10 @@ outputs. Obtain them from their official projects and follow their terms.
 | 3DSSG | relationship annotations and official splits | https://3dssg.github.io/ |
 | VL-SAT | model environment and fixed predictions | https://github.com/wz7in/CVPR2023-VLSAT |
 | SGFN | model environment and fixed predictions | https://github.com/ShunChengWu/3DSSG |
-| Open3DSG | model environment and fixed predictions | https://github.com/boschresearch/Open3DSG |
+| Open3DSG | official source, source-model training, and fixed predictions | https://github.com/boschresearch/Open3DSG |
+
+The repository provides the Open3DSG configuration and checkpoint-selection
+procedure in [`docs/open3dsg-training.md`](open3dsg-training.md).
 
 ## Runtime layout
 
@@ -22,12 +27,17 @@ full-evaluation setup provides at least:
 ```text
 local_dataset/RelCompat3D/
 ├── 3DSSG_subset/
+│   ├── relationships.txt
 │   └── relationships_validation.json
+├── source_outputs/
+│   ├── vlsat/raw.jsonl
+│   ├── open3dsg/raw.jsonl
+│   └── sgfn/raw.jsonl
 ├── canonical/
 │   ├── ground_truth.jsonl
-│   ├── vlsat/verification.jsonl
-│   ├── open3dsg/verification.jsonl
-│   └── sgfn/verification.jsonl
+│   ├── vlsat/{predictions,verification}.jsonl
+│   ├── open3dsg/{predictions,verification}.jsonl
+│   └── sgfn/{predictions,verification}.jsonl
 └── secrets/
     └── table_rows_hmac_key.txt
 ```
@@ -41,6 +51,11 @@ and its `protocols/` directory.
 The score-robustness, routing-control, and table-reproduction protocols preserve
 the frozen input hashes while mapping local paths to the public
 `local_dataset/` layout.
+
+The Docker adapter services produce the three `predictions.jsonl` files. The
+`verification.jsonl` files add measurements and frozen verifier labels from
+the corresponding ordered pair. They must preserve every source-prediction row
+and its ordered endpoints.
 
 ## Local table rows
 

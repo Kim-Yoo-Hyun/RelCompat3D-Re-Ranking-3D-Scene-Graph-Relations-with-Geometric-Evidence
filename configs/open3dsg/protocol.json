@@ -1,0 +1,50 @@
+{
+  "schema_version": "relcompat3d_open3dsg_training_v1",
+  "source": {
+    "repository": "https://github.com/boschresearch/Open3DSG",
+    "commit": "a568358d6bb718929aa9ff67b2dfdecc4a4c3261"
+  },
+  "data": {
+    "dataset": "3RScan/3DSSG",
+    "official_train_scans": 1178,
+    "official_train_subgraphs": 3852,
+    "development_scans": 30,
+    "development_subgraphs": 160,
+    "preprocessed_train_subgraphs": 3744,
+    "preprocessed_development_subgraphs": 156,
+    "feature_identifiers": 3900,
+    "development_scan_list": "configs/open3dsg/development_scans.txt"
+  },
+  "feature_extraction": {
+    "clip_model": "OpenSeg",
+    "blip": true,
+    "average_blip_embeddings": false,
+    "scales": 3,
+    "top_k_frames": 5,
+    "workers": 0
+  },
+  "training": {
+    "seed": 42,
+    "epochs": 100,
+    "batch_size": 1,
+    "gpus": 1,
+    "workers": 0,
+    "use_rgb": true,
+    "dataset": "3rscan",
+    "clip_model": "OpenSeg",
+    "blip": true,
+    "average_blip_embeddings": false,
+    "mixed_precision": true,
+    "accumulate_grad_batches": 4
+  },
+  "runtime": {
+    "recommended_gpu_memory_gb": 32,
+    "minimum_free_gpu_memory_gb": 22,
+    "recommended_working_storage_gb": 300
+  },
+  "selection": {
+    "metric": "val/loss",
+    "mode": "min",
+    "uses_relation_evaluation_metrics": false
+  }
+}

@@ -37,6 +37,18 @@ The command creates Tables 1--3 as CSV and LaTeX, Figure 3 data and renderings,
 and `canonical_validation.csv`. A valid reproduction reports 291 passing cells
 with maximum absolute error no larger than `1e-12`.
 
+For a maintainer recovery archive that uses the frozen pre-release directory
+names, restore and remap it with:
+
+```bash
+scripts/restore_private_bundle.sh /path/to/RelCompat3D_AAAI27_release_20260730 core
+scripts/reproduce_tables.sh
+```
+
+Use `all` instead of `core` to also restore the training/development and
+point/mesh inputs. The script verifies the bundle manifest before writing the
+current public paths.
+
 ## D. Refit and evaluate RelCompat3D
 
 After all protocol inputs are mounted at their expected paths:
@@ -72,12 +84,14 @@ $compose run --rm relcompat3d_runtime
 ## F. Source-predictor inference
 
 Source inference is intentionally not merged into the RelCompat3D container.
-Run VL-SAT, SGFN, and Open3DSG with their official environments, then adapt
-their fixed candidates to the hash-locked RelCompat3D row contracts. This
-keeps third-party dependencies and licenses separate. Exact source-predictor
-versions and checkpoints should be recorded alongside any newly generated
-rows. Restore the selected Open3DSG checkpoint with
-`scripts/download_open3dsg_checkpoint.sh` when reproducing that source model.
+Run VL-SAT, SGFN, and Open3DSG with their official environments, then use the
+three `relcompat3d_adapt_*` Docker services documented in
+`docs/source-adapters.md`. This keeps third-party dependencies and licenses
+separate while making the raw-score-to-prediction conversion explicit. Record
+the exact source-predictor versions and checkpoints alongside newly generated
+rows. For Open3DSG, use the pinned source revision, non-averaged BLIP
+configuration, and development-loss selection procedure in
+`docs/open3dsg-training.md`.
 
 ## Expected outputs
 

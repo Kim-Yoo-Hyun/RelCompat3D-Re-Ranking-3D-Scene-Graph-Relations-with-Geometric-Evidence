@@ -10,7 +10,7 @@ third-party model checkpoints below.
 | 3DSSG | Scene-graph annotations and split | https://3dssg.github.io/ |
 | VL-SAT | Fixed relation predictions | https://github.com/wz7in/CVPR2023-VLSAT |
 | SGFN | Fixed relation predictions | https://github.com/ShunChengWu/3DSSG |
-| Open3DSG | Fixed open-vocabulary relation predictions | https://github.com/boschresearch/Open3DSG |
+| Open3DSG | Source-model training and fixed open-vocabulary relation predictions | https://github.com/boschresearch/Open3DSG |
 
 Users must obtain these resources from their official distributions and comply
 with the corresponding licenses and dataset terms. The Apache-2.0 license in

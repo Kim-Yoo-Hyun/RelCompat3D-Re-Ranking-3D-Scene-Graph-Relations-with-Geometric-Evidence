@@ -63,15 +63,8 @@ scripts/download_models.sh
 scripts/validate.sh --require-models
 ```
 
-See [docs/models.md](docs/models.md) for the file list, model hashes, source
-predictor links, and the Open3DSG checkpoint path.
-
-For exact Open3DSG source-model inference, restore the selected checkpoint
-separately:
-
-```bash
-scripts/download_open3dsg_checkpoint.sh
-```
+See [docs/models.md](docs/models.md) for the file list, model hashes, and
+source-predictor preparation links.
 
 ## 3. Prepare data and prediction rows
 
@@ -84,11 +77,40 @@ Obtain 3RScan/3DSSG and the source predictors from their official projects:
 - [SGFN/3DSSG](https://github.com/ShunChengWu/3DSSG)
 - [Open3DSG](https://github.com/boschresearch/Open3DSG)
 
+For Open3DSG, train the pinned official implementation with the provided
+non-averaged BLIP configuration and select the checkpoint with the lowest
+development loss:
+
+```bash
+scripts/train_open3dsg.sh prepare
+scripts/train_open3dsg.sh preprocess
+scripts/train_open3dsg.sh features
+scripts/train_open3dsg.sh train
+scripts/train_open3dsg.sh select
+```
+
+The source revision, data coverage gates, hyperparameters, and selection rule
+are documented in
+[docs/open3dsg-training.md](docs/open3dsg-training.md).
+
 The repository does not redistribute licensed scans, meshes, annotations,
 dataset-derived candidate rows, or third-party checkpoints. After obtaining
 the official data and generating fixed predictions with the official source
-predictor repositories, prepare the canonical inputs described in
-[docs/data.md](docs/data.md). Then create the local table rows with:
+predictor repositories, place the raw score dumps under
+`local_dataset/RelCompat3D/source_outputs/` and run:
+
+```bash
+compose="docker compose -f configs/relcompat3d/compose.yaml"
+env UID=$(id -u) GID=$(id -g) $compose run --rm relcompat3d_adapt_vlsat
+env UID=$(id -u) GID=$(id -g) $compose run --rm relcompat3d_adapt_sgfn
+env UID=$(id -u) GID=$(id -g) $compose run --rm relcompat3d_adapt_open3dsg
+```
+
+The raw schemas and output locations are documented in
+[docs/source-adapters.md](docs/source-adapters.md). Join the resulting
+identity-preserving prediction rows with the officially obtained ordered-pair
+geometry according to [docs/data.md](docs/data.md). Then create the local table
+rows with:
 
 ```bash
 docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_export_rows
@@ -168,13 +190,22 @@ There are three supported levels:
    outputs generated with the official source-predictor repositories supports
    local row export, paper-table regeneration, fitting, and evaluation.
 
-Source-predictor inference remains governed by the official VL-SAT, SGFN, and
-Open3DSG repositories. This project does not repackage their environments or
-weights.
+Source-predictor inference remains governed by the upstream licenses and data
+terms. VL-SAT and SGFN follow their official repositories. The Open3DSG
+training configuration in this repository invokes the pinned official source
+without redistributing its code or model files.
 
 The repository does not provide a single command from raw dataset download
 through inference of all three source predictors; data access and
 source-predictor inference follow their official repositories.
+
+Maintainers restoring the archival recovery bundle can map its legacy paths
+to the current repository layout with:
+
+```bash
+scripts/restore_private_bundle.sh /path/to/RelCompat3D_AAAI27_release_20260730 core
+scripts/reproduce_tables.sh
+```
 
 ## Citation
 
