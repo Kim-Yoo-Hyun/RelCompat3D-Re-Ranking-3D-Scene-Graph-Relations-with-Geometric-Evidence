@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b3d4a">
+    <meta
+      name="description"
+      content="RelCompat3D learns predicate–geometry compatibility to re-rank fixed 3D scene graph relations."
+    >
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="RelCompat3D">
+    <meta
+      property="og:description"
+      content="Re-ranking 3D scene graph relations with geometric evidence."
+    >
+    <meta
+      property="og:image"
+      content="https://kim-yoo-hyun.github.io/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/assets/teaser.png"
+    >
+    <meta name="twitter:card" content="summary_large_image">
+    <link
+      rel="canonical"
+      href="https://kim-yoo-hyun.github.io/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/"
+    >
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <title>RelCompat3D | Geometric Compatibility for 3D Scene Graph Relations</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+
+    <header class="site-header">
+      <nav class="nav shell" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="RelCompat3D home">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span>
+          </span>
+          <span>RelCompat3D</span>
+        </a>
+        <div class="nav-links">
+          <a href="#method">Method</a>
+          <a href="#results">Results</a>
+          <a href="#reproduce">Reproduce</a>
+          <a
+            class="nav-code"
+            href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence"
+          >Code <span aria-hidden="true">↗</span></a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="hero" id="top">
+        <div class="shell hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">3D scene graph reliability</p>
+            <h1>RelCompat3D</h1>
+            <p class="subtitle">Re-Ranking 3D Scene Graph Relations with Geometric Evidence</p>
+            <p class="lead">
+              A relation can sound plausible and still contradict the reconstructed geometry
+              of its ordered subject–object pair. RelCompat3D learns predicate–geometry
+              compatibility and uses it to re-rank fixed predictions.
+            </p>
+            <div class="actions" aria-label="Project resources">
+              <a
+                class="button button-primary"
+                href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence"
+              >View code <span aria-hidden="true">↗</span></a>
+              <a
+                class="button button-secondary"
+                href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/docs/reproduction.md"
+              >Reproduce results</a>
+            </div>
+            <ul class="scope-list" aria-label="Method scope">
+              <li>Fixed predictors</li>
+              <li>Ordered-pair geometry</li>
+              <li>Family-aware re-ranking</li>
+            </ul>
+          </div>
+
+          <figure class="hero-figure panel">
+            <img
+              src="assets/teaser.png"
+              alt="Point-cloud view of a desk below a ceiling and the corresponding relation candidate moving from rank 6 to rank 425."
+              width="790"
+              height="600"
+            >
+            <figcaption>
+              A source predictor ranks “desk higher than ceiling” at 6 even though the
+              reconstructed scene places the desk below the ceiling. RelCompat3D-Linear
+              moves the candidate to 425.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section" id="problem">
+        <div class="shell narrow">
+          <p class="section-kicker">The problem</p>
+          <h2>Relation scores are not pair-level geometric evidence.</h2>
+          <p class="section-intro">
+            Existing predictors may already use geometry, but their output score does not
+            explicitly estimate whether the predicted predicate is supported by the geometry
+            of the same ordered pair. RelCompat3D separates three signals:
+          </p>
+          <div class="signal-grid">
+            <article class="signal-card signal-green">
+              <span class="signal-symbol">T</span>
+              <h3>Predicate semantics</h3>
+              <p>The meaning and relation family of the candidate predicate.</p>
+            </article>
+            <article class="signal-card signal-blue">
+              <span class="signal-symbol">G</span>
+              <h3>Pair measurements</h3>
+              <p>Predicate-independent geometry from the corresponding ordered pair.</p>
+            </article>
+            <article class="signal-card signal-gold">
+              <span class="signal-symbol">Z</span>
+              <h3>Source relation score</h3>
+              <p>The fixed predictor score, introduced only during re-ranking.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-tint" id="method">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">The method</p>
+              <h2>Compatibility first. Source score second.</h2>
+            </div>
+            <p>
+              Linear and compact nonlinear estimators share the same training examples,
+              objective, transformations, and constrained ranking procedure.
+            </p>
+          </div>
+
+          <div class="steps" aria-label="RelCompat3D method steps">
+            <article class="step">
+              <span class="step-number">01</span>
+              <h3>Preserve candidate identity</h3>
+              <p>Associate every predicate with measurements from its own ordered pair.</p>
+            </article>
+            <article class="step">
+              <span class="step-number">02</span>
+              <h3>Estimate compatibility</h3>
+              <p>Learn from linked ground-truth positives and constructed counterfactuals without using the source score or predictor identity.</p>
+            </article>
+            <article class="step">
+              <span class="step-number">03</span>
+              <h3>Re-rank within families</h3>
+              <p>Average over relation-preserving transformations, combine compatibility with the source score, and preserve support/contact order.</p>
+            </article>
+          </div>
+
+          <figure class="wide-figure panel">
+            <img
+              src="assets/method.png"
+              alt="RelCompat3D pipeline showing predicate semantics and pair geometry entering a compatibility estimator, followed by source-score fusion and family-aware re-ranking."
+              width="1654"
+              height="864"
+              loading="lazy"
+            >
+            <figcaption>
+              RelCompat3D estimates compatibility without the source score. It combines the
+              two signals only during family-aware re-ranking. In this proximity example, an
+              unsupported candidate moves from rank 19 to 178.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section" id="results">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Results</p>
+              <h2>Recall–Violation trade-offs across three predictors</h2>
+            </div>
+            <p>
+              Evaluation uses fixed VL-SAT, Open3DSG, and SGFN predictions on shared 3DSSG
+              validation scenes. Higher Recall and lower verifier-derived Violation are preferred.
+            </p>
+          </div>
+
+          <div class="result-layout">
+            <div class="table-panel panel">
+              <div class="table-title">
+                <h3>Operating points at K = 50</h3>
+                <span>Recall / Violation (%)</span>
+              </div>
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Predictor</th>
+                      <th scope="col">Source</th>
+                      <th scope="col">Linear</th>
+                      <th scope="col">MLP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">VL-SAT</th>
+                      <td>92.72 / 2.68</td>
+                      <td>92.77 / 1.97</td>
+                      <td>92.72 / 1.89</td>
+                    </tr>
+                    <tr class="highlight-row">
+                      <th scope="row">Open3DSG</th>
+                      <td>40.43 / 13.87</td>
+                      <td>44.18 / 3.42</td>
+                      <td>46.70 / 4.13</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">SGFN</th>
+                      <td>74.02 / 3.85</td>
+                      <td>74.50 / 2.63</td>
+                      <td>74.57 / 2.58</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="table-note">
+                Across all reported predictor–K settings, both variants have Recall point
+                estimates no lower and Violation point estimates no higher than Source.
+              </p>
+            </div>
+
+            <aside class="evidence-card">
+              <p class="section-kicker">Evidence beyond the main table</p>
+              <ul>
+                <li>Wrong-predicate, wrong-pair, and shuffled-geometry controls</li>
+                <li>Matched fusion and routing comparisons</li>
+                <li>Point- and mesh-based measurement audit</li>
+                <li>Score-mapping and training-seed sensitivity</li>
+              </ul>
+              <a
+                href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/results/relcompat3d_geom_reliability/report.md"
+              >Explore the frozen evidence <span aria-hidden="true">→</span></a>
+            </aside>
+          </div>
+
+          <figure class="wide-figure panel results-figure">
+            <img
+              src="assets/results.png"
+              alt="Recall versus Violation trajectories for VL-SAT, Open3DSG, and SGFN at K values 5, 10, 20, 50, and 100."
+              width="1656"
+              height="576"
+              loading="lazy"
+            >
+            <figcaption>
+              Recall@K–Violation@K trajectories for K ∈ {5, 10, 20, 50, 100}.
+              Movement to the right and downward is preferred. Axis ranges differ by predictor.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section section-dark" id="reproduce">
+        <div class="shell reproduce-grid">
+          <div>
+            <p class="section-kicker">Reproducibility</p>
+            <h2>Inspect first. Restore only what you need.</h2>
+            <p>
+              A Git-only checkout validates the frozen evidence. The public model archive
+              restores learned compatibility parameters. Full fitting and evaluation require
+              officially obtained 3RScan/3DSSG data and outputs from the source predictors.
+            </p>
+            <div class="repro-links">
+              <a
+                href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/docs/reproduction.md"
+              >Reproduction guide <span aria-hidden="true">→</span></a>
+              <a
+                href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/docs/data.md"
+              >Data preparation <span aria-hidden="true">→</span></a>
+              <a
+                href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/docs/models.md"
+              >Models and checkpoints <span aria-hidden="true">→</span></a>
+            </div>
+          </div>
+          <div class="terminal" aria-label="Repository setup commands">
+            <div class="terminal-bar"><span></span><span></span><span></span></div>
+            <pre><code><span class="prompt">$</span> repo=RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence
+<span class="prompt">$</span> git clone "https://github.com/Kim-Yoo-Hyun/${repo}.git"
+<span class="prompt">$</span> cd "$repo"
+
+<span class="prompt">$</span> scripts/validate.sh
+<span class="success">✓ 291 canonical cells verified</span></code></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="shell footer-inner">
+        <div>
+          <strong>RelCompat3D</strong>
+          <p>Predicate–geometry compatibility for fixed 3D scene graph predictions.</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence">GitHub</a>
+          <a href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/CITATION.cff">Citation</a>
+          <a href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/LICENSE">License</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

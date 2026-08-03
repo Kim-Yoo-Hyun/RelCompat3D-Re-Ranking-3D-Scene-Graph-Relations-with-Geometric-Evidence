@@ -5,6 +5,9 @@ fixed 3D scene graph relation predictions. The implementation covers model
 fitting, family-aware re-ranking, controls, bootstrap evaluation, point/mesh
 audits, and paper-table regeneration for VL-SAT, Open3DSG, and SGFN on 3DSSG.
 
+**[Project page](https://kim-yoo-hyun.github.io/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/)** ·
+**[Reproduction guide](docs/reproduction.md)** · **[Results](docs/results.md)**
+
 ![Recall--Violation results](assets/recall_violation.png)
 
 ## Repository structure
@@ -15,6 +18,7 @@ docs/          Data, model, result, and reproduction instructions
 experiments/   Frozen protocols and compact paper evidence
 results/       Paper-facing result index
 scripts/       Validation, model restoration, and experiment wrappers
+site/          Static GitHub Pages project site
 src/           Training, evaluation, audit, and table-generation code
 ```
 

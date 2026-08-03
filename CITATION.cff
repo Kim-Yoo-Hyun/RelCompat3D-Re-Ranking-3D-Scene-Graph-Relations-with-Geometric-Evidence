@@ -5,7 +5,8 @@ type: software
 authors:
   - family-names: "Kim"
     given-names: "Yoo-Hyun"
-repository-code: "https://github.com/Kim-Yoo-Hyun/RelCompat3D"
+repository-code: "https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence"
+url: "https://kim-yoo-hyun.github.io/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/"
 license: "Apache-2.0"
 version: "1.0.0"
 date-released: "2026-08-03"
