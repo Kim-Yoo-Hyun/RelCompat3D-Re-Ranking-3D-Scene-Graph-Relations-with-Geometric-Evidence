@@ -8,7 +8,11 @@ audits, and paper-table regeneration for VL-SAT, Open3DSG, and SGFN on 3DSSG.
 **[Project page](https://kim-yoo-hyun.github.io/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/)** ·
 **[Reproduction guide](docs/reproduction.md)** · **[Results](docs/results.md)**
 
-![Recall--Violation results](assets/recall_violation.png)
+![RelCompat3D method overview](site/assets/method.png)
+
+RelCompat3D estimates compatibility from predicate semantics and ordered-pair
+geometry without the source relation score, then combines both signals during
+family-aware re-ranking.
 
 ## Repository structure
 
@@ -149,6 +153,8 @@ At `K=50`, the reported Recall/Violation percentages are:
 
 These values use the scoped support/contact, proximity, and vertical-order
 evaluation on the shared 3DSSG validation scenes.
+
+![Recall--Violation results across VL-SAT, Open3DSG, and SGFN](site/assets/results.png)
 
 ## Reproducibility boundary
 
