@@ -39,6 +39,7 @@
           <span>RelCompat3D</span>
         </a>
         <div class="nav-links">
+          <a href="#problem">Overview</a>
           <a href="#method">Method</a>
           <a href="#results">Results</a>
           <a href="#reproduce">Reproduce</a>
@@ -71,6 +72,10 @@
                 class="button button-secondary"
                 href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/docs/reproduction.md"
               >Reproduce results</a>
+              <a
+                class="button button-text"
+                href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/docs/results.md"
+              >View results</a>
             </div>
             <ul class="scope-list" aria-label="Method scope">
               <li>Fixed predictors</li>
@@ -95,6 +100,15 @@
         </div>
       </section>
 
+      <section class="fact-strip" aria-label="Evaluation at a glance">
+        <div class="shell facts">
+          <div><strong>3</strong><span>fixed predictors</span></div>
+          <div><strong>5</strong><span>rank cutoffs</span></div>
+          <div><strong>157</strong><span>validation scans</span></div>
+          <div><strong>3,972</strong><span>exact-match relations</span></div>
+        </div>
+      </section>
+
       <section class="section" id="problem">
         <div class="shell narrow">
           <p class="section-kicker">The problem</p>
@@ -104,6 +118,13 @@
             explicitly estimate whether the predicted predicate is supported by the geometry
             of the same ordered pair. RelCompat3D separates three signals:
           </p>
+          <div class="core-idea">
+            <span class="core-formula">C(T, G)</span>
+            <p>
+              Learn compatibility without the source relation score <em>Z</em> or predictor
+              identity. Combine <em>C</em> with <em>Z</em> only when re-ranking fixed candidates.
+            </p>
+          </div>
           <div class="signal-grid">
             <article class="signal-card signal-green">
               <span class="signal-symbol">T</span>
@@ -120,6 +141,17 @@
               <h3>Source relation score</h3>
               <p>The fixed predictor score, introduced only during re-ranking.</p>
             </article>
+          </div>
+          <div class="boundary-panel">
+            <div>
+              <p class="boundary-label">Kept fixed</p>
+              <p>Predictor · candidate pool · ordered-pair identity · family-label sequence · support/contact order</p>
+            </div>
+            <span class="boundary-arrow" aria-hidden="true">→</span>
+            <div>
+              <p class="boundary-label">Changed</p>
+              <p>The order of proximity and vertical-order candidates within their respective families</p>
+            </div>
           </div>
         </div>
       </section>
@@ -167,6 +199,28 @@
               RelCompat3D estimates compatibility without the source score. It combines the
               two signals only during family-aware re-ranking. In this proximity example, an
               unsupported candidate moves from rank 19 to 178.
+            </figcaption>
+          </figure>
+
+          <div class="subsection-heading">
+            <p class="section-kicker">Qualitative behavior</p>
+            <h3>Promotion, demotion, and pass-through</h3>
+            <p>
+              The constrained rule can promote a supported proximity candidate, demote an
+              inverted vertical relation, and leave support/contact candidates in source order.
+            </p>
+          </div>
+          <figure class="wide-figure panel qualitative-figure">
+            <img
+              src="assets/qualitative.png"
+              alt="Three qualitative cases showing a proximity candidate promoted from rank 81 to 30, a vertical-order candidate demoted from rank 1 to 430, and a support/contact candidate retained at rank 21."
+              width="1654"
+              height="864"
+              loading="lazy"
+            >
+            <figcaption>
+              Three family-specific outcomes. Proximity and vertical-order candidates are
+              re-ranked; support/contact candidates retain their source order.
             </figcaption>
           </figure>
         </div>
@@ -230,7 +284,13 @@
             </div>
 
             <aside class="evidence-card">
-              <p class="section-kicker">Evidence beyond the main table</p>
+              <p class="section-kicker">Largest changes at K = 50</p>
+              <p class="predictor-label">Open3DSG</p>
+              <div class="delta-grid" aria-label="Open3DSG changes from Source at K equals 50">
+                <div><span>Linear</span><strong>+3.75 R</strong><strong>−10.45 V</strong></div>
+                <div><span>MLP</span><strong>+6.27 R</strong><strong>−9.74 V</strong></div>
+              </div>
+              <p class="evidence-heading">Supporting evidence</p>
               <ul>
                 <li>Wrong-predicate, wrong-pair, and shuffled-geometry controls</li>
                 <li>Matched fusion and routing comparisons</li>
@@ -256,6 +316,21 @@
               Movement to the right and downward is preferred. Axis ranges differ by predictor.
             </figcaption>
           </figure>
+
+          <div class="claim-boundary" aria-label="Evaluation and claim scope">
+            <article>
+              <span>Evaluation families</span>
+              <p>Support/contact, proximity, and vertical order</p>
+            </article>
+            <article>
+              <span>Re-ranked families</span>
+              <p>Proximity and vertical order</p>
+            </article>
+            <article>
+              <span>Evidence scope</span>
+              <p>Three predictors on one shared 3DSSG validation split</p>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -290,6 +365,23 @@
 <span class="prompt">$</span> scripts/validate.sh
 <span class="success">✓ 291 canonical cells verified</span></code></pre>
           </div>
+        </div>
+      </section>
+
+      <section class="publication" id="publication">
+        <div class="shell publication-inner">
+          <div>
+            <p class="section-kicker">Publication</p>
+            <h2>Paper citation to follow.</h2>
+            <p>
+              The official paper link and complete paper citation will be added after
+              publication. Software-release metadata is available now.
+            </p>
+          </div>
+          <a
+            class="button button-secondary"
+            href="https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/blob/main/CITATION.cff"
+          >View CITATION.cff <span aria-hidden="true">→</span></a>
         </div>
       </section>
     </main>
