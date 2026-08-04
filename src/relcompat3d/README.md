@@ -35,3 +35,71 @@ modules use file-relative imports and the packages pinned in
 
 Generated rows, caches, checkpoints, and model payloads do not belong under
 `src/`.
+
+## Source-prediction adapters
+
+RelCompat3D consumes fixed relation predictions while retaining the scan,
+3DSSG context, ordered instance pair, predicate, and source score. Run each
+source predictor in its official environment and save one JSON object per line
+with the fields below.
+
+| Source | Required JSONL fields |
+| --- | --- |
+| VL-SAT | `scan_id`, `subset_split_id`, `subgraph_id`, `node_instance_ids`, `edge_indices`, `relation_names`, `rel_scores_3d` |
+| SGFN | `scan_id`, `node_instance_ids`, `edge_indices`, `relation_names`, `rel_scores` |
+| Open3DSG | `scan_id`, `subset_split_id`, `subgraph_id`, `edge`, `edge_index`, `predicate_scores` |
+
+VL-SAT and SGFN score rows must follow the order in `relation_names`. SGFN
+outputs cover a full scan and are mapped to official 3DSSG contexts by ordered
+instance identity. Each Open3DSG `predicate_scores` entry contains the
+predicate label, score, and predicate indices exported by Open3DSG.
+
+Place the raw outputs at:
+
+```text
+local_dataset/RelCompat3D/source_outputs/
+├── vlsat/raw.jsonl
+├── sgfn/raw.jsonl
+└── open3dsg/raw.jsonl
+```
+
+Run the adapters in the RelCompat3D container:
+
+```bash
+compose="docker compose -f configs/relcompat3d/compose.yaml"
+
+env UID=$(id -u) GID=$(id -g) $compose run --rm relcompat3d_adapt_vlsat
+env UID=$(id -u) GID=$(id -g) $compose run --rm relcompat3d_adapt_sgfn
+env UID=$(id -u) GID=$(id -g) $compose run --rm relcompat3d_adapt_open3dsg
+```
+
+The adapters write:
+
+```text
+local_dataset/RelCompat3D/canonical/
+├── vlsat/predictions.jsonl
+├── sgfn/predictions.jsonl
+└── open3dsg/predictions.jsonl
+```
+
+Each adjacent `predictions.manifest.json` records input and output hashes, row
+counts, context counts, and identity checks. The adapters neither normalize
+source scores nor create missing edges.
+
+After restriction to the evaluated relation families, the frozen paper inputs
+contain 220,848 VL-SAT rows, 159,444 Open3DSG rows, and 220,848 SGFN rows. The
+adapters reproduce these counts, ordered-pair identities, and source scores.
+Open3DSG hexadecimal split suffixes are converted to the integer split
+identifiers used by 3DSSG.
+
+Generate Open3DSG predictions with the checkpoint selected by the
+[provided training configuration](../../configs/open3dsg/README.md), and
+record its SHA-256 digest with the prediction run.
+
+### Geometry join
+
+The files above contain canonical source predictions. The corresponding
+`verification.jsonl` files add ordered-pair measurements and frozen verifier
+outputs. Build this join from officially obtained 3RScan/3DSSG data with the
+thresholds in the frozen protocols. Changing those thresholds creates a new
+evaluation rather than an exact reproduction of the reported experiment.

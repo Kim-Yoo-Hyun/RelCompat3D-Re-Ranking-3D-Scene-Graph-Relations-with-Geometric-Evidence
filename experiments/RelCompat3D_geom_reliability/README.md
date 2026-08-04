@@ -22,4 +22,151 @@ to ignored `regenerated/` directories. Fitted JSON models are restored with
 
 The active evaluation uses 157 validation scans, 548 contexts, and 3,972
 exact-match ground-truth relations. The model archive, licensed inputs, and
-commands are documented in `docs/`.
+commands are described below.
+
+## Data and runtime layout
+
+Obtain 3RScan, 3DSSG, VL-SAT, SGFN, and Open3DSG from the official sources
+linked in the repository README. Preserve their licenses and access
+requirements. The frozen protocols expect the following local layout:
+
+```text
+local_dataset/RelCompat3D/
+├── 3DSSG_subset/
+│   ├── relationships.txt
+│   └── relationships_validation.json
+├── source_outputs/
+│   ├── vlsat/raw.jsonl
+│   ├── open3dsg/raw.jsonl
+│   └── sgfn/raw.jsonl
+├── canonical/
+│   ├── ground_truth.jsonl
+│   ├── vlsat/{predictions,verification}.jsonl
+│   ├── open3dsg/{predictions,verification}.jsonl
+│   └── sgfn/{predictions,verification}.jsonl
+└── secrets/
+    └── table_rows_hmac_key.txt
+```
+
+The adapters create the three `predictions.jsonl` files. Each
+`verification.jsonl` adds measurements and frozen verifier labels from the
+same ordered pair while retaining every source-prediction row and endpoint.
+The [source adapter instructions](../../src/relcompat3d/README.md#source-prediction-adapters)
+define the input contracts.
+
+Training, development, geometry, verifier, and point/mesh paths are fixed in
+`main_experiment/protocol.json` and `main_experiment/protocols/`. The
+score-robustness, routing-control, and paper-reproduction protocols preserve
+the frozen input hashes while mapping local files to this public layout.
+
+### Local paper rows
+
+Create the geometry-free inputs used by the paper-table script with:
+
+```bash
+docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_export_rows
+```
+
+The exporter writes:
+
+```text
+paper_reproduction/artifacts/table_rows/
+├── ground_truth.csv.gz
+├── open3dsg_candidates.csv.gz
+├── sgfn_candidates.csv.gz
+├── vlsat_candidates.csv.gz
+└── schema.json
+```
+
+These local intermediates are derived from licensed annotations and source
+predictions, so they are ignored by Git. Expected counts and hashes are stored
+in `paper_reproduction/expected_rows.json`. The rows cover 157 scans, 548
+contexts, and 3,972 ground-truth relations, with 220,848 VL-SAT candidates,
+159,444 Open3DSG candidates, and 220,848 SGFN candidates.
+
+The local HMAC key creates stable local identifiers without writing original
+scan, context, instance, pair, or prediction identifiers to these rows. It does
+not alter the terms of the source datasets. The exporter verifies the frozen
+input hashes before writing any result.
+
+## Reproduction commands
+
+Validate a Git checkout:
+
+```bash
+scripts/validate.sh
+```
+
+Restore and verify the learned compatibility models:
+
+```bash
+scripts/download_models.sh
+scripts/validate.sh --require-models
+```
+
+After exporting the local paper rows, regenerate Tables 1--3 and Figure 3:
+
+```bash
+scripts/reproduce_tables.sh
+```
+
+Outputs are written to `paper_reproduction/regenerated/`. A valid run reports
+291 matching canonical values with maximum absolute error no larger than
+`1e-12`.
+
+Fit and evaluate RelCompat3D after mounting every input specified by the
+protocols:
+
+```bash
+docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit
+docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_freeze_initial
+scripts/run_pipeline.sh initial
+scripts/run_pipeline.sh downstream
+```
+
+Supplementary analyses use the same frozen inputs:
+
+```bash
+compose="docker compose -f configs/relcompat3d/compose.yaml"
+
+$compose run --rm relcompat3d_score_robustness
+$compose run --rm relcompat3d_routing_constraints
+$compose run --rm relcompat3d_measurement_audit
+$compose run --rm relcompat3d_component_analysis
+$compose run --rm relcompat3d_seed_robustness
+$compose run --rm relcompat3d_candidate_oracle
+$compose run --rm relcompat3d_runtime
+```
+
+Source-predictor inference remains in the official VL-SAT, SGFN, and Open3DSG
+environments. Convert those outputs with the
+[source adapters](../../src/relcompat3d/README.md#source-prediction-adapters).
+For Open3DSG, use the [pinned configuration](../../configs/open3dsg/README.md).
+
+Expected output locations are:
+
+| Task | Output |
+| --- | --- |
+| Model fitting | `main_experiment/fit/` |
+| Main evaluation | `main_experiment/evaluation/` |
+| Table regeneration | `paper_reproduction/regenerated/` |
+| Candidate oracle | `candidate_oracle/regenerated/` |
+| Compact result index | `../../results/relcompat3d_geom_reliability/manifest.json` |
+
+A fresh server needs Docker with Compose v2, official 3RScan/3DSSG access,
+source-predictor environments and checkpoints, the public RelCompat3D model
+archive, and canonical geometry and prediction inputs prepared from the
+official resources. The Git repository does not contain licensed geometry or
+third-party predictions.
+
+Maintainers with a verified recovery archive may restore the table inputs or
+the complete local experiment state with:
+
+```bash
+scripts/restore_recovery_archive.sh /path/to/recovery-archive tables
+scripts/restore_recovery_archive.sh /path/to/recovery-archive complete
+```
+
+The script verifies the archive manifest before writing files. This recovery
+route is optional and is not required when inputs are generated from the
+official resources.

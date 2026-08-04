@@ -1,4 +1,4 @@
-# Third-party resources
+# Third-party licenses and resources
 
 This repository contains RelCompat3D code and compact numerical evidence. It
 does not redistribute the datasets, source-predictor repositories, or

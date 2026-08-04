@@ -5,8 +5,7 @@ fixed 3D scene graph relation predictions. The implementation covers model
 fitting, family-aware re-ranking, controls, bootstrap evaluation, point/mesh
 audits, and paper-table regeneration for VL-SAT, Open3DSG, and SGFN on 3DSSG.
 
-**[Project page](https://kim-yoo-hyun.github.io/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/)** ·
-**[Reproduction guide](docs/reproduction.md)** · **[Results](docs/results.md)**
+**[Project Page](https://kim-yoo-hyun.github.io/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/)**
 
 ![RelCompat3D method overview](site/assets/method.png)
 
@@ -18,7 +17,6 @@ family-aware re-ranking.
 
 ```text
 configs/       Pinned Docker environment and Compose services
-docs/          Data, model, result, and reproduction instructions
 experiments/   Frozen protocols and compact paper evidence
 results/       Paper-facing result index
 scripts/       Validation, model restoration, and experiment wrappers
@@ -27,9 +25,8 @@ src/           Training, evaluation, audit, and table-generation code
 ```
 
 Large datasets, source-predictor checkpoints, prediction rows, and trained
-RelCompat3D parameter files are not stored in Git. Their sources and expected
-paths are documented in [docs/data.md](docs/data.md) and
-[docs/models.md](docs/models.md).
+RelCompat3D parameter files are not stored in Git. Official sources and local
+paths are specified below and in the README of the corresponding folder.
 
 ## 1. Setup
 
@@ -54,17 +51,19 @@ python -m compileall -q src/relcompat3d
 
 ## 2. Restore RelCompat3D models
 
-The lightweight fitted models are hosted separately on Google Drive. The
-following command downloads the 36 KB archive, verifies its SHA-256 digest,
-and extracts each JSON model to its expected experiment path.
+The lightweight fitted models are available [here](https://drive.google.com/file/d/1DaZoibKFyPS681e728Tzs613qscMgv4u/view).
+The following command downloads the 36 KB archive, verifies its SHA-256
+digest, and extracts each JSON model to its expected experiment path.
 
 ```bash
 scripts/download_models.sh
 scripts/validate.sh --require-models
 ```
 
-See [docs/models.md](docs/models.md) for the file list, model hashes, and
-source-predictor preparation links.
+The expected model files and hashes are listed in
+[`configs/model_files.sha256`](configs/model_files.sha256).
+The archive is named `relcompat3d_models_3dssg_v1.tar.zst` and has SHA-256
+`4659858da8ff53f2c09769527ac486d182eef6e35c12ebeacfcc5d7ff6fdc103`.
 
 ## 3. Prepare data and prediction rows
 
@@ -90,8 +89,7 @@ scripts/train_open3dsg.sh select
 ```
 
 The source revision, data coverage gates, hyperparameters, and selection rule
-are documented in
-[docs/open3dsg-training.md](docs/open3dsg-training.md).
+are described [here](configs/open3dsg/README.md).
 
 The repository does not redistribute licensed scans, meshes, annotations,
 dataset-derived candidate rows, or third-party checkpoints. After obtaining
@@ -106,11 +104,12 @@ env UID=$(id -u) GID=$(id -g) $compose run --rm relcompat3d_adapt_sgfn
 env UID=$(id -u) GID=$(id -g) $compose run --rm relcompat3d_adapt_open3dsg
 ```
 
-The raw schemas and output locations are documented in
-[docs/source-adapters.md](docs/source-adapters.md). Join the resulting
+The raw schemas and output locations are described
+[here](src/relcompat3d/README.md#source-prediction-adapters). Join the resulting
 identity-preserving prediction rows with the officially obtained ordered-pair
-geometry according to [docs/data.md](docs/data.md). Then create the local table
-rows with:
+geometry using the runtime layout described
+[here](experiments/RelCompat3D_geom_reliability/README.md#data-and-runtime-layout).
+Then create the local table rows with:
 
 ```bash
 docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_export_rows
@@ -143,9 +142,9 @@ absolute error `0`.
 
 ## 5. Train and evaluate
 
-The full RelCompat3D pipeline requires the licensed inputs listed in
-[docs/data.md](docs/data.md). Once those files and the restored models are in
-place, run:
+The full RelCompat3D pipeline requires the licensed inputs described in the
+[experiment README](experiments/RelCompat3D_geom_reliability/README.md). Once
+those files and the restored models are in place, run:
 
 ```bash
 docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit
@@ -154,8 +153,8 @@ scripts/run_pipeline.sh initial
 scripts/run_pipeline.sh downstream
 ```
 
-Additional controls, robustness analyses, and audit services are listed in
-[docs/reproduction.md](docs/reproduction.md).
+Additional controls, robustness analyses, and recovery commands are listed
+[here](experiments/RelCompat3D_geom_reliability/README.md#reproduction-commands).
 
 ## Results
 
@@ -163,7 +162,6 @@ Frozen compact outputs are tracked for inspection and integrity checks. The
 active result map is [results/relcompat3d_geom_reliability/manifest.json](results/relcompat3d_geom_reliability/manifest.json),
 and the main table files are under
 [`paper_reproduction/evaluation`](experiments/RelCompat3D_geom_reliability/paper_reproduction/evaluation).
-See [docs/results.md](docs/results.md) for scope and metric definitions.
 
 At `K=50`, the reported Recall/Violation percentages are:
 
@@ -208,4 +206,4 @@ GitHub can read the metadata in [CITATION.cff](CITATION.cff).
 
 RelCompat3D code is released under the [Apache License 2.0](LICENSE). Dataset,
 source-predictor, and checkpoint licenses remain with their respective owners;
-see [THIRD_PARTY.md](THIRD_PARTY.md).
+see [third-party licenses](third_party_licenses.md).

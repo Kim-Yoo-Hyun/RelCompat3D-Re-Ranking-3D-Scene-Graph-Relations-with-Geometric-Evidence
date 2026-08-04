@@ -16,7 +16,7 @@ required=(
 for file in "${required[@]}"; do
   if [[ ! -f "$rows/$file" ]]; then
     echo "Missing $rows/$file" >&2
-    echo "See docs/data.md for the licensed-input export route." >&2
+    echo "See experiments/RelCompat3D_geom_reliability/README.md for the licensed-input export route." >&2
     exit 1
   fi
 done
