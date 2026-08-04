@@ -270,21 +270,20 @@ h1 {
   background: var(--ink);
 }
 
+.button-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.button-icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}
+
 .button-secondary {
   background: rgba(255, 255, 255, 0.55);
-}
-
-.button-text {
-  min-height: 48px;
-  padding-inline: 8px;
-  color: var(--teal-dark);
-  background: transparent;
-  border-color: transparent;
-}
-
-.button-text:hover,
-.button-text:focus-visible {
-  box-shadow: none;
 }
 
 .scope-list {
@@ -330,41 +329,6 @@ figcaption {
   border-top: 1px solid var(--line);
   font-size: 0.79rem;
   line-height: 1.5;
-}
-
-.fact-strip {
-  background: white;
-  border-block: 1px solid var(--line);
-}
-
-.facts {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.facts > div {
-  display: flex;
-  gap: 12px;
-  align-items: baseline;
-  justify-content: center;
-  padding: 24px 18px;
-}
-
-.facts > div + div {
-  border-left: 1px solid var(--line);
-}
-
-.facts strong {
-  color: var(--teal-dark);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.65rem;
-  font-weight: 600;
-}
-
-.facts span {
-  color: var(--ink-soft);
-  font-size: 0.77rem;
-  font-weight: 680;
 }
 
 .section {
@@ -1032,32 +996,6 @@ button:focus-visible {
   .terminal pre {
     padding: 20px;
     font-size: 0.62rem;
-  }
-
-  .facts {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .facts > div {
-    justify-content: flex-start;
-    padding: 17px 12px;
-  }
-
-  .facts > div:nth-child(3) {
-    border-left: 0;
-    border-top: 1px solid var(--line);
-  }
-
-  .facts > div:nth-child(4) {
-    border-top: 1px solid var(--line);
-  }
-
-  .facts strong {
-    font-size: 1.3rem;
-  }
-
-  .facts span {
-    font-size: 0.69rem;
   }
 
   .core-idea,
