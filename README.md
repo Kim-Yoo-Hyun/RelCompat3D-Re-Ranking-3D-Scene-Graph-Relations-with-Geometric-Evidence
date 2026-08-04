@@ -5,7 +5,7 @@ fixed 3D scene graph relation predictions. The implementation covers model
 fitting, family-aware re-ranking, controls, bootstrap evaluation, point/mesh
 audits, and paper-table regeneration for VL-SAT, Open3DSG, and SGFN on 3DSSG.
 
-**[Project Page](https://kim-yoo-hyun.github.io/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/)**
+### [Project Page](https://kim-yoo-hyun.github.io/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence/)
 
 ![RelCompat3D method overview](site/assets/method.png)
 
@@ -53,17 +53,12 @@ python -m compileall -q src/relcompat3d
 
 The lightweight fitted models are available [here](https://drive.google.com/file/d/1DaZoibKFyPS681e728Tzs613qscMgv4u/view).
 The following command downloads the 36 KB archive, verifies its SHA-256
-digest, and extracts each JSON model to its expected experiment path.
+digest, and extracts the fitted models to their expected experiment paths.
 
 ```bash
 scripts/download_models.sh
 scripts/validate.sh --require-models
 ```
-
-The expected model files and hashes are listed in
-[`configs/model_files.sha256`](configs/model_files.sha256).
-The archive is named `relcompat3d_models_3dssg_v1.tar.zst` and has SHA-256
-`4659858da8ff53f2c09769527ac486d182eef6e35c12ebeacfcc5d7ff6fdc103`.
 
 ## 3. Prepare data and prediction rows
 
@@ -142,9 +137,9 @@ absolute error `0`.
 
 ## 5. Train and evaluate
 
-The full RelCompat3D pipeline requires the licensed inputs described in the
-[experiment README](experiments/RelCompat3D_geom_reliability/README.md). Once
-those files and the restored models are in place, run:
+The full RelCompat3D pipeline requires the licensed inputs described
+[here](experiments/RelCompat3D_geom_reliability/README.md). Once those files
+and the restored models are in place, run:
 
 ```bash
 docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit
@@ -159,9 +154,8 @@ Additional controls, robustness analyses, and recovery commands are listed
 ## Results
 
 Frozen compact outputs are tracked for inspection and integrity checks. The
-active result map is [results/relcompat3d_geom_reliability/manifest.json](results/relcompat3d_geom_reliability/manifest.json),
-and the main table files are under
-[`paper_reproduction/evaluation`](experiments/RelCompat3D_geom_reliability/paper_reproduction/evaluation).
+main results are summarized below, and the complete artifact locations are
+listed [here](results/README.md).
 
 At `K=50`, the reported Recall/Violation percentages are:
 
