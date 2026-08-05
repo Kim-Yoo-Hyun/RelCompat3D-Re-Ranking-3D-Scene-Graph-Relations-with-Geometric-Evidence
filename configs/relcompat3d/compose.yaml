@@ -1,4 +1,16 @@
 services:
+  relcompat3d_synthetic_test:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, -m, unittest]
+    command: [discover, -s, tests, -v]
+
   relcompat3d_adapt_vlsat:
     build:
       context: ../..
@@ -76,6 +88,119 @@ services:
       - open3dsg_nonavg_development_selected
       - --split-name
       - full_official_validation
+
+  relcompat3d_build_ground_truth:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/build_ground_truth.py]
+    command:
+      - --subset
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json
+      - --relationships
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
+      - --out
+      - /workspace/local_dataset/RelCompat3D/canonical/ground_truth.jsonl
+      - --split-name
+      - full_official_validation
+
+  relcompat3d_verify_vlsat:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/build_verification_rows.py]
+    command:
+      - --predictions-jsonl
+      - /workspace/local_dataset/RelCompat3D/canonical/vlsat/predictions.jsonl
+      - --dataset-root
+      - /workspace/local_dataset
+      - --output-dir
+      - /workspace/local_dataset/RelCompat3D/canonical/vlsat
+      - --verification-policy
+      - point_subtype
+
+  relcompat3d_verify_sgfn:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/build_verification_rows.py]
+    command:
+      - --predictions-jsonl
+      - /workspace/local_dataset/RelCompat3D/canonical/sgfn/predictions.jsonl
+      - --dataset-root
+      - /workspace/local_dataset
+      - --output-dir
+      - /workspace/local_dataset/RelCompat3D/canonical/sgfn
+      - --verification-policy
+      - point_subtype
+
+  relcompat3d_verify_open3dsg:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/build_verification_rows.py]
+    command:
+      - --predictions-jsonl
+      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg/predictions.jsonl
+      - --dataset-root
+      - /workspace/local_dataset
+      - --output-dir
+      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg
+      - --verification-policy
+      - point_subtype
+
+  relcompat3d_evaluate_public:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/evaluate_public.py]
+    command:
+      - --annotations
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json
+      - --ground-truth
+      - /workspace/local_dataset/RelCompat3D/canonical/ground_truth.jsonl
+      - --structured-models
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/fit/structured_models.json
+      - --nonlinear-models
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/nonlinear/models.json
+      - --vlsat
+      - /workspace/local_dataset/RelCompat3D/canonical/vlsat/verification.jsonl
+      - --open3dsg
+      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg/verification.jsonl
+      - --sgfn
+      - /workspace/local_dataset/RelCompat3D/canonical/sgfn/verification.jsonl
+      - --out
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_evaluation
 
   relcompat3d_export_rows:
     build:
@@ -278,16 +403,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/fit
-
-  relcompat3d_freeze_initial:
-    image: relcompat3d-geom-reliability:latest
-    working_dir: /workspace
-    user: "${UID:-1000}:${GID:-1000}"
-    volumes:
-      - ../..:/workspace
-    entrypoint: [python, /workspace/src/relcompat3d/freeze_protocols.py]
-    command: [--repo-root, /workspace, --phase, initial]
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit
 
   relcompat3d_evaluate_linear:
     image: relcompat3d-geom-reliability:latest
@@ -348,15 +464,6 @@ services:
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/nonlinear.json
       - --out
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/nonlinear
-
-  relcompat3d_freeze_downstream:
-    image: relcompat3d-geom-reliability:latest
-    working_dir: /workspace
-    user: "${UID:-1000}:${GID:-1000}"
-    volumes:
-      - ../..:/workspace
-    entrypoint: [python, /workspace/src/relcompat3d/freeze_protocols.py]
-    command: [--repo-root, /workspace, --phase, downstream]
 
   relcompat3d_compare_rankings:
     image: relcompat3d-geom-reliability:latest

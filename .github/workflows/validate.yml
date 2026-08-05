@@ -18,5 +18,9 @@ jobs:
           docker compose -f configs/open3dsg/compose.yaml config --quiet
       - name: Compile Python sources
         run: python -m compileall -q src/relcompat3d
+      - name: Install synthetic-test dependency
+        run: python -m pip install numpy==1.26.4
+      - name: Run synthetic functional pipeline
+        run: python -m unittest discover -s tests -v
       - name: Validate frozen evidence
         run: python scripts/validate_repository.py

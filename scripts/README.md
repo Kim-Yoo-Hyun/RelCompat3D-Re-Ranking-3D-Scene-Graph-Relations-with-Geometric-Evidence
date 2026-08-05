@@ -6,10 +6,12 @@
 - `restore_recovery_archive.sh`: verify a maintainer recovery archive and map
   its contents to the current repository layout.
 - `validate.sh`: validate Compose, Python sources, JSON artifacts, model hashes,
-  and frozen table cells.
+  frozen table cells, and the synthetic functional pipeline.
 - `reproduce_tables.sh`: regenerate Tables 1--3 and Figure 3 from table rows
   created locally from official data and source-predictor outputs.
-- `run_pipeline.sh`: run the guarded main fitting/evaluation stages.
+- `run_pipeline.sh`: adapt official source outputs, build geometry/verifier
+  rows, run fresh evaluation, and regenerate paper tables without overwriting
+  frozen references.
 - `validate_repository.py`: standard-library repository and numerical checks.
 
 All paper experiment execution remains Docker-based. Shell scripts only

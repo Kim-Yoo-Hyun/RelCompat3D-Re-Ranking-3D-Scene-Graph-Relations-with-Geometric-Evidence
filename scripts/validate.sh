@@ -15,3 +15,7 @@ trap 'find "$cache" -depth -delete' EXIT
 PYTHONPYCACHEPREFIX="$cache" python -m compileall -q src/relcompat3d
 
 python scripts/validate_repository.py "$@"
+
+env UID="$(id -u)" GID="$(id -g)" \
+  docker compose -f configs/relcompat3d/compose.yaml run --rm \
+  relcompat3d_synthetic_test

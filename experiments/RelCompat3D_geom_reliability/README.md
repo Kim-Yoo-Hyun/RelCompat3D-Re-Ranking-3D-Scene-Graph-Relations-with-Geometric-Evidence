@@ -48,9 +48,12 @@ local_dataset/RelCompat3D/
     └── table_rows_hmac_key.txt
 ```
 
+After running the official predictor repositories, serialize their fixed
+outputs as the three `raw.jsonl` files under `source_outputs/`. RelCompat3D
+does not generate upstream source predictions.
 The adapters create the three `predictions.jsonl` files. Each
-`verification.jsonl` adds measurements and frozen verifier labels from the
-same ordered pair while retaining every source-prediction row and endpoint.
+`verification.jsonl` then adds measurements and frozen verifier labels from
+the same ordered pair while retaining every source-prediction row and endpoint.
 The [source adapter instructions](../../src/relcompat3d/README.md#source-prediction-adapters)
 define the input contracts.
 
@@ -60,6 +63,14 @@ score-robustness, routing-control, and paper-reproduction protocols preserve
 the frozen input hashes while mapping local files to this public layout.
 
 ### Local paper rows
+
+This exact paper-export stage also reads the point/mesh audit measurements
+listed by `paper_reproduction/protocol.json` and a local HMAC key. These files
+are not produced by the primary OBB/point verifier join and are not distributed
+because they are derived from licensed scene geometry. Maintainers may restore
+them from the private recovery archive. Other users can regenerate them from
+officially obtained scans with the point/mesh audit code after accepting the
+dataset terms.
 
 Create the geometry-free inputs used by the paper-table script with:
 
@@ -114,15 +125,21 @@ Outputs are written to `paper_reproduction/regenerated/`. A valid run reports
 291 matching canonical values with maximum absolute error no larger than
 `1e-12`.
 
-Fit and evaluate RelCompat3D after mounting every input specified by the
-protocols:
+Prepare the canonical inputs from official source outputs and evaluate the
+restored models in a separate regenerated directory:
 
 ```bash
-docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit
-docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_freeze_initial
-scripts/run_pipeline.sh initial
-scripts/run_pipeline.sh downstream
+scripts/run_pipeline.sh prepare
+scripts/download_models.sh
+scripts/run_pipeline.sh evaluate
 ```
+
+The frozen `main_experiment/evaluation/` directories are paper references and
+are never overwritten by this route. Public evaluation writes to
+`main_experiment/regenerated/public_evaluation/`. Exact re-fitting uses the
+same `fit_linear.py` and `fit_mlp.py` implementations but additionally requires
+the official training annotations, the listed split files, and the
+internal-development inputs recorded by `main_experiment/protocol.json`.
 
 Supplementary analyses use the same frozen inputs:
 
@@ -139,7 +156,8 @@ $compose run --rm relcompat3d_runtime
 ```
 
 Source-predictor inference remains in the official VL-SAT, SGFN, and Open3DSG
-environments. Convert those outputs with the
+environments. Write their results to
+`source_outputs/{vlsat,sgfn,open3dsg}/raw.jsonl`, then convert them with the
 [source adapters](../../src/relcompat3d/README.md#source-prediction-adapters).
 For Open3DSG, use the [pinned configuration](../../configs/open3dsg/README.md).
 
@@ -147,8 +165,8 @@ Expected output locations are:
 
 | Task | Output |
 | --- | --- |
-| Model fitting | `main_experiment/fit/` |
-| Main evaluation | `main_experiment/evaluation/` |
+| Restored reported models | `main_experiment/fit/` and `main_experiment/evaluation/nonlinear/` |
+| Fresh main evaluation | `main_experiment/regenerated/public_evaluation/` |
 | Table regeneration | `paper_reproduction/regenerated/` |
 | Candidate oracle | `candidate_oracle/regenerated/` |
 | Compact result index | `../../results/relcompat3d_geom_reliability/manifest.json` |

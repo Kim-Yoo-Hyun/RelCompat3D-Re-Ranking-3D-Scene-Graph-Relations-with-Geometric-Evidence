@@ -12,12 +12,16 @@ modules use file-relative imports and the packages pinned in
   `fit_mlp.py`, and `fit_factor_controls.py`.
 - Source preprocessing: `adapt_source_predictions.py` converts VL-SAT, SGFN,
   and Open3DSG score dumps to one identity-preserving prediction schema.
+  `build_ground_truth.py` exports the exact-relation target, and
+  `build_verification_rows.py` joins official ordered-pair geometry and verifier
+  outputs. Point-level support logic is isolated in `point_support.py` and
+  `support_verifier.py`.
 - Open3DSG source-model support: `configure_open3dsg.py`,
   `prepare_open3dsg_splits.py`, and `select_open3dsg_checkpoint.py` implement
   source revision, data coverage, and development-loss selection checks.
 - Core logic: `compatibility_features.py`, `relation_consistency.py`,
   `control_utils.py`, `evaluate_metrics.py`, and `paths.py`.
-- Main evaluation: `evaluate_main.py`, `evaluate_comparators.py`,
+- Main evaluation: `evaluate_public.py`, `evaluate_main.py`, `evaluate_comparators.py`,
   `evaluate_linear_controls.py`, `evaluate_mlp_controls.py`, and
   `evaluate_component_removals.py`.
 - Family and uncertainty checks: `evaluate_support_order.py`,
@@ -40,8 +44,9 @@ Generated rows, caches, checkpoints, and model payloads do not belong under
 
 RelCompat3D consumes fixed relation predictions while retaining the scan,
 3DSSG context, ordered instance pair, predicate, and source score. Run each
-source predictor in its official environment and save one JSON object per line
-with the fields below.
+source predictor in its official environment. This repository intentionally
+does not call those upstream inference pipelines. Save one JSON object per
+line at `source_outputs/{source}/raw.jsonl` with the fields below.
 
 | Source | Required JSONL fields |
 | --- | --- |
@@ -100,6 +105,18 @@ record its SHA-256 digest with the prediction run.
 
 The files above contain canonical source predictions. The corresponding
 `verification.jsonl` files add ordered-pair measurements and frozen verifier
-outputs. Build this join from officially obtained 3RScan/3DSSG data with the
-thresholds in the frozen protocols. Changing those thresholds creates a new
+outputs. `build_verification_rows.py` reads `semseg.v2.json` OBBs and
+`labels.instances.annotated.v2.ply` instance points from officially obtained
+3RScan scans. It preserves every candidate row and applies the frozen
+proximity, vertical-order, and subtype-aware support/contact rules.
+
+The public wrapper runs the adapters, ground-truth export, and all three joins:
+
+```bash
+scripts/run_pipeline.sh prepare
+```
+
+The individual Docker services are `relcompat3d_build_ground_truth`,
+`relcompat3d_verify_vlsat`, `relcompat3d_verify_sgfn`, and
+`relcompat3d_verify_open3dsg`. Changing their thresholds creates a new
 evaluation rather than an exact reproduction of the reported experiment.
