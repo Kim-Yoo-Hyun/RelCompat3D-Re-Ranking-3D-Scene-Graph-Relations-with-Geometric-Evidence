@@ -127,10 +127,10 @@ following command trains RelCompat3D and runs the complete repository-owned
 route:
 
 ```bash
-make from-source-outputs
+scripts/run_pipeline.sh full
 ```
 
-This target performs five stages in order:
+This command performs five stages in order:
 
 1. adapt source-predictor outputs and join ordered-pair geometry;
 2. build linked positive--counterfactual training rows and fit the base,
@@ -140,16 +140,6 @@ This target performs five stages in order:
    surfaces; and
 5. generate CSV/LaTeX versions of Tables 1--3 and the Figure 3 data and
    renderings.
-
-The stages can also be run separately:
-
-```bash
-scripts/run_pipeline.sh prepare
-scripts/run_pipeline.sh train
-scripts/run_pipeline.sh evaluate-trained
-scripts/run_pipeline.sh audit-trained
-scripts/run_pipeline.sh tables-trained
-```
 
 Fresh outputs are isolated under:
 
@@ -228,7 +218,7 @@ without redistributing its code or model files.
 The repository does not replace training or inference in the three independent
 source-predictor repositories. Users first create the source checkpoints and
 fixed predictions with those official projects. Once the predictions use the
-documented contract, `make from-source-outputs` covers the complete
+documented contract, `scripts/run_pipeline.sh full` covers the complete
 RelCompat3D-owned process through table generation.
 
 ## Citation

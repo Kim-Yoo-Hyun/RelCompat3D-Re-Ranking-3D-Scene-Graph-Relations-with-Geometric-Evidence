@@ -12,7 +12,7 @@
   training rows, fit both estimators, run the point/mesh audit, and generate
   tables without overwriting frozen references. After source-predictor
   checkpoints and fixed outputs have been created in the official projects,
-  `make from-source-outputs` invokes the complete RelCompat3D-owned route.
+  `scripts/run_pipeline.sh full` invokes the complete RelCompat3D-owned route.
 - `validate_repository.py`: standard-library repository and numerical checks.
 
 All paper experiment execution remains Docker-based. Shell scripts only

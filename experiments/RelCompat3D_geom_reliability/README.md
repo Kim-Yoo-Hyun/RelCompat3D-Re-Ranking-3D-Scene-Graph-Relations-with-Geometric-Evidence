@@ -150,12 +150,11 @@ files.
 The complete fresh route is:
 
 ```bash
-scripts/run_pipeline.sh prepare
-scripts/run_pipeline.sh train
-scripts/run_pipeline.sh evaluate-trained
-scripts/run_pipeline.sh audit-trained
-scripts/run_pipeline.sh tables-trained
+scripts/run_pipeline.sh full
 ```
+
+The script also exposes the five stages individually for partial reruns and
+debugging. The `full` stage is the canonical end-to-end RelCompat3D command.
 
 Supplementary analyses use the same frozen inputs:
 
