@@ -357,8 +357,12 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_table_row_export":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") not in {
+        "frozen_before_table_row_export",
+        "public_execution_protocol",
+    }:
+        raise ValueError("unsupported_protocol_status")
+    public_mode = protocol.get("status") == "public_execution_protocol"
 
     paths: dict[str, Path] = {}
     input_checks: dict[str, Any] = {}
@@ -379,7 +383,7 @@ def main() -> int:
         else:
             input_checks[name] = {
                 "path": relpath(root, path),
-                "distribution": spec["distribution"],
+                "distribution": spec.get("distribution", "local input"),
             }
 
     key_text = paths["id_key"].read_text(encoding="utf-8").strip()
@@ -399,12 +403,10 @@ def main() -> int:
     linear_scorer = linear.make_structured_scorer(structured_models)
     mlp_model = nonlinear_models["shared_nonlinear_structured"]
     thresholds = json.loads(paths["surface_thresholds"].read_text(encoding="utf-8"))
-    measurements = load_measurements(
-        (
-            paths["surface_measurements"],
-            paths["additional_surface_measurements"],
-        )
-    )
+    measurement_paths = [paths["surface_measurements"]]
+    if "additional_surface_measurements" in paths:
+        measurement_paths.append(paths["additional_surface_measurements"])
+    measurements = load_measurements(measurement_paths)
 
     out.mkdir(parents=True, exist_ok=True)
     gt_path = out / "ground_truth.csv.gz"
@@ -480,7 +482,7 @@ def main() -> int:
         "official_contexts": len(contexts) == expected["expected_contexts"],
         "official_scans": len(scans) == expected["expected_scans"],
         "ground_truth_rows": gt_rows == expected["expected_ground_truth_rows"],
-        "candidate_rows": candidate_counts == expected["expected_candidate_rows"],
+        "candidate_rows_present": all(count > 0 for count in candidate_counts.values()),
         "candidate_headers_exclude_raw_geometry": not any(
             token in CANDIDATE_FIELDS
             for token in (
@@ -498,6 +500,10 @@ def main() -> int:
         ),
         "surface_measurements_available": len(measurements) > 0,
     }
+    if "expected_candidate_rows" in expected:
+        validations["candidate_rows_match_reference"] = (
+            candidate_counts == expected["expected_candidate_rows"]
+        )
     status = "completed" if all(validations.values()) else "failed_validation"
     schema_path = out / "schema.json"
     write_json(
@@ -557,7 +563,11 @@ def main() -> int:
             "docker_export_command": (
                 "env UID=$(id -u) GID=$(id -g) docker compose "
                 "-f configs/relcompat3d/compose.yaml run --rm "
-                "relcompat3d_export_rows"
+                + (
+                    "relcompat3d_export_trained_rows"
+                    if public_mode
+                    else "relcompat3d_export_rows"
+                )
             ),
         },
     )

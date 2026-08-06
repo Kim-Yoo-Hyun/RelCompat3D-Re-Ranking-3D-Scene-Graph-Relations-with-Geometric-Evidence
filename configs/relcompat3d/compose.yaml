@@ -190,6 +190,39 @@ services:
       - --out
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_evaluation
 
+  relcompat3d_evaluate_trained:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/evaluate_public.py]
+    command:
+      - --annotations
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json
+      - --ground-truth
+      - /workspace/local_dataset/RelCompat3D/canonical/ground_truth.jsonl
+      - --structured-models
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/structured_models.json
+      - --nonlinear-models
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/nonlinear/models.json
+      - --vlsat
+      - /workspace/local_dataset/RelCompat3D/canonical/vlsat/verification.jsonl
+      - --open3dsg
+      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg/verification.jsonl
+      - --sgfn
+      - /workspace/local_dataset/RelCompat3D/canonical/sgfn/verification.jsonl
+      - --out
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/trained_evaluation
+
   relcompat3d_export_rows:
     build:
       context: ../..
@@ -239,6 +272,67 @@ services:
       - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/artifacts/table_rows
       - --out
       - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated
+
+  relcompat3d_export_trained_rows:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+      MPLCONFIGDIR: /tmp/matplotlib
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/build_reproduction_rows.py]
+    command:
+      - --repo-root
+      - /workspace
+      - --protocol
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/public_protocol.json
+      - --out
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/public_rows
+
+  relcompat3d_create_local_key:
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/create_local_key.py]
+    command:
+      - --out
+      - /workspace/local_dataset/RelCompat3D/secrets/table_rows_hmac_key.txt
+
+  relcompat3d_reproduce_trained_rows:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+      MPLCONFIGDIR: /tmp/matplotlib
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/reproduce_from_rows.py]
+    command:
+      - --repo-root
+      - /workspace
+      - --protocol
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/public_protocol.json
+      - --rows
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/public_rows
+      - --out
+      - /workspace/experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/public_tables
 
   relcompat3d_candidate_oracle:
     build:
@@ -401,6 +495,32 @@ services:
       - --include-counterfactuals
       - --allow-selected-scans-without-positive-rows
 
+  relcompat3d_fit_base:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/fit_train_only.py]
+    command:
+      - --repo-root
+      - /workspace
+      - --protocol
+      - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/protocol.json
+      - --calibration-table
+      - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated/table.jsonl
+      - --train-scans
+      - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/splits/train_scans.txt
+      - --dev-scans
+      - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/splits/internal_dev_scans.txt
+      - --final-scans
+      - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/splits/final_validation_scans.txt
+      - --out
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/base
+
   relcompat3d_fit:
     build:
       context: ../..
@@ -420,6 +540,8 @@ services:
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit
       - --calibration-table
       - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated/table.jsonl
+      - --current-strict-models
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/base/models.json
       - --fit-only
 
   relcompat3d_evaluate_linear:
@@ -579,6 +701,26 @@ services:
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/surface_audit.json
       - --out
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/surface_audit
+
+  relcompat3d_surface_audit_trained:
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/audit_point_mesh.py]
+    command:
+      - --repo-root
+      - /workspace
+      - --protocol
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/public_surface_audit.json
+      - --out
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_surface_audit
 
   relcompat3d_mlp_surface_audit:
     image: relcompat3d-geom-reliability:latest

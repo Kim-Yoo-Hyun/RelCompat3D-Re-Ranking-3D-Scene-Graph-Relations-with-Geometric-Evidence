@@ -10,8 +10,10 @@ modules use file-relative imports and the packages pinned in
 
 - Training: `build_training_rows.py`, `fit_train_only.py`, `fit_linear.py`,
   `fit_mlp.py`, and `fit_factor_controls.py`.
-  `fit_linear.py` and `fit_mlp.py` provide `--fit-only` for model fitting from
-  a locally regenerated calibration table without source-predictor evaluation.
+  `fit_train_only.py` creates the base feature template and training-split
+  normalization statistics. `fit_linear.py` and `fit_mlp.py` provide
+  `--fit-only` for fitting from a locally regenerated calibration table without
+  source-predictor evaluation.
 - Source preprocessing: `adapt_source_predictions.py` converts VL-SAT, SGFN,
   and Open3DSG score dumps to one identity-preserving prediction schema.
   `build_ground_truth.py` exports the exact-relation target, and
@@ -38,6 +40,8 @@ modules use file-relative imports and the packages pinned in
   `training_control_utils.py`.
 - Row-level verification: `build_reproduction_rows.py`,
   `reproduce_from_rows.py`, and `evaluate_candidate_oracle.py`.
+- Local identifier setup: `create_local_key.py` creates the private key used
+  only for local table-row identifiers.
 
 Generated rows, caches, checkpoints, and model payloads do not belong under
 `src/`.

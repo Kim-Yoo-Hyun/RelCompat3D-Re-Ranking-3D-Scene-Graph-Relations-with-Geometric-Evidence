@@ -49,18 +49,7 @@ pip install -r requirements.txt
 python -m compileall -q src/relcompat3d
 ```
 
-## 2. Restore RelCompat3D models
-
-The lightweight fitted models are available [here](https://drive.google.com/file/d/1DaZoibKFyPS681e728Tzs613qscMgv4u/view).
-The following command downloads the 36 KB archive, verifies its SHA-256
-digest, and extracts the fitted models to their expected experiment paths.
-
-```bash
-scripts/download_models.sh
-scripts/validate.sh --require-models
-```
-
-## 3. Prepare data and prediction rows
+## 2. Prepare official data and prediction rows
 
 Obtain 3RScan/3DSSG and the source predictors from their official projects:
 
@@ -113,83 +102,82 @@ raw schemas are described
 dataset layout is described
 [here](experiments/RelCompat3D_geom_reliability/README.md#data-and-runtime-layout).
 
-Restore the lightweight RelCompat3D models and evaluate the locally prepared
-rows without writing into frozen reference directories:
+## 3. Train, evaluate, and regenerate tables
+
+Place `relationships_train.json` beside the validation annotation and make the
+official 3RScan scans available under `local_dataset/3RScan/scans/`. No
+RelCompat3D checkpoint is required. The following command runs the complete
+repository-owned route after the three upstream `raw.jsonl` files have been
+created:
 
 ```bash
-scripts/download_models.sh
-scripts/run_pipeline.sh evaluate
+make from-official
 ```
 
-Evaluation outputs are written to
-`experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_evaluation/`.
+This target performs five stages in order:
 
-Exact Tables 1--3 and Figure 3 regeneration additionally requires the local
-point/mesh audit measurements and HMAC key listed in the
-[experiment README](experiments/RelCompat3D_geom_reliability/README.md#local-paper-rows).
-After preparing those licensed-data derivatives, create the local paper rows
-with:
+1. adapt source-predictor outputs and join ordered-pair geometry;
+2. build linked positive--counterfactual training rows and fit the base,
+   Linear, and MLP estimators;
+3. evaluate the freshly fitted models;
+4. derive point- and mesh-based audit measurements from official 3RScan
+   surfaces; and
+5. generate CSV/LaTeX versions of Tables 1--3 and the Figure 3 data and
+   renderings.
+
+The stages can also be run separately:
 
 ```bash
-scripts/run_pipeline.sh tables
+scripts/run_pipeline.sh prepare
+scripts/run_pipeline.sh train
+scripts/run_pipeline.sh evaluate-trained
+scripts/run_pipeline.sh audit-trained
+scripts/run_pipeline.sh tables-trained
 ```
 
-The resulting local intermediate belongs at:
-
-```text
-experiments/RelCompat3D_geom_reliability/paper_reproduction/artifacts/table_rows/
-```
-
-## 4. Reproduce Tables 1--3 and Figure 3
-
-To rerun table generation after the local rows already exist, use:
-
-```bash
-scripts/reproduce_tables.sh
-```
-
-Outputs are written to:
-
-```text
-experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/
-```
-
-The command regenerates CSV and LaTeX versions of Tables 1--3, Figure 3 data
-and renderings, and a cell-level comparison against 291 frozen paper values.
-The accepted tolerance is `1e-12`; the frozen reference run has maximum
-absolute error `0`.
-
-## 5. Training and extended analyses
-
-The repository includes the Linear and MLP fitting code, split files, frozen
-training protocol, counterfactual construction, and component analyses. To
-re-fit both estimators, first place the official `relationships_train.json`
-beside the validation annotation and make the corresponding 3RScan geometry
-available under `local_dataset/`. Then run:
-
-```bash
-scripts/download_models.sh
-make train
-```
-
-`make train` regenerates the linked positive--counterfactual training table,
-fits RelCompat3D-Linear, and fits RelCompat3D-MLP. Outputs are isolated under:
+Fresh outputs are isolated under:
 
 ```text
 experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated/
-experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/
-experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/nonlinear/
+experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/{base,fit,nonlinear}/
+experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/trained_evaluation/
+experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_surface_audit/
+experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/{public_rows,public_tables}/
 ```
 
 The tracked 1,061/117/157 scan lists define the training, internal-development,
 and final-validation firewall. The fit-only commands do not read source scores,
 predictor identities, source-predictor validation rows, or final-validation
-labels. Reported models can instead be restored directly with
-`scripts/download_models.sh`. See the
+labels. See the
 [experiment README](experiments/RelCompat3D_geom_reliability/README.md#model-fitting)
 for individual Docker commands and required inputs.
 
-Additional controls, robustness analyses, and recovery commands are listed
+The generated tables reflect the source predictions supplied by the user.
+They match the paper values only when the same official predictor
+configurations, checkpoints, and fixed candidate outputs are used. The public
+route checks dataset scope, identities, ranking constraints, metric accounting,
+and output integrity without treating a different upstream run as a failed
+paper-value comparison.
+
+## 4. Optional reported-model and frozen-result checks
+
+The lightweight reported RelCompat3D parameters are available
+[here](https://drive.google.com/file/d/1DaZoibKFyPS681e728Tzs613qscMgv4u/view).
+They are optional for fresh training. To restore and verify them, run:
+
+```bash
+scripts/download_models.sh
+scripts/validate.sh --require-models
+scripts/run_pipeline.sh evaluate
+```
+
+If the exact local table-row bundle for the reported run has already been
+generated from licensed inputs, `scripts/reproduce_tables.sh` regenerates the
+paper tables and checks 291 frozen values at tolerance `1e-12`.
+
+## 5. Extended analyses
+
+Additional controls, robustness analyses, and maintainer recovery commands are listed
 [here](experiments/RelCompat3D_geom_reliability/README.md#reproduction-commands).
 
 ## Results
@@ -217,22 +205,23 @@ There are three supported levels:
 
 1. A Git-only checkout validates code, configuration, protocols, and frozen
    results.
-2. Git plus the public RelCompat3D model archive restores all learned
-   compatibility parameters.
-3. A Git checkout combined with officially obtained 3RScan/3DSSG data and
+2. A Git checkout combined with officially obtained 3RScan/3DSSG data and
    outputs generated with the official source-predictor repositories supports
-   local geometry joining, evaluation, and paper-table regeneration. The
-   fitting code and frozen training protocol are also included for controlled
-   re-fitting with the corresponding official train/development inputs.
+   training, geometry joining, evaluation, point/mesh auditing, and table
+   generation.
+3. Git plus the optional RelCompat3D model archive restores the learned
+   compatibility parameters used by the reported run.
 
 Source-predictor inference remains governed by the upstream licenses and data
 terms. VL-SAT and SGFN follow their official repositories. The Open3DSG
 training configuration in this repository invokes the pinned official source
 without redistributing its code or model files.
 
-The repository does not provide a single command from raw dataset download
-through inference of all three source predictors; data access and
-source-predictor inference follow their official repositories.
+The repository does not automate licensed dataset download or inference in
+the three independent source-predictor repositories. Those stages follow the
+official projects. Once their outputs use the documented contract,
+`make from-official` covers the complete RelCompat3D-owned process through
+table generation.
 
 ## Citation
 

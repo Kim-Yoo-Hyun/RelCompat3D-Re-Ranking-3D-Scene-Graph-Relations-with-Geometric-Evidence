@@ -34,6 +34,14 @@ def parse_args() -> argparse.Namespace:
         help="Override the protocol calibration-table path with a local regenerated table.",
     )
     parser.add_argument(
+        "--current-strict-models",
+        type=Path,
+        help=(
+            "Override the protocol feature-template path. This lets a fresh run use "
+            "the train-only base models generated from the same calibration rows."
+        ),
+    )
+    parser.add_argument(
         "--fit-only",
         action="store_true",
         help="Fit and export the Linear estimator without internal-development evaluation.",
@@ -198,6 +206,8 @@ def main() -> int:
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     if args.calibration_table is not None:
         paths["calibration_table"] = resolve(root, args.calibration_table)
+    if args.current_strict_models is not None:
+        paths["current_strict_models"] = resolve(root, args.current_strict_models)
     fit_inputs = {
         name: paths[name]
         for name in (

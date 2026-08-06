@@ -1,6 +1,6 @@
 COMPOSE := docker compose -f configs/relcompat3d/compose.yaml
 
-.PHONY: build validate models prepare open3dsg-train reproduce export-rows train evaluate
+.PHONY: build validate models prepare open3dsg-train reproduce export-rows train evaluate evaluate-trained audit-trained tables-trained from-official
 
 build:
 	$(COMPOSE) build relcompat3d_reproduce_rows
@@ -24,9 +24,19 @@ export-rows:
 	$(COMPOSE) run --rm relcompat3d_export_rows
 
 train:
-	$(COMPOSE) run --rm relcompat3d_build_training_rows
-	$(COMPOSE) run --rm relcompat3d_fit
-	$(COMPOSE) run --rm relcompat3d_fit_mlp
+	scripts/run_pipeline.sh train
 
 evaluate:
 	scripts/run_pipeline.sh evaluate
+
+evaluate-trained:
+	scripts/run_pipeline.sh evaluate-trained
+
+audit-trained:
+	scripts/run_pipeline.sh audit-trained
+
+tables-trained:
+	scripts/run_pipeline.sh tables-trained
+
+from-official:
+	scripts/run_pipeline.sh full

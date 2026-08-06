@@ -1128,15 +1128,20 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_orthogonal_audit_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") not in {
+        "frozen_before_orthogonal_audit_execution",
+        "public_execution_protocol",
+    }:
+        raise ValueError("unsupported_protocol_status")
     if tuple(protocol["scope"]["ks"]) != KS:
         raise ValueError("k_contract_mismatch")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     missing = [name for name, path in paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
-    for name, expected in protocol["locked_sha256"].items():
+    locked_hashes = protocol.get("locked_sha256", {})
+    public_mode = protocol.get("status") == "public_execution_protocol"
+    for name, expected in locked_hashes.items():
         actual = sha256_file(paths[name])
         if actual != expected:
             raise ValueError(f"hash_mismatch:{name}:{actual}")
@@ -1239,8 +1244,11 @@ def main() -> int:
     write_csv(temp / "mechanism_rows.csv", mechanism_rows)
 
     validations = {
-        "protocol_frozen_before_execution": True,
-        "locked_model_hashes_match": True,
+        "protocol_fixed_before_execution": True,
+        "declared_model_hashes_match": all(
+            sha256_file(paths[name]) == expected
+            for name, expected in locked_hashes.items()
+        ),
         "train_scans_1061": len(train_scans) == 1061,
         "validation_scans_157": len(validation_scans) == 157,
         "official_contexts_548": len(contexts) == 548,
@@ -1311,7 +1319,15 @@ def main() -> int:
         "inputs": input_manifest,
         "outputs": {name: sha256_file(temp / name) for name in output_names},
         "validations": validations,
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm orthogonal_geometry_audit",
+        "docker_command": (
+            "env UID=$(id -u) GID=$(id -g) docker compose "
+            "-f configs/relcompat3d/compose.yaml run --rm "
+            + (
+                "relcompat3d_surface_audit_trained"
+                if public_mode
+                else "relcompat3d_surface_audit"
+            )
+        ),
     }
     write_json(temp / "manifest.json", manifest)
 

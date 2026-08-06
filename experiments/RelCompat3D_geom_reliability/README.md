@@ -17,12 +17,12 @@ paper and supplement.
 | `training_protocol/` | split firewall and train-only provenance |
 
 `evaluation/` directories are frozen references. Reproduction services write
-to ignored `regenerated/` directories. Fitted JSON models are restored with
-`scripts/download_models.sh`.
+to ignored `regenerated/` directories. Fitted JSON models can be trained from
+official data or restored with `scripts/download_models.sh`.
 
 The active evaluation uses 157 validation scans, 548 contexts, and 3,972
-exact-match ground-truth relations. The model archive, licensed inputs, and
-commands are described below.
+exact-match ground-truth relations. Licensed inputs and commands are described
+below.
 
 ## Data and runtime layout
 
@@ -58,56 +58,53 @@ the same ordered pair while retaining every source-prediction row and endpoint.
 The [source adapter instructions](../../src/relcompat3d/README.md#source-prediction-adapters)
 define the input contracts.
 
-Training, development, geometry, verifier, and point/mesh paths are fixed in
-`main_experiment/protocol.json` and `main_experiment/protocols/`. The
-score-robustness, routing-control, and paper-reproduction protocols preserve
-the frozen input hashes while mapping local files to this public layout.
+Training, development, geometry, verifier, and point/mesh paths are defined in
+`main_experiment/protocol.json` and `main_experiment/protocols/`. Frozen
+protocols preserve the paper input hashes. The `public_*` protocols use the
+same method and metric contracts with locally generated official inputs.
 
 ## Model fitting
 
-Model fitting requires the official `relationships_train.json`, the matching
-3RScan OBB geometry, the tracked scan lists under `training_protocol/splits/`,
-and the restored strict training model used to preserve the original feature
-normalization contract. Restore the small model archive, regenerate the
-training rows, and fit both estimators with:
+Model fitting requires the official `relationships_train.json`, matching
+3RScan geometry, and the tracked scan lists under `training_protocol/splits/`.
+The base feature template and training-split normalization statistics are
+generated from the same training rows, so fresh fitting does not require a
+pretrained RelCompat3D model. Run:
 
 ```bash
-scripts/download_models.sh
 compose="docker compose -f configs/relcompat3d/compose.yaml"
 
 $compose run --rm relcompat3d_build_training_rows
+$compose run --rm relcompat3d_fit_base
 $compose run --rm relcompat3d_fit
 $compose run --rm relcompat3d_fit_mlp
 ```
 
 The training-row builder uses only the tracked 1,061 training scans and 117
 internal-development scans. The 157 final-validation scans remain excluded.
-Both fitting services use `--fit-only`, write to `main_experiment/regenerated/`,
-and refuse nonempty output directories. The Linear and MLP outputs are
+The fitting services write to `main_experiment/regenerated/` and refuse
+nonempty output directories. The Linear and MLP outputs are
 `fit/structured_models.json` and `nonlinear/models.json`, respectively.
 Source-predictor evaluation is a separate step performed with restored or
 newly fitted models after training is complete.
 
 ### Local paper rows
 
-This exact paper-export stage also reads the point/mesh audit measurements
-listed by `paper_reproduction/protocol.json` and a local HMAC key. These files
-are not produced by the primary OBB/point verifier join and are not distributed
-because they are derived from licensed scene geometry. Maintainers may restore
-them from the private recovery archive. Other users can regenerate them from
-officially obtained scans with the point/mesh audit code after accepting the
-dataset terms.
+Table export reads point/mesh audit measurements and a local HMAC key. The
+fresh public route generates the measurements from officially obtained 3RScan
+surfaces and creates the key locally. Neither file is distributed.
 
-Create the geometry-free inputs used by the paper-table script with:
+For a fresh run, generate the audit and table inputs with:
 
 ```bash
-docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_export_rows
+scripts/run_pipeline.sh audit-trained
+scripts/run_pipeline.sh tables-trained
 ```
 
 The exporter writes:
 
 ```text
-paper_reproduction/artifacts/table_rows/
+paper_reproduction/regenerated/public_rows/
 ├── ground_truth.csv.gz
 ├── open3dsg_candidates.csv.gz
 ├── sgfn_candidates.csv.gz
@@ -116,15 +113,15 @@ paper_reproduction/artifacts/table_rows/
 ```
 
 These local intermediates are derived from licensed annotations and source
-predictions, so they are ignored by Git. Expected counts and hashes are stored
-in `paper_reproduction/expected_rows.json`. The rows cover 157 scans, 548
-contexts, and 3,972 ground-truth relations, with 220,848 VL-SAT candidates,
-159,444 Open3DSG candidates, and 220,848 SGFN candidates.
+predictions, so they are ignored by Git. The public protocol requires the
+official 157 scans, 548 contexts, and 3,972 ground-truth relations. Candidate
+counts are recorded from the supplied source outputs rather than assumed to
+match a different upstream inference run.
 
 The local HMAC key creates stable local identifiers without writing original
-scan, context, instance, pair, or prediction identifiers to these rows. It does
-not alter the terms of the source datasets. The exporter verifies the frozen
-input hashes before writing any result.
+scan, context, instance, pair, or prediction identifiers to these rows. The
+frozen exporter verifies paper-run input hashes. The public exporter records
+local hashes and applies structural checks.
 
 ## Reproduction commands
 
@@ -163,9 +160,18 @@ scripts/run_pipeline.sh evaluate
 The frozen `main_experiment/evaluation/` directories are paper references and
 are never overwritten by this route. Public evaluation writes to
 `main_experiment/regenerated/public_evaluation/`. Exact re-fitting uses the
-same `fit_linear.py` and `fit_mlp.py` implementations but additionally requires
-the official training annotations and geometry, the listed split files, and
-the restored strict normalization model described under Model fitting.
+same `fit_linear.py` and `fit_mlp.py` implementations and requires the official
+training annotations and geometry plus the listed split files.
+
+The complete fresh route is:
+
+```bash
+scripts/run_pipeline.sh prepare
+scripts/run_pipeline.sh train
+scripts/run_pipeline.sh evaluate-trained
+scripts/run_pipeline.sh audit-trained
+scripts/run_pipeline.sh tables-trained
+```
 
 Supplementary analyses use the same frozen inputs:
 
@@ -193,17 +199,22 @@ Expected output locations are:
 | --- | --- |
 | Restored reported models | `main_experiment/fit/` and `main_experiment/evaluation/nonlinear/` |
 | Fresh main evaluation | `main_experiment/regenerated/public_evaluation/` |
+| Fresh base template | `main_experiment/regenerated/base/` |
 | Fresh Linear fit | `main_experiment/regenerated/fit/` |
 | Fresh MLP fit | `main_experiment/regenerated/nonlinear/` |
-| Table regeneration | `paper_reproduction/regenerated/` |
+| Fresh trained-model evaluation | `main_experiment/regenerated/trained_evaluation/` |
+| Fresh point/mesh audit | `main_experiment/regenerated/public_surface_audit/` |
+| Fresh table regeneration | `paper_reproduction/regenerated/public_tables/` |
+| Frozen-value table check | `paper_reproduction/regenerated/` |
 | Candidate oracle | `candidate_oracle/regenerated/` |
 | Compact result index | `../../results/relcompat3d_geom_reliability/manifest.json` |
 
 A fresh server needs Docker with Compose v2, official 3RScan/3DSSG access,
-source-predictor environments and checkpoints, the public RelCompat3D model
-archive, and canonical geometry and prediction inputs prepared from the
-official resources. The Git repository does not contain licensed geometry or
-third-party predictions.
+source-predictor environments and checkpoints, and the canonical geometry and
+prediction inputs prepared from those resources. The RelCompat3D model archive
+is optional because the training route generates the compatibility models.
+The Git repository does not contain licensed geometry or third-party
+predictions.
 
 Maintainers with a verified recovery archive may restore the table inputs or
 the complete local experiment state with:

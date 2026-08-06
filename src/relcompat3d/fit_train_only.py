@@ -238,7 +238,7 @@ def main() -> int:
             "models": {"path": relpath(root, models_path), "sha256": sha256_file(models_path)},
             "diagnostics": {"path": relpath(root, diagnostics_path), "sha256": sha256_file(diagnostics_path)},
         },
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm train_only_calibrator_fit",
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit_base",
     }
     write_json(out / "manifest.json", manifest)
     print(json.dumps({"status": manifest["status"], "counts": manifest["counts"], "validations": validations, "out": relpath(root, out)}))

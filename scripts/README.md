@@ -9,9 +9,10 @@
   and frozen table cells.
 - `reproduce_tables.sh`: regenerate Tables 1--3 and Figure 3 from table rows
   created locally from official data and source-predictor outputs.
-- `run_pipeline.sh`: adapt official source outputs, build geometry/verifier
-  rows, run fresh evaluation, and regenerate paper tables without overwriting
-  frozen references.
+- `run_pipeline.sh`: adapt official source outputs, build geometry/verifier and
+  training rows, fit both estimators, run the point/mesh audit, and generate
+  tables without overwriting frozen references. `make from-official` invokes
+  its complete repository-owned route.
 - `validate_repository.py`: standard-library repository and numerical checks.
 
 All paper experiment execution remains Docker-based. Shell scripts only
