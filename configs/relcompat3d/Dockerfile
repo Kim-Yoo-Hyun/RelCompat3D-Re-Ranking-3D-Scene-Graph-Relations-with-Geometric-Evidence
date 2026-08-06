@@ -5,8 +5,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /workspace
 
-COPY requirements.lock.txt /tmp/requirements.lock.txt
-RUN pip install --no-cache-dir --requirement /tmp/requirements.lock.txt
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --requirement /tmp/requirements.txt
 
 COPY src/relcompat3d/ /workspace/src/relcompat3d/
 

@@ -1,7 +1,7 @@
 # Docker environment
 
 - `Dockerfile`: Python 3.11.9 runtime with dependencies from the root
-  `requirements.lock.txt`.
+  `requirements.txt`.
 - `compose.yaml`: source adaptation, geometry joining, training-row generation,
   base/Linear/MLP fitting, evaluation, point/mesh audit, robustness, row export,
   and table-generation services. Services ending in `_trained` use freshly

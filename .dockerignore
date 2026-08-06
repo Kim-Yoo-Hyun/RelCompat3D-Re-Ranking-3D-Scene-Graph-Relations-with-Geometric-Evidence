@@ -1,5 +1,5 @@
 *
-!requirements.lock.txt
+!requirements.txt
 !src/
 !src/relcompat3d/
 !src/relcompat3d/**

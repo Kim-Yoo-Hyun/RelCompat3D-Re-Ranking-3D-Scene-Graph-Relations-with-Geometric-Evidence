@@ -30,9 +30,8 @@ paths are specified below and in the README of the corresponding folder.
 
 ## 1. Setup
 
-Docker is the canonical environment. The image uses Python 3.11.9.
-`requirements.txt` lists the direct Python dependencies, while
-`requirements.lock.txt` pins their complete dependency set for Docker runs.
+Docker is the canonical environment. The image uses Python 3.11.9, and all
+Python dependencies are pinned in `requirements.txt`.
 
 ```bash
 git clone https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence.git
@@ -152,21 +151,19 @@ experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_surf
 experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/{public_rows,public_tables}/
 ```
 
-The source checkpoints are used only to produce the three input files at this
-stage. RelCompat3D then fits its compatibility estimators from the official
-training split. The tracked 1,061/117/157 scan lists define the training,
-internal-development, and final-validation firewall. The fitting commands do
-not read source scores, predictor identities, source-predictor validation rows,
-or final-validation labels. See the
+Source checkpoints produce the three input files. RelCompat3D then fits its
+estimators on the official training split. Tracked lists of 1,061/117/157 scans
+separate training, development, and final validation. Fitting excludes source
+scores, predictor identities, source-predictor validation rows, and
+final-validation labels. See the
 [experiment README](experiments/RelCompat3D_geom_reliability/README.md#model-fitting)
 for individual Docker commands and required inputs.
 
-The generated tables reflect the source predictions supplied by the user.
-They match the paper values only when the same official predictor
-configurations, checkpoints, and fixed candidate outputs are used. The public
-route checks dataset scope, identities, ranking constraints, metric accounting,
-and output integrity without treating a different upstream run as a failed
-paper-value comparison.
+Generated tables depend on the supplied source predictions and match the paper
+values only with the reported predictor configurations, checkpoints, and fixed
+outputs. The public route validates dataset scope, identities, ranking
+constraints, metric accounting, and output integrity without requiring other
+upstream runs to match the paper values.
 
 ## Results
 
