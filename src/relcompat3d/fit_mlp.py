@@ -76,6 +76,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--repo-root", type=Path, required=True)
     parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--calibration-table",
+        type=Path,
+        help="Override the protocol calibration-table path with a local regenerated table.",
+    )
+    parser.add_argument(
+        "--fit-only",
+        action="store_true",
+        help="Fit and export the two shared MLP estimators without source evaluation.",
+    )
     return parser.parse_args()
 
 
@@ -403,7 +413,19 @@ def main() -> int:
     if protocol.get("status") != "frozen_before_supervision_matched_nonlinear_execution":
         raise ValueError("protocol_not_frozen")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
-    missing = [name for name, path in paths.items() if not path.exists()]
+    if args.calibration_table is not None:
+        paths["calibration_table"] = resolve(root, args.calibration_table)
+    fit_inputs = {
+        name: paths[name]
+        for name in (
+            "calibration_table",
+            "train_scans",
+            "internal_dev_scans",
+            "final_validation_scans",
+        )
+    }
+    required_paths = fit_inputs if args.fit_only else paths
+    missing = [name for name, path in required_paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
     train_scans, dev_scans, final_scans = (read_scans(paths[name]) for name in ("train_scans", "internal_dev_scans", "final_validation_scans"))
@@ -412,6 +434,94 @@ def main() -> int:
     table_rows = calibration.load_jsonl(paths["calibration_table"])
     prepared, warnings = calibration.prepare_rows(table_rows, train_scans, dev_scans, set(FAMILIES))
     bce_model, nonlinear_structured_model = prepare_training(prepared, protocol["optimizer"])
+    if args.fit_only:
+        validations = {
+            "split_counts_1061_117_157": (
+                len(train_scans), len(dev_scans), len(final_scans)
+            ) == (1061, 117, 157),
+            "split_sets_pairwise_disjoint": not (
+                train_scans & dev_scans
+                or train_scans & final_scans
+                or dev_scans & final_scans
+            ),
+            "zero_final_rows_in_training_table": not (
+                {row["scan_id"] for row in table_rows} & final_scans
+            ),
+            "train_rows_60208": sum(
+                row["_role"] == "train" for row in prepared
+            ) == 60208,
+            "dev_rows_6246": sum(
+                row["_role"] == "dev" for row in prepared
+            ) == 6246,
+            "parameter_count_69": (
+                bce_model["parameter_count"]
+                == nonlinear_structured_model["parameter_count"]
+                == PARAMETER_COUNT
+                == 69
+            ),
+            "source_score_excluded": (
+                not bce_model["feature_contract"]["source_score_input"]
+                and not nonlinear_structured_model["feature_contract"]["source_score_input"]
+            ),
+            "all_parameters_finite": all(
+                math.isfinite(float(value))
+                for model in (bce_model, nonlinear_structured_model)
+                for array in model["parameters"].values()
+                for value in np.asarray(array).ravel()
+            ),
+        }
+        status = "completed" if all(validations.values()) else "failed_validation"
+        out.mkdir(parents=True, exist_ok=True)
+        models_path = out / "models.json"
+        summary_path = out / "summary.json"
+        write_json(
+            models_path,
+            {
+                "shared_nonlinear_bce": bce_model,
+                "shared_nonlinear_structured": nonlinear_structured_model,
+            },
+        )
+        write_json(
+            summary_path,
+            {
+                "schema_version": "relcompat3d_nonlinear_fit_v1",
+                "created_at_utc": datetime.now(timezone.utc).isoformat(),
+                "status": status,
+                "training_warnings": warnings,
+                "parameter_count": PARAMETER_COUNT,
+                "internal_dev_calibration": {
+                    "shared_nonlinear_bce": calibration_diagnostic(
+                        prepared, bce_model, False
+                    ),
+                    "shared_nonlinear_structured": calibration_diagnostic(
+                        prepared, nonlinear_structured_model, True
+                    ),
+                },
+                "validations": validations,
+            },
+        )
+        write_json(
+            out / "manifest.json",
+            {
+                "schema_version": "relcompat3d_nonlinear_fit_manifest_v1",
+                "status": status,
+                "protocol": {
+                    "path": relpath(root, protocol_path),
+                    "sha256": sha256(protocol_path),
+                },
+                "inputs": {
+                    name: {"path": relpath(root, path), "sha256": sha256(path)}
+                    for name, path in fit_inputs.items()
+                },
+                "outputs": {
+                    path.name: {"path": relpath(root, path), "sha256": sha256(path)}
+                    for path in (models_path, summary_path)
+                },
+                "validations": validations,
+            },
+        )
+        print(json.dumps({"status": status, "validations": validations}))
+        return 0 if status == "completed" else 2
     structured_models = json.loads(paths["structured_models"].read_text(encoding="utf-8"))
     structured_score = base.make_structured_scorer(structured_models)
     sources = {

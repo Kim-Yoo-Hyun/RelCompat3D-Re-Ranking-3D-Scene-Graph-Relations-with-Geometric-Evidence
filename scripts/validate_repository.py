@@ -98,6 +98,35 @@ def validate_result_index() -> tuple[int, int]:
     return artifact_count, verified
 
 
+def validate_compose_output_boundaries() -> int:
+    compose_path = ROOT / "configs/relcompat3d/compose.yaml"
+    lines = compose_path.read_text(encoding="utf-8").splitlines()
+    outputs: list[str] = []
+    for index, line in enumerate(lines[:-1]):
+        if line.strip() not in {"- --out", "- --output-dir"}:
+            continue
+        value = lines[index + 1].strip()
+        if not value.startswith("- "):
+            raise SystemExit(f"invalid Compose --out entry at line {index + 2}")
+        outputs.append(value[2:])
+
+    allowed_local = "/workspace/local_dataset/"
+    allowed_artifact = "/paper_reproduction/artifacts/table_rows"
+    unsafe = [
+        output
+        for output in outputs
+        if allowed_local not in output
+        and "/regenerated" not in output
+        and allowed_artifact not in output
+    ]
+    if unsafe:
+        raise SystemExit(
+            "Compose outputs must use local data, local table rows, or regenerated paths: "
+            + ", ".join(unsafe)
+        )
+    return len(outputs)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--require-models", action="store_true")
@@ -117,12 +146,14 @@ def main() -> None:
         ROOT / "results/README.md",
         ROOT / "third_party_licenses.md",
         ROOT / "scripts/restore_recovery_archive.sh",
+        ROOT / "scripts/test_clean_clone.sh",
         ROOT / "scripts/train_open3dsg.sh",
         ROOT / "src/relcompat3d/adapt_source_predictions.py",
         ROOT / "src/relcompat3d/build_ground_truth.py",
         ROOT / "src/relcompat3d/build_verification_rows.py",
         ROOT / "src/relcompat3d/evaluate_public.py",
         ROOT / "tests/test_synthetic_pipeline.py",
+        ROOT / "tests/create_synthetic_workspace.py",
         ROOT / "src/relcompat3d/configure_open3dsg.py",
         ROOT / "src/relcompat3d/prepare_open3dsg_splits.py",
         ROOT / "src/relcompat3d/select_open3dsg_checkpoint.py",
@@ -140,6 +171,7 @@ def main() -> None:
     model_count, missing_models = validate_models(args.require_models)
     cell_count, maximum = validate_cells(REGENERATED if args.regenerated else REFERENCE)
     artifact_count, manifest_count = validate_result_index()
+    compose_output_count = validate_compose_output_boundaries()
 
     print(
         json.dumps(
@@ -152,6 +184,7 @@ def main() -> None:
                 "maximum_absolute_error": maximum,
                 "indexed_artifacts": artifact_count,
                 "verified_evidence_manifests": manifest_count,
+                "validated_compose_outputs": compose_output_count,
             },
             indent=2,
             sort_keys=True,

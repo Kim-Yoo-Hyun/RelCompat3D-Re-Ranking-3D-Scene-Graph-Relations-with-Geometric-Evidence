@@ -298,7 +298,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/component_analysis/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/component_analysis/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/component_analysis/regenerated
 
   relcompat3d_seed_robustness:
     build:
@@ -321,7 +321,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/seed_robustness/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/seed_robustness/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/seed_robustness/regenerated
 
   relcompat3d_measurement_audit:
     build:
@@ -339,7 +339,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/measurement_audit/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/measurement_audit/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/measurement_audit/regenerated
 
   relcompat3d_routing_constraints:
     build:
@@ -362,7 +362,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/routing_controls/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/routing_controls/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/routing_controls/regenerated
 
   relcompat3d_score_robustness:
     build:
@@ -385,7 +385,33 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/score_robustness/protocol.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/score_robustness/evaluation
+      - /workspace/experiments/RelCompat3D_geom_reliability/score_robustness/regenerated
+
+  relcompat3d_build_training_rows:
+    build:
+      context: ../..
+      dockerfile: configs/relcompat3d/Dockerfile
+    image: relcompat3d-geom-reliability:latest
+    working_dir: /workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ../..:/workspace
+    entrypoint: [python, /workspace/src/relcompat3d/build_training_rows.py]
+    command:
+      - --dataset-root
+      - /workspace/local_dataset
+      - --subset-json
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships_train.json
+      - --relationships-file
+      - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
+      - --selected-scans
+      - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/splits/method_development_scans.txt
+      - --output-dir
+      - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated
+      - --split-name
+      - method_development
+      - --include-counterfactuals
+      - --allow-selected-scans-without-positive-rows
 
   relcompat3d_fit:
     build:
@@ -404,6 +430,9 @@ services:
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocol.json
       - --out
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit
+      - --calibration-table
+      - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated/table.jsonl
+      - --fit-only
 
   relcompat3d_evaluate_linear:
     image: relcompat3d-geom-reliability:latest
@@ -418,7 +447,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/structured_main.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/structured_main
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/structured_main
 
   relcompat3d_support_routing:
     image: relcompat3d-geom-reliability:latest
@@ -433,7 +462,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/support_routing.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/support_routing
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/support_routing
 
   relcompat3d_open3dsg_route:
     image: relcompat3d-geom-reliability:latest
@@ -448,9 +477,9 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/open3dsg_route.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/open3dsg_route
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/open3dsg_route
 
-  relcompat3d_evaluate_mlp:
+  relcompat3d_fit_mlp:
     image: relcompat3d-geom-reliability:latest
     working_dir: /workspace
     user: "${UID:-1000}:${GID:-1000}"
@@ -463,7 +492,10 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/nonlinear.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/nonlinear
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/nonlinear
+      - --calibration-table
+      - /workspace/experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated/table.jsonl
+      - --fit-only
 
   relcompat3d_compare_rankings:
     image: relcompat3d-geom-reliability:latest
@@ -478,7 +510,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/routed_comparators.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_comparators
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/routed_comparators
 
   relcompat3d_linear_controls:
     image: relcompat3d-geom-reliability:latest
@@ -493,7 +525,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/routed_ablation.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_ablation
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/routed_ablation
 
   relcompat3d_mlp_ablation:
     image: relcompat3d-geom-reliability:latest
@@ -508,7 +540,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/mlp_ablation.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/mlp_ablation
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/mlp_ablation
 
   relcompat3d_bootstrap:
     image: relcompat3d-geom-reliability:latest
@@ -523,7 +555,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/scan_cluster.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/scan_cluster
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/scan_cluster
 
   relcompat3d_linear_bootstrap:
     image: relcompat3d-geom-reliability:latest
@@ -538,7 +570,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/structured_scan_cluster.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/structured_scan_cluster
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/structured_scan_cluster
 
   relcompat3d_surface_audit:
     image: relcompat3d-geom-reliability:latest
@@ -558,7 +590,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/surface_audit.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/surface_audit
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/surface_audit
 
   relcompat3d_mlp_surface_audit:
     image: relcompat3d-geom-reliability:latest
@@ -578,7 +610,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/mlp_surface_audit.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/mlp_surface_audit
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/mlp_surface_audit
 
   relcompat3d_feature_removal:
     image: relcompat3d-geom-reliability:latest
@@ -593,7 +625,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/held_out_primitive.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/held_out_primitive
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/held_out_primitive
 
   relcompat3d_counterfactual_controls:
     image: relcompat3d-geom-reliability:latest
@@ -608,7 +640,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/counterfactual_sensitivity.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/counterfactual_sensitivity
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/counterfactual_sensitivity
 
   relcompat3d_component_removals:
     image: relcompat3d-geom-reliability:latest
@@ -628,7 +660,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/component_removals.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/component_removals
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/component_removals
 
   relcompat3d_runtime:
     image: relcompat3d-geom-reliability:latest
@@ -648,7 +680,7 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/runtime.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/runtime
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/runtime
 
   relcompat3d_transfer_audit:
     image: relcompat3d-geom-reliability:latest
@@ -663,4 +695,4 @@ services:
       - --protocol
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/protocols/external_transfer.json
       - --out
-      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/external_transfer
+      - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/external_transfer

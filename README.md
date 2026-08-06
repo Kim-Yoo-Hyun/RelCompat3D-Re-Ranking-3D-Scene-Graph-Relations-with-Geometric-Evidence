@@ -41,6 +41,13 @@ docker compose -f configs/relcompat3d/compose.yaml build relcompat3d_reproduce_r
 scripts/validate.sh
 ```
 
+To verify model restoration, all three source adapters, geometry joining, and
+evaluation in an isolated checkout without licensed data, run:
+
+```bash
+make clean-clone-test
+```
+
 For local source inspection only:
 
 ```bash
@@ -163,13 +170,32 @@ absolute error `0`.
 ## 5. Training and extended analyses
 
 The repository includes the Linear and MLP fitting code, split files, frozen
-training protocol, counterfactual construction, and component analyses. The
-public commands above restore the reported fitted models and rerun evaluation
-on rows prepared from official data. Re-fitting requires the official 3DSSG
-training annotations and the train/internal-development inputs listed in the
-[experiment README](experiments/RelCompat3D_geom_reliability/README.md); it is
-kept separate from paper evaluation so a fresh run cannot overwrite frozen
-evidence.
+training protocol, counterfactual construction, and component analyses. To
+re-fit both estimators, first place the official `relationships_train.json`
+beside the validation annotation and make the corresponding 3RScan geometry
+available under `local_dataset/`. Then run:
+
+```bash
+scripts/download_models.sh
+make train
+```
+
+`make train` regenerates the linked positive--counterfactual training table,
+fits RelCompat3D-Linear, and fits RelCompat3D-MLP. Outputs are isolated under:
+
+```text
+experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated/
+experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/
+experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/nonlinear/
+```
+
+The tracked 1,061/117/157 scan lists define the training, internal-development,
+and final-validation firewall. The fit-only commands do not read source scores,
+predictor identities, source-predictor validation rows, or final-validation
+labels. Reported models can instead be restored directly with
+`scripts/download_models.sh`. See the
+[experiment README](experiments/RelCompat3D_geom_reliability/README.md#model-fitting)
+for individual Docker commands and required inputs.
 
 Additional controls, robustness analyses, and recovery commands are listed
 [here](experiments/RelCompat3D_geom_reliability/README.md#reproduction-commands).

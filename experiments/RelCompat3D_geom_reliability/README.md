@@ -34,6 +34,7 @@ requirements. The frozen protocols expect the following local layout:
 local_dataset/RelCompat3D/
 ├── 3DSSG_subset/
 │   ├── relationships.txt
+│   ├── relationships_train.json
 │   └── relationships_validation.json
 ├── source_outputs/
 │   ├── vlsat/raw.jsonl
@@ -61,6 +62,31 @@ Training, development, geometry, verifier, and point/mesh paths are fixed in
 `main_experiment/protocol.json` and `main_experiment/protocols/`. The
 score-robustness, routing-control, and paper-reproduction protocols preserve
 the frozen input hashes while mapping local files to this public layout.
+
+## Model fitting
+
+Model fitting requires the official `relationships_train.json`, the matching
+3RScan OBB geometry, the tracked scan lists under `training_protocol/splits/`,
+and the restored strict training model used to preserve the original feature
+normalization contract. Restore the small model archive, regenerate the
+training rows, and fit both estimators with:
+
+```bash
+scripts/download_models.sh
+compose="docker compose -f configs/relcompat3d/compose.yaml"
+
+$compose run --rm relcompat3d_build_training_rows
+$compose run --rm relcompat3d_fit
+$compose run --rm relcompat3d_fit_mlp
+```
+
+The training-row builder uses only the tracked 1,061 training scans and 117
+internal-development scans. The 157 final-validation scans remain excluded.
+Both fitting services use `--fit-only`, write to `main_experiment/regenerated/`,
+and refuse nonempty output directories. The Linear and MLP outputs are
+`fit/structured_models.json` and `nonlinear/models.json`, respectively.
+Source-predictor evaluation is a separate step performed with restored or
+newly fitted models after training is complete.
 
 ### Local paper rows
 
@@ -138,8 +164,8 @@ The frozen `main_experiment/evaluation/` directories are paper references and
 are never overwritten by this route. Public evaluation writes to
 `main_experiment/regenerated/public_evaluation/`. Exact re-fitting uses the
 same `fit_linear.py` and `fit_mlp.py` implementations but additionally requires
-the official training annotations, the listed split files, and the
-internal-development inputs recorded by `main_experiment/protocol.json`.
+the official training annotations and geometry, the listed split files, and
+the restored strict normalization model described under Model fitting.
 
 Supplementary analyses use the same frozen inputs:
 
@@ -167,6 +193,8 @@ Expected output locations are:
 | --- | --- |
 | Restored reported models | `main_experiment/fit/` and `main_experiment/evaluation/nonlinear/` |
 | Fresh main evaluation | `main_experiment/regenerated/public_evaluation/` |
+| Fresh Linear fit | `main_experiment/regenerated/fit/` |
+| Fresh MLP fit | `main_experiment/regenerated/nonlinear/` |
 | Table regeneration | `paper_reproduction/regenerated/` |
 | Candidate oracle | `candidate_oracle/regenerated/` |
 | Compact result index | `../../results/relcompat3d_geom_reliability/manifest.json` |

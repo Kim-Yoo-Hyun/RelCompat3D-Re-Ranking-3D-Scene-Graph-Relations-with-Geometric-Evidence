@@ -14,6 +14,7 @@ sys.path.insert(0, str(SRC))
 
 import evaluate_comparators as routing  # noqa: E402
 import relation_consistency as consistency  # noqa: E402
+from create_synthetic_workspace import create_workspace  # noqa: E402
 
 
 def run_script(name: str, *arguments: str) -> None:
@@ -34,123 +35,69 @@ class SyntheticPipelineTest(unittest.TestCase):
     def test_adapter_geometry_join_and_ground_truth(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            subset = root / "relationships_validation.json"
-            relationships = root / "relationships.txt"
-            raw = root / "raw.jsonl"
-            predictions = root / "canonical" / "vlsat" / "predictions.jsonl"
+            workspace = create_workspace(root)
+            subset = workspace["subset"]
+            relationships = workspace["relationships"]
+            canonical = root / "canonical"
             ground_truth = root / "canonical" / "ground_truth.jsonl"
-            scan_dir = root / "dataset" / "3RScan" / "scans" / "scan-1"
-            scan_dir.mkdir(parents=True)
-
-            relationships.write_text("close by\nsupported by\n", encoding="utf-8")
-            subset.write_text(
-                json.dumps(
-                    {
-                        "scans": [
-                            {
-                                "scan": "scan-1",
-                                "split": 1,
-                                "objects": {"1": "desk", "2": "floor"},
-                                "relationships": [
-                                    [1, 2, 0, "close by"],
-                                    [1, 2, 1, "supported by"],
-                                ],
-                            }
-                        ]
-                    }
-                ),
-                encoding="utf-8",
-            )
-            raw.write_text(
-                json.dumps(
-                    {
-                        "scan_id": "scan-1",
-                        "subset_split_id": 1,
-                        "subgraph_id": "scan-1_1",
-                        "node_instance_ids": [1, 2],
-                        "edge_indices": [[0, 1]],
-                        "relation_names": ["close by", "supported by"],
-                        "rel_scores_3d": [[0.8, 0.7]],
-                    }
-                )
-                + "\n",
-                encoding="utf-8",
-            )
-            obb = lambda center: {
-                "centroid": center,
-                "axesLengths": [1.0, 1.0, 1.0],
-                "normalizedAxes": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0],
-            }
-            (scan_dir / "semseg.v2.json").write_text(
-                json.dumps(
-                    {
-                        "segGroups": [
-                            {"objectId": 1, "obb": obb([0.0, 0.0, 1.0])},
-                            {"objectId": 2, "obb": obb([0.2, 0.0, 0.0])},
-                        ]
-                    }
-                ),
-                encoding="utf-8",
-            )
-            vertices = []
-            for index in range(60):
-                offset = (index % 10) * 0.01
-                vertices.append(f"{offset} {offset} 1.0 1")
-                vertices.append(f"{offset} {offset} 0.95 2")
-            (scan_dir / "labels.instances.annotated.v2.ply").write_text(
-                "\n".join(
-                    [
-                        "ply",
-                        "format ascii 1.0",
-                        f"element vertex {len(vertices)}",
-                        "property float x",
-                        "property float y",
-                        "property float z",
-                        "property int objectId",
-                        "element face 0",
-                        "property list uchar int vertex_indices",
-                        "end_header",
-                        *vertices,
-                    ]
-                )
-                + "\n",
-                encoding="utf-8",
-            )
-
-            run_script(
-                "adapt_source_predictions.py",
-                "--source", "vlsat",
-                "--raw", str(raw),
-                "--subset", str(subset),
-                "--relationships", str(relationships),
-                "--out", str(predictions),
-                "--baseline-run-id", "synthetic-vlsat",
-            )
             run_script(
                 "build_ground_truth.py",
                 "--subset", str(subset),
                 "--relationships", str(relationships),
                 "--out", str(ground_truth),
             )
-            run_script(
-                "build_verification_rows.py",
-                "--predictions-jsonl", str(predictions),
-                "--dataset-root", str(root / "dataset"),
-                "--output-dir", str(predictions.parent),
-                "--verification-policy", "point_subtype",
-            )
-
-            prediction_rows = read_jsonl(predictions)
-            verification_rows = read_jsonl(predictions.parent / "verification.jsonl")
             ground_truth_rows = read_jsonl(ground_truth)
-            self.assertEqual(len(prediction_rows), 2)
-            self.assertEqual(len(verification_rows), 2)
             self.assertEqual(len(ground_truth_rows), 2)
-            self.assertTrue(all(row["quality"]["row_preserved"] for row in verification_rows))
-            by_predicate = {row["predicate"]["predicate_label"]: row for row in verification_rows}
-            self.assertEqual(by_predicate["close by"]["verification_status"], "satisfied")
-            self.assertEqual(by_predicate["supported by"]["verification_status"], "satisfied")
-            self.assertTrue(by_predicate["supported by"]["verification"]["point_evidence_available"])
+
+            for source in ("vlsat", "sgfn", "open3dsg"):
+                predictions = canonical / source / "predictions.jsonl"
+                run_script(
+                    "adapt_source_predictions.py",
+                    "--source", source,
+                    "--raw", str(workspace[f"raw_{source}"]),
+                    "--subset", str(subset),
+                    "--relationships", str(relationships),
+                    "--out", str(predictions),
+                    "--baseline-run-id", f"synthetic-{source}",
+                )
+                run_script(
+                    "build_verification_rows.py",
+                    "--predictions-jsonl", str(predictions),
+                    "--dataset-root", str(workspace["data_root"]),
+                    "--output-dir", str(predictions.parent),
+                    "--verification-policy", "point_subtype",
+                )
+
+                prediction_rows = read_jsonl(predictions)
+                verification_rows = read_jsonl(predictions.parent / "verification.jsonl")
+                self.assertEqual(len(prediction_rows), 2, source)
+                self.assertEqual(len(verification_rows), 2, source)
+                self.assertTrue(
+                    all(row["baseline_name"] == source for row in prediction_rows),
+                    source,
+                )
+                self.assertTrue(
+                    all(row["quality"]["row_preserved"] for row in verification_rows),
+                    source,
+                )
+                by_predicate = {
+                    row["predicate"]["predicate_label"]: row
+                    for row in verification_rows
+                }
+                self.assertEqual(
+                    by_predicate["close by"]["verification_status"],
+                    "satisfied",
+                    source,
+                )
+                self.assertEqual(
+                    by_predicate["supported by"]["verification_status"],
+                    "satisfied",
+                    source,
+                )
+                self.assertTrue(
+                    by_predicate["supported by"]["verification"]["point_evidence_available"],
+                    source,
+                )
 
     def test_transform_and_family_route_invariants(self) -> None:
         raw = {

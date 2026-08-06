@@ -1315,6 +1315,8 @@ def make_report(manifest: dict[str, Any]) -> str:
 
 def main() -> int:
     args = parse_args()
+    if args.output_dir.exists() and any(args.output_dir.iterdir()):
+        raise FileExistsError(f"nonempty_output:{args.output_dir}")
     created_at = date.today().isoformat()
     errors: list[str] = []
     warnings: list[str] = []

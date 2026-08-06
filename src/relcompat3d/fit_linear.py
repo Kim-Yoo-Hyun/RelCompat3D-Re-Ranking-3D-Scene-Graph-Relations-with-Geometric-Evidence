@@ -28,6 +28,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--repo-root", type=Path, required=True)
     parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--calibration-table",
+        type=Path,
+        help="Override the protocol calibration-table path with a local regenerated table.",
+    )
+    parser.add_argument(
+        "--fit-only",
+        action="store_true",
+        help="Fit and export the Linear estimator without internal-development evaluation.",
+    )
     return parser.parse_args()
 
 
@@ -186,7 +196,20 @@ def main() -> int:
     if protocol.get("status") != "frozen_before_relcompat3d_fit":
         raise ValueError("protocol_not_frozen")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
-    missing = [name for name, path in paths.items() if not path.exists()]
+    if args.calibration_table is not None:
+        paths["calibration_table"] = resolve(root, args.calibration_table)
+    fit_inputs = {
+        name: paths[name]
+        for name in (
+            "calibration_table",
+            "train_scans",
+            "internal_dev_scans",
+            "final_validation_scans",
+            "current_strict_models",
+        )
+    }
+    required_paths = fit_inputs if args.fit_only else paths
+    missing = [name for name, path in required_paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
 
@@ -233,6 +256,110 @@ def main() -> int:
         return algebra.existing_probability(model, family, predicate, raw)
 
     scorer = algebra.build_scorer(direct_score)
+    if args.fit_only:
+        expected_optimizer = {
+            "epochs": 800,
+            "learning_rate": 0.2,
+            "l2": 0.0001,
+            "initial_weights": 0.0,
+            "batching": "deterministic_full_batch",
+            "pairwise_loss": "softplus(margin - (logit_positive - logit_negative))",
+            "pairwise_margin": 1.0,
+            "pairwise_weight": 0.25,
+        }
+        old_family_features = {
+            family: current_strict["family_models"][family]["feature_names"]
+            for family in algebra.FAMILIES
+        }
+        new_family_features = {
+            family: new_strict["family_models"][family]["feature_names"]
+            for family in algebra.FAMILIES
+        }
+        validations = {
+            "split_counts_1061_117_157": (
+                len(train_scans), len(dev_scans), len(final_scans)
+            ) == (1061, 117, 157),
+            "split_sets_pairwise_disjoint": not (
+                train_scans & dev_scans
+                or train_scans & final_scans
+                or dev_scans & final_scans
+            ),
+            "zero_final_rows_in_calibration": not leaked,
+            "train_rows_60208": sum(
+                row["_role"] == "train" for row in prepared
+            ) == 60208,
+            "internal_dev_rows_6246": sum(
+                row["_role"] == "dev" for row in prepared
+            ) == 6246,
+            "optimizer_exactly_preserved": protocol["optimizer"] == expected_optimizer,
+            "one_family_feature_removed_per_head": all(
+                len(old_family_features[family])
+                == len(new_family_features[family]) + 1
+                and [
+                    name
+                    for name in old_family_features[family]
+                    if not name.startswith("family:")
+                ]
+                == new_family_features[family]
+                for family in algebra.FAMILIES
+            ),
+            "structured_family_features_absent": not any(
+                name.startswith("family:")
+                for name in model_features(structured_models)
+            ),
+            "all_parameters_finite": all(
+                math.isfinite(weight)
+                for attempt in attempts.values()
+                for model in attempt.values()
+                for weight in model["weights"]
+            ),
+            "source_score_and_identity_excluded": (
+                not structured_models["source_score_used"]
+                and not structured_models["source_identity_used"]
+            ),
+        }
+        status = "completed" if all(validations.values()) else "failed_validation"
+        out.mkdir(parents=True, exist_ok=True)
+        strict_path = out / "strict_models.json"
+        structured_path = out / "structured_models.json"
+        diagnostics_path = out / "training_diagnostics.json"
+        write_json(strict_path, new_strict)
+        write_json(structured_path, structured_models)
+        write_json(
+            diagnostics_path,
+            {
+                "schema_version": "relcompat3d_relation_algebra_diagnostics_v1",
+                "role": "train_only_fit",
+                "diagnostics": diagnostics,
+                "strict_family_models": strict_diagnostics,
+                "validations": validations,
+            },
+        )
+        outputs = [strict_path, structured_path, diagnostics_path]
+        write_json(
+            out / "manifest.json",
+            {
+                "schema_version": "relcompat3d_linear_fit_manifest_v1",
+                "status": status,
+                "created_at_utc": datetime.now(timezone.utc).isoformat(),
+                "protocol": {
+                    "path": relpath(root, protocol_path),
+                    "sha256": sha256_file(protocol_path),
+                },
+                "inputs": {
+                    name: {"path": relpath(root, path), "sha256": sha256_file(path)}
+                    for name, path in fit_inputs.items()
+                },
+                "outputs": {
+                    path.name: {"path": relpath(root, path), "sha256": sha256_file(path)}
+                    for path in outputs
+                },
+                "validations": validations,
+                "warnings": warnings,
+            },
+        )
+        print(json.dumps({"status": status, "validations": validations}, sort_keys=True))
+        return 0 if status == "completed" else 2
     internal_gt, internal_gt_family = algebra.load_ground_truth(
         paths["internal_dev_ground_truth"]
     )

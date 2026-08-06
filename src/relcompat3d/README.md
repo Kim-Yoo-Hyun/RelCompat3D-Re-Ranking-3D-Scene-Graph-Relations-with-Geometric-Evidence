@@ -10,6 +10,8 @@ modules use file-relative imports and the packages pinned in
 
 - Training: `build_training_rows.py`, `fit_train_only.py`, `fit_linear.py`,
   `fit_mlp.py`, and `fit_factor_controls.py`.
+  `fit_linear.py` and `fit_mlp.py` provide `--fit-only` for model fitting from
+  a locally regenerated calibration table without source-predictor evaluation.
 - Source preprocessing: `adapt_source_predictions.py` converts VL-SAT, SGFN,
   and Open3DSG score dumps to one identity-preserving prediction schema.
   `build_ground_truth.py` exports the exact-relation target, and
