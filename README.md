@@ -167,19 +167,6 @@ route checks dataset scope, identities, ranking constraints, metric accounting,
 and output integrity without treating a different upstream run as a failed
 paper-value comparison.
 
-## 4. Frozen-result checks
-
-`scripts/validate.sh` verifies the tracked code, configurations, protocols, and
-compact result artifacts. If the exact local table rows for the reported run
-have been generated from the official licensed inputs and the corresponding
-source checkpoints, `scripts/reproduce_tables.sh` regenerates the paper tables
-and checks 291 frozen values at tolerance `1e-12`.
-
-## 5. Extended analyses
-
-Additional controls, robustness analyses, and maintainer recovery commands are listed
-[here](experiments/RelCompat3D_geom_reliability/README.md#reproduction-commands).
-
 ## Results
 
 Frozen compact outputs are tracked for inspection and integrity checks. The
