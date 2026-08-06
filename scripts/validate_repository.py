@@ -55,15 +55,15 @@ def validate_models(required: bool) -> tuple[int, int]:
 
 
 def validate_cells(directory: Path) -> tuple[int, float]:
-    path = directory / "canonical_validation.csv"
+    path = directory / "reported_validation.csv"
     if not path.is_file():
-        raise SystemExit(f"missing canonical validation: {path}")
+        raise SystemExit(f"missing reported-value validation: {path}")
     with path.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     if len(rows) != 291:
-        raise SystemExit(f"expected 291 canonical cells, found {len(rows)}")
+        raise SystemExit(f"expected 291 reported values, found {len(rows)}")
     if any(row["passed"] != "True" for row in rows):
-        raise SystemExit(f"one or more canonical cells failed in {path}")
+        raise SystemExit(f"one or more reported values failed in {path}")
     maximum = max(float(row["abs_error"]) for row in rows)
     if maximum > 1e-12:
         raise SystemExit(f"maximum error {maximum} exceeds tolerance 1e-12")
@@ -74,7 +74,7 @@ def validate_result_index() -> tuple[int, int]:
     index_path = ROOT / "results/relcompat3d_geom_reliability/manifest.json"
     index = json.loads(index_path.read_text(encoding="utf-8"))
     artifact_count = 0
-    for relative in index["canonical_artifacts"].values():
+    for relative in index["reference_artifacts"].values():
         if not (ROOT / relative).exists():
             raise SystemExit(f"missing indexed artifact: {relative}")
         artifact_count += 1
@@ -180,7 +180,7 @@ def main() -> None:
                 "json_files": json_count,
                 "verified_models": model_count,
                 "missing_optional_models": missing_models,
-                "canonical_cells": cell_count,
+                "reported_values": cell_count,
                 "maximum_absolute_error": maximum,
                 "indexed_artifacts": artifact_count,
                 "verified_evidence_manifests": manifest_count,

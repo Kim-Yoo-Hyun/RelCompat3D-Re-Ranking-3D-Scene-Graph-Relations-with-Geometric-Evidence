@@ -169,7 +169,7 @@
     },
     "equivalence_audit.json": {
       "path": "experiments/RelCompat3D_geom_reliability/factor_controls/frozen/equivalence_audit.json",
-      "sha256": "5e424f3d99bf1552474201de2ba659606a2bb4740a5456ca43e1cbb0f3b06fa7"
+      "sha256": "bdf848f49ddf7cb64315e39582c94da20f9f85c67502e512a2f908284b00e0d2"
     },
     "evaluation.json": {
       "path": "experiments/RelCompat3D_geom_reliability/factor_controls/frozen/evaluation.json",

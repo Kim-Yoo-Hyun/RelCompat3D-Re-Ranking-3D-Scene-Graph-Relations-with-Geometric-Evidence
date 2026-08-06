@@ -30344,7 +30344,7 @@
     "all_source_scores_nonnegative_and_bounded": true,
     "all_tested_mappings_are_monotonic_on_source_order": true,
     "candidate_prediction_ids_are_unique": true,
-    "canonical_identity_points_exact": true,
+    "reported_identity_points_exact": true,
     "gt_denominator_3972": true,
     "hard_drop_uses_primary_verifier_status": true,
     "official_context_universe_548": true,

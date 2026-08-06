@@ -35,7 +35,7 @@
     },
     "fitted_fusion_parameters": 0
   },
-  "canonical_evaluation": {
+  "reported_evaluation": {
     "main": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_comparators",
     "all_family": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/structured_main",
     "ablation": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_ablation",

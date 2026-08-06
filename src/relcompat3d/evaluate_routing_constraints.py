@@ -516,9 +516,9 @@ def evaluate_source(
     }
 
 
-def canonical_match(
+def reported_match(
     sources: dict[str, Any],
-    canonical: dict[str, Any],
+    reported: dict[str, Any],
 ) -> tuple[bool, list[dict[str, Any]]]:
     mapping = {
         "source": "source_score",
@@ -529,7 +529,7 @@ def canonical_match(
     rows: list[dict[str, Any]] = []
     exact = True
     for source, payload in sources.items():
-        for local, reference in mapping.items():
+        for local, reference_method in mapping.items():
             for k in KS:
                 for local_metric, reference_metric in (
                     ("recall", "recall"),
@@ -538,8 +538,8 @@ def canonical_match(
                     actual = payload["overall"][local][str(k)][
                         local_metric
                     ]["point"]
-                    expected = canonical["sources"][source]["results"][
-                        reference
+                    expected = reported["sources"][source]["results"][
+                        reference_method
                     ][str(k)][reference_metric]["point"]
                     error = abs(actual - expected)
                     exact &= error <= 1e-12
@@ -547,7 +547,7 @@ def canonical_match(
                         {
                             "source": source,
                             "method": local,
-                            "reference_method": reference,
+                            "reference_method": reference_method,
                             "k": k,
                             "metric": local_metric,
                             "actual": actual,
@@ -660,10 +660,10 @@ def main() -> int:
             seed + index,
         )
 
-    canonical = json.loads(
-        paths["canonical_summary"].read_text(encoding="utf-8")
+    reference = json.loads(
+        paths["reported_summary"].read_text(encoding="utf-8")
     )
-    canonical_exact, canonical_rows = canonical_match(sources, canonical)
+    reference_exact, reference_rows = reported_match(sources, reference)
     route_checks = {
         source: payload["route_checks"]
         for source, payload in sources.items()
@@ -686,7 +686,7 @@ def main() -> int:
             cell["all_scores_nonnegative"]
             for cell in input_counts.values()
         ),
-        "canonical_points_exact": canonical_exact,
+        "reported_points_exact": reference_exact,
         "identity_route_exact": all(
             checks["identity_full_order_exact"]
             for checks in route_checks.values()
@@ -730,7 +730,7 @@ def main() -> int:
     write_json(out / "summary.json", summary)
     write_csv(out / "metrics.csv", method_rows(sources))
     write_csv(out / "family_metrics.csv", family_rows(sources))
-    write_csv(out / "canonical_validation.csv", canonical_rows)
+    write_csv(out / "reported_validation.csv", reference_rows)
     membership_rows = [
         {
             "source": source,
@@ -751,7 +751,7 @@ def main() -> int:
         "summary.md",
         "metrics.csv",
         "family_metrics.csv",
-        "canonical_validation.csv",
+        "reported_validation.csv",
         "membership.csv",
     )
     manifest = {

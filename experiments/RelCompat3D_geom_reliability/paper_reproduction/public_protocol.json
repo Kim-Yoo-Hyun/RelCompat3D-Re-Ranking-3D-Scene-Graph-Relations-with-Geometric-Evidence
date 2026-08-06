@@ -4,16 +4,16 @@
   "purpose": "Generate Tables 1--3 and Figure 3 from official data, source-predictor outputs, and freshly fitted RelCompat3D models.",
   "inputs": {
     "ground_truth": {
-      "path": "local_dataset/RelCompat3D/canonical/ground_truth.jsonl"
+      "path": "local_dataset/RelCompat3D/prepared/ground_truth.jsonl"
     },
     "vlsat_verification": {
-      "path": "local_dataset/RelCompat3D/canonical/vlsat/verification.jsonl"
+      "path": "local_dataset/RelCompat3D/prepared/vlsat/verification.jsonl"
     },
     "open3dsg_verification": {
-      "path": "local_dataset/RelCompat3D/canonical/open3dsg/verification.jsonl"
+      "path": "local_dataset/RelCompat3D/prepared/open3dsg/verification.jsonl"
     },
     "sgfn_verification": {
-      "path": "local_dataset/RelCompat3D/canonical/sgfn/verification.jsonl"
+      "path": "local_dataset/RelCompat3D/prepared/sgfn/verification.jsonl"
     },
     "structured_models": {
       "path": "experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/structured_models.json"

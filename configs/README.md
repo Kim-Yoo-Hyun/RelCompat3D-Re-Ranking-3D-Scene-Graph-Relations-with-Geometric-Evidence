@@ -1,6 +1,6 @@
 # Configuration
 
-- `relcompat3d/` contains the canonical RelCompat3D Docker image and Compose
+- `relcompat3d/` contains the RelCompat3D Docker image and Compose
   services.
 - `open3dsg/` contains the pinned Open3DSG source-model training protocol.
 - `model_files.sha256` verifies the optional separately distributed reported

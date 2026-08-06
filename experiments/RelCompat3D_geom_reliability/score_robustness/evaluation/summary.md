@@ -4,7 +4,7 @@ Status: `completed`
 
 This post-hoc analysis uses the exact active candidate pool, source rows, family-slot route, model locks, and scan-cluster bootstrap protocol.
 
-## Canonical rerun gate
+## Reference rerun gate
 
 - Identity Linear/MLP and Source match the active routed-comparator points: `True`.
 - Archived Tier-B hashes match the active manifests: `True`.

@@ -19,7 +19,7 @@ services:
       - --relationships
       - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
       - --out
-      - /workspace/local_dataset/RelCompat3D/canonical/vlsat/predictions.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/vlsat/predictions.jsonl
       - --baseline-run-id
       - vlsat_full_official_validation_frozen_v1
       - --split-name
@@ -45,7 +45,7 @@ services:
       - --relationships
       - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
       - --out
-      - /workspace/local_dataset/RelCompat3D/canonical/sgfn/predictions.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/sgfn/predictions.jsonl
       - --baseline-run-id
       - sgfn_official_validation_context_projection
       - --split-name
@@ -71,7 +71,7 @@ services:
       - --relationships
       - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
       - --out
-      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg/predictions.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/open3dsg/predictions.jsonl
       - --baseline-run-id
       - open3dsg_nonavg_development_selected
       - --split-name
@@ -93,7 +93,7 @@ services:
       - --relationships
       - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
       - --out
-      - /workspace/local_dataset/RelCompat3D/canonical/ground_truth.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/ground_truth.jsonl
       - --split-name
       - full_official_validation
 
@@ -109,11 +109,11 @@ services:
     entrypoint: [python, /workspace/src/relcompat3d/build_verification_rows.py]
     command:
       - --predictions-jsonl
-      - /workspace/local_dataset/RelCompat3D/canonical/vlsat/predictions.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/vlsat/predictions.jsonl
       - --dataset-root
       - /workspace/local_dataset
       - --output-dir
-      - /workspace/local_dataset/RelCompat3D/canonical/vlsat
+      - /workspace/local_dataset/RelCompat3D/prepared/vlsat
       - --verification-policy
       - point_subtype
 
@@ -129,11 +129,11 @@ services:
     entrypoint: [python, /workspace/src/relcompat3d/build_verification_rows.py]
     command:
       - --predictions-jsonl
-      - /workspace/local_dataset/RelCompat3D/canonical/sgfn/predictions.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/sgfn/predictions.jsonl
       - --dataset-root
       - /workspace/local_dataset
       - --output-dir
-      - /workspace/local_dataset/RelCompat3D/canonical/sgfn
+      - /workspace/local_dataset/RelCompat3D/prepared/sgfn
       - --verification-policy
       - point_subtype
 
@@ -149,11 +149,11 @@ services:
     entrypoint: [python, /workspace/src/relcompat3d/build_verification_rows.py]
     command:
       - --predictions-jsonl
-      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg/predictions.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/open3dsg/predictions.jsonl
       - --dataset-root
       - /workspace/local_dataset
       - --output-dir
-      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg
+      - /workspace/local_dataset/RelCompat3D/prepared/open3dsg
       - --verification-policy
       - point_subtype
 
@@ -176,17 +176,17 @@ services:
       - --annotations
       - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json
       - --ground-truth
-      - /workspace/local_dataset/RelCompat3D/canonical/ground_truth.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/ground_truth.jsonl
       - --structured-models
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/fit/structured_models.json
       - --nonlinear-models
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/nonlinear/models.json
       - --vlsat
-      - /workspace/local_dataset/RelCompat3D/canonical/vlsat/verification.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/vlsat/verification.jsonl
       - --open3dsg
-      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg/verification.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/open3dsg/verification.jsonl
       - --sgfn
-      - /workspace/local_dataset/RelCompat3D/canonical/sgfn/verification.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/sgfn/verification.jsonl
       - --out
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_evaluation
 
@@ -209,17 +209,17 @@ services:
       - --annotations
       - /workspace/local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json
       - --ground-truth
-      - /workspace/local_dataset/RelCompat3D/canonical/ground_truth.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/ground_truth.jsonl
       - --structured-models
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/structured_models.json
       - --nonlinear-models
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/nonlinear/models.json
       - --vlsat
-      - /workspace/local_dataset/RelCompat3D/canonical/vlsat/verification.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/vlsat/verification.jsonl
       - --open3dsg
-      - /workspace/local_dataset/RelCompat3D/canonical/open3dsg/verification.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/open3dsg/verification.jsonl
       - --sgfn
-      - /workspace/local_dataset/RelCompat3D/canonical/sgfn/verification.jsonl
+      - /workspace/local_dataset/RelCompat3D/prepared/sgfn/verification.jsonl
       - --out
       - /workspace/experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/trained_evaluation
 

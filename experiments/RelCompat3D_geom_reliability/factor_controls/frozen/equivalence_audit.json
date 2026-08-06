@@ -1,5 +1,5 @@
 {
-  "definition": "independent factor-ledger scorer versus canonical frozen family scorer; semantic Z is read only for product continuity",
+  "definition": "independent factor-ledger scorer versus reference frozen family scorer; semantic Z is read only for product continuity",
   "no_overwrite_rule": {
     "existing_metric_mutation": false,
     "existing_prediction_or_verification_mutation": false,
@@ -19,7 +19,7 @@
         "input_subgraphs": 548
       },
       "equivalence": {
-        "canonical_score_stream_sha256": "8c61932f0002db9766a95da78f6d4f704356aff5b2a48132349b3c5819aa7b9f",
+        "reference_score_stream_sha256": "8c61932f0002db9766a95da78f6d4f704356aff5b2a48132349b3c5819aa7b9f",
         "compatibility_exact_matches": 160596,
         "independent_score_stream_sha256": "8c61932f0002db9766a95da78f6d4f704356aff5b2a48132349b3c5819aa7b9f",
         "max_abs_compatibility_error": 0.0,
@@ -70,7 +70,7 @@
         "input_subgraphs": 548
       },
       "equivalence": {
-        "canonical_score_stream_sha256": "d5ecd7b1e9821c99cb2231ad540dd3c7fb3825eb32c5c8c591519b593048bf5f",
+        "reference_score_stream_sha256": "d5ecd7b1e9821c99cb2231ad540dd3c7fb3825eb32c5c8c591519b593048bf5f",
         "compatibility_exact_matches": 220848,
         "independent_score_stream_sha256": "d5ecd7b1e9821c99cb2231ad540dd3c7fb3825eb32c5c8c591519b593048bf5f",
         "max_abs_compatibility_error": 0.0,
@@ -121,7 +121,7 @@
         "input_subgraphs": 548
       },
       "equivalence": {
-        "canonical_score_stream_sha256": "cf7b3c2c09dfacd6a752e21bddcd0537fafda14fc165fa45305a3b14a784fcc9",
+        "reference_score_stream_sha256": "cf7b3c2c09dfacd6a752e21bddcd0537fafda14fc165fa45305a3b14a784fcc9",
         "compatibility_exact_matches": 220848,
         "independent_score_stream_sha256": "cf7b3c2c09dfacd6a752e21bddcd0537fafda14fc165fa45305a3b14a784fcc9",
         "max_abs_compatibility_error": 0.0,

@@ -30,7 +30,7 @@ paths are specified below and in the README of the corresponding folder.
 
 ## 1. Setup
 
-Docker is the canonical environment. The image uses Python 3.11.9, and all
+Use Docker to reproduce the experiments. The image uses Python 3.11.9, and all
 Python dependencies are pinned in `requirements.txt`.
 
 ```bash

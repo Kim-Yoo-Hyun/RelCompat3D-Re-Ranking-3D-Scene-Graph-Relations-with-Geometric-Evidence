@@ -384,7 +384,7 @@ def write_table_tex(path: Path, rows: list[dict[str, Any]], table: int) -> None:
 
 
 def expected_table1(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str, int, str], float]:
-    refs = protocol["canonical_references"]
+    refs = protocol["reported_references"]
     routed = read_reference_csv(resolve(root, refs["table1_routed"]["path"]))
     method_map = {
         "source_score": "Source",
@@ -443,7 +443,7 @@ def expected_table1(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str
 
 
 def expected_table2(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str, int, str], float]:
-    refs = protocol["canonical_references"]
+    refs = protocol["reported_references"]
     rows = read_reference_csv(
         resolve(root, refs["table2_linear_controls"]["path"])
     )
@@ -482,7 +482,7 @@ def expected_table2(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str
 
 def expected_table3(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str], float]:
     path = resolve(
-        root, protocol["canonical_references"]["table3_surface"]["path"]
+        root, protocol["reported_references"]["table3_surface"]["path"]
     )
     summary = json.loads(path.read_text(encoding="utf-8"))
     expected: dict[tuple[str, str], float] = {}
@@ -503,7 +503,7 @@ def expected_table3(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str
     return expected
 
 
-def canonical_validation(
+def reported_validation(
     table1: dict[str, Any],
     table2: dict[str, Any],
     table3: dict[str, Any],
@@ -771,7 +771,7 @@ def main() -> int:
         "public_execution_protocol",
     }:
         raise ValueError("unsupported_protocol_status")
-    canonical_mode = bool(protocol.get("canonical_references"))
+    reported_mode = bool(protocol.get("reported_references"))
 
     manifest_path = rows_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -781,10 +781,10 @@ def main() -> int:
         path = rows_dir / name
         if not path.exists() or sha256_file(path) != spec["sha256"]:
             raise ValueError(f"table_rows_hash_mismatch:{name}")
-    for name, spec in protocol.get("canonical_references", {}).items():
+    for name, spec in protocol.get("reported_references", {}).items():
         path = resolve(root, spec["path"])
         if sha256_file(path) != spec["sha256"]:
-            raise ValueError(f"canonical_reference_hash_mismatch:{name}")
+            raise ValueError(f"reported_reference_hash_mismatch:{name}")
 
     ground_truth_rows = sum(
         1 for _ in read_csv_gz(rows_dir / "ground_truth.csv.gz")
@@ -795,8 +795,8 @@ def main() -> int:
     table1_csv = table1_rows(table1)
     table2_csv = table2_rows(table2)
     table3_csv = table3_rows(table3)
-    if canonical_mode:
-        validation_rows = canonical_validation(
+    if reported_mode:
+        validation_rows = reported_validation(
             table1, table2, table3, protocol, root
         )
     else:
@@ -819,7 +819,7 @@ def main() -> int:
             row_audits[source]["candidate_rows"] > 0 for source in SOURCES
         ),
         "all_reference_cells_within_tolerance": (
-            not canonical_mode
+            not reported_mode
             or all(str(row["passed"]).lower() == "true" for row in validation_rows)
         ),
         "all_table1_selected_counts_bounded": all(
@@ -854,13 +854,13 @@ def main() -> int:
         "table2.csv": out / "table2.csv",
         "table3.csv": out / "table3.csv",
         (
-            "canonical_validation.csv"
-            if canonical_mode
+            "reported_validation.csv"
+            if reported_mode
             else "run_validation.csv"
         ): out
         / (
-            "canonical_validation.csv"
-            if canonical_mode
+            "reported_validation.csv"
+            if reported_mode
             else "run_validation.csv"
         ),
         "figure3_data.csv": out / "figure3_data.csv",
@@ -875,7 +875,7 @@ def main() -> int:
     write_csv(output_paths["table2.csv"], table2_csv)
     write_csv(output_paths["table3.csv"], table3_csv)
     validation_name = (
-        "canonical_validation.csv" if canonical_mode else "run_validation.csv"
+        "reported_validation.csv" if reported_mode else "run_validation.csv"
     )
     write_csv(output_paths[validation_name], validation_rows)
     write_csv(output_paths["figure3_data.csv"], figure_rows)
@@ -891,7 +891,7 @@ def main() -> int:
 
     max_error = (
         max(float(row["abs_error"]) for row in validation_rows)
-        if canonical_mode
+        if reported_mode
         else None
     )
     summary = {
@@ -901,8 +901,8 @@ def main() -> int:
         "table_rows_manifest_sha256": sha256_file(manifest_path),
         "ground_truth_rows": ground_truth_rows,
         "candidate_row_audits": row_audits,
-        "validation_mode": "canonical" if canonical_mode else "structural",
-        "canonical_cells": len(validation_rows) if canonical_mode else 0,
+        "validation_mode": "reference" if reported_mode else "structural",
+        "reported_values": len(validation_rows) if reported_mode else 0,
         "maximum_absolute_error": max_error,
         "tolerance": protocol["scope"].get("numerical_tolerance"),
         "validations": validations,
@@ -912,7 +912,7 @@ def main() -> int:
             "-f configs/relcompat3d/compose.yaml run --rm "
             + (
                 "relcompat3d_reproduce_rows"
-                if canonical_mode
+                if reported_mode
                 else "relcompat3d_reproduce_trained_rows"
             )
         ),
@@ -929,14 +929,14 @@ def main() -> int:
                 "",
                 f"- Candidate rows: {sum(cell['candidate_rows'] for cell in row_audits.values()):,}",
                 f"- Ground-truth rows: {ground_truth_rows:,}",
-                f"- Validation mode: {'canonical' if canonical_mode else 'structural'}",
-                f"- Canonical cells checked: {len(validation_rows) if canonical_mode else 0}",
+                f"- Validation mode: {'reported values' if reported_mode else 'structural'}",
+                f"- Reported values checked: {len(validation_rows) if reported_mode else 0}",
                 *(
                     (
                         f"- Maximum absolute error: {max_error:.3e}",
                         f"- Required tolerance: {float(protocol['scope']['numerical_tolerance']):.1e}",
                     )
-                    if canonical_mode
+                    if reported_mode
                     else (
                         "- Structural checks validate row integrity, metric accounting, and output generation.",
                     )
@@ -979,8 +979,8 @@ def main() -> int:
         json.dumps(
             {
                 "status": status,
-                "validation_mode": "canonical" if canonical_mode else "structural",
-                "canonical_cells": len(validation_rows) if canonical_mode else 0,
+                "validation_mode": "reference" if reported_mode else "structural",
+                "reported_values": len(validation_rows) if reported_mode else 0,
                 "maximum_absolute_error": max_error,
                 "validations": validations,
             },

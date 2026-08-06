@@ -47,11 +47,11 @@
     },
     "score_robustness_manifest": {
       "path": "experiments/RelCompat3D_geom_reliability/score_robustness/evaluation/manifest.json",
-      "sha256": "13d5bb984e860213e073a34025754d063216244d31345ca9e18f925b08d40b07"
+      "sha256": "642c8ab51313a0045dc08ffa2641adbc1d8fd579f6d42942f29a27884546e2a0"
     },
     "score_robustness_summary": {
       "path": "experiments/RelCompat3D_geom_reliability/score_robustness/evaluation/summary.json",
-      "sha256": "f4a206ed26ec469d4a77b0d7b7eb7bab6317d8a8a70fd1ee438474e9168aacaa"
+      "sha256": "524442ed936684bf1ad8ac6de0f3b1fee94d3bbcbd5fc0c956c7c785a10b9974"
     }
   },
   "outputs": {

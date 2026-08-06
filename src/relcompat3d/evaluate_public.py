@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate restored RelCompat3D models on locally prepared canonical rows."""
+"""Evaluate restored RelCompat3D models on locally prepared rows."""
 
 from __future__ import annotations
 

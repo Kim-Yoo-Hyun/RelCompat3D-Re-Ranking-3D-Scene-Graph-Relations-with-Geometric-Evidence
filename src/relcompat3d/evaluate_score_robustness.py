@@ -701,9 +701,9 @@ def evaluate_source(
     )
 
 
-def canonical_match(
+def reported_match(
     sources: dict[str, Any],
-    canonical: dict[str, Any],
+    reference: dict[str, Any],
 ) -> tuple[bool, list[dict[str, Any]]]:
     method_map = {
         "source": "source_score",
@@ -719,7 +719,7 @@ def canonical_match(
                     actual = payload["results"][local_method][str(k)][metric][
                         "point"
                     ]
-                    expected = canonical["sources"][source]["results"][
+                    expected = reference["sources"][source]["results"][
                         reference_method
                     ][str(k)][metric]["point"]
                     error = abs(actual - expected)
@@ -802,10 +802,10 @@ def markdown(summary: dict[str, Any]) -> str:
         "This post-hoc analysis uses the exact active candidate pool, source rows, "
         "family-slot route, model locks, and scan-cluster bootstrap protocol.",
         "",
-        "## Canonical rerun gate",
+        "## Reported-result rerun check",
         "",
         f"- Identity Linear/MLP and Source match the active routed-comparator "
-        f"points: `{summary['validations']['canonical_identity_points_exact']}`.",
+        f"points: `{summary['validations']['reported_identity_points_exact']}`.",
         f"- Archived Tier-B hashes match the active manifests: "
         f"`{summary['validations']['tier_b_hashes_match']}`.",
         "",
@@ -926,10 +926,10 @@ def main() -> int:
         )
         sources[source]["counts"].update(load_counts)
 
-    canonical = json.loads(
-        paths["canonical_summary"].read_text(encoding="utf-8")
+    reference = json.loads(
+        paths["reported_summary"].read_text(encoding="utf-8")
     )
-    identity_exact, canonical_rows = canonical_match(sources, canonical)
+    identity_exact, reference_rows = reported_match(sources, reference)
     mapping_methods = {
         f"{estimator}__{mapping['name']}"
         for estimator in ("linear", "mlp")
@@ -945,7 +945,7 @@ def main() -> int:
     }
     validations = {
         "tier_b_hashes_match": not mismatches,
-        "canonical_identity_points_exact": identity_exact,
+        "reported_identity_points_exact": identity_exact,
         "official_context_universe_548": len(contexts) == 548,
         "gt_denominator_3972": sum(len(rows) for rows in gt.values()) == 3972,
         "all_source_scores_nonnegative_and_bounded": all(
@@ -999,7 +999,7 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     write_json(out / "summary.json", summary)
     write_json(out / "density_stats.json", summary["density_fit"])
-    write_csv(out / "canonical_validation.csv", canonical_rows)
+    write_csv(out / "reported_validation.csv", reference_rows)
     write_csv(out / "score_mapping.csv", metric_rows(sources, mapping_methods))
     write_csv(out / "simple_baselines.csv", metric_rows(sources, baseline_methods))
     stability_rows: list[dict[str, Any]] = []
@@ -1025,7 +1025,7 @@ def main() -> int:
     output_names = (
         "summary.json",
         "density_stats.json",
-        "canonical_validation.csv",
+        "reported_validation.csv",
         "score_mapping.csv",
         "simple_baselines.csv",
         "rank_stability.csv",

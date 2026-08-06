@@ -3,17 +3,17 @@
   "status": "frozen_before_p0_family_routing_controls",
   "created_at_kst": "2026-07-27",
   "inputs": {
-    "canonical_summary": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_comparators/summary.json",
-    "ground_truth": "local_dataset/RelCompat3D/canonical/ground_truth.jsonl",
+    "reported_summary": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/routed_comparators/summary.json",
+    "ground_truth": "local_dataset/RelCompat3D/prepared/ground_truth.jsonl",
     "nonlinear_models": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/nonlinear/models.json",
     "official_context_annotations": "local_dataset/RelCompat3D/3DSSG_subset/relationships_validation.json",
-    "open3dsg_verification": "local_dataset/RelCompat3D/canonical/open3dsg/verification.jsonl",
-    "sgfn_verification": "local_dataset/RelCompat3D/canonical/sgfn/verification.jsonl",
+    "open3dsg_verification": "local_dataset/RelCompat3D/prepared/open3dsg/verification.jsonl",
+    "sgfn_verification": "local_dataset/RelCompat3D/prepared/sgfn/verification.jsonl",
     "structured_models": "experiments/RelCompat3D_geom_reliability/main_experiment/fit/structured_models.json",
-    "vlsat_verification": "local_dataset/RelCompat3D/canonical/vlsat/verification.jsonl"
+    "vlsat_verification": "local_dataset/RelCompat3D/prepared/vlsat/verification.jsonl"
   },
   "locked_sha256": {
-    "canonical_summary": "de89026f74375668b36b870af3e512be8e766baf9b0bc5bd5d4248c516df0ba1",
+    "reported_summary": "de89026f74375668b36b870af3e512be8e766baf9b0bc5bd5d4248c516df0ba1",
     "ground_truth": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c",
     "nonlinear_models": "ccf4107c06d95161df8ecb1948b37f781025407d7b3596ddd6886394a2976c3e",
     "official_context_annotations": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e",

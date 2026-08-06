@@ -28,7 +28,7 @@ All values are percentages.
 Across every reported predictor--K setting, both variants have Recall point
 estimates no lower and Violation point estimates no higher than their source
 ranking. This is a point-estimate statement; paired scan-level intervals are
-reported in the canonical evaluation artifacts.
+reported in the reference evaluation artifacts.
 
 ## Supporting Evidence
 
@@ -66,7 +66,7 @@ reported in the canonical evaluation artifacts.
   exact-label relation while still reducing Violation, so the evidence does
   not support seed-uniform Pareto improvement.
 - A local row-level reproducer regenerates Tables 1--3 and Figure 3
-  data and checks 291 canonical cells with maximum absolute error zero.
+  data and checks 291 reported values with maximum absolute error zero.
 - Candidate-pool coverage is 99.72% for VL-SAT and SGFN and 79.68% for
   Open3DSG. At \(K=50\), the active-route oracle reaches 96.73%, 86.05%, and
   63.72% Recall, respectively. These are fixed-candidate diagnostic upper

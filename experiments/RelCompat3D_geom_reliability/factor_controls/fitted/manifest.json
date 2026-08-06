@@ -27,7 +27,7 @@
     },
     "protocol": {
       "path": "experiments/RelCompat3D_geom_reliability/factor_controls/frozen/manifest.json",
-      "sha256": "b6912ddc0c8cf52db111e0eeea7ba6be330d50aebed408be63931606d6cc35e8"
+      "sha256": "0e14e84d7915e0f66788edad824b5919dfcb6b4a7929a764801e8965026e0a66"
     },
     "train_scans": {
       "path": "archive/hypothesis_records/hypothesis/CAND-001/RelCompat3D_geometry-grounded-verification/artifacts/subset/relcompat3d_calib_pilot/train_scans.txt",

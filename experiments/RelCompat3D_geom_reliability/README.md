@@ -40,7 +40,7 @@ local_dataset/RelCompat3D/
 │   ├── vlsat/raw.jsonl
 │   ├── open3dsg/raw.jsonl
 │   └── sgfn/raw.jsonl
-├── canonical/
+├── prepared/
 │   ├── ground_truth.jsonl
 │   ├── vlsat/{predictions,verification}.jsonl
 │   ├── open3dsg/{predictions,verification}.jsonl
@@ -137,7 +137,7 @@ scripts/reproduce_tables.sh
 ```
 
 Outputs are written to `paper_reproduction/regenerated/`. A valid run reports
-291 matching canonical values with maximum absolute error no larger than
+291 matching paper values with maximum absolute error no larger than
 `1e-12`.
 
 The frozen `main_experiment/evaluation/` directories are paper references and
@@ -154,7 +154,7 @@ scripts/run_pipeline.sh full
 ```
 
 The script also exposes the five stages individually for partial reruns and
-debugging. The `full` stage is the canonical end-to-end RelCompat3D command.
+debugging. The `full` stage is the standard end-to-end RelCompat3D command.
 
 Supplementary analyses use the same frozen inputs:
 

@@ -14,7 +14,7 @@
       "sha256": "b2b8b8f1a63f65dad4fedc302d49a9ab19a1420feea5147219446ec4ce6e79f9",
       "size_bytes": 6581
     },
-    "canonical_validation.csv": {
+    "reported_validation.csv": {
       "sha256": "9e756a2f863a88f547a6e20fa9706c9d304dcd3086c1276fb33d4b6b201ecac8",
       "size_bytes": 26456
     },
@@ -23,12 +23,12 @@
       "size_bytes": 2833
     },
     "summary.json": {
-      "sha256": "3d648081d08b6f3924c68619ee3c33f089a917d31ad9853ab9a11908872ba3c4",
-      "size_bytes": 1502
+      "sha256": "5c9c910e99465e660aa0d215e7143aada7a3a03b98dc0e257fed076f559497d1",
+      "size_bytes": 1421
     },
     "summary.md": {
-      "sha256": "f62ade1cf1ff8d5c0aa0edc1fba853a1e0cfdc330dba30d14df5aaf24b379ebf",
-      "size_bytes": 352
+      "sha256": "5b451079e559831c059e481c933eeff94f190148503883a0e8efa27d2b261d4a",
+      "size_bytes": 326
     },
     "table1.csv": {
       "sha256": "700332f12c7c67e0d030af0822de39eea71da90950586610befd9fdb31aa1b3e",
@@ -66,10 +66,10 @@
   "schema_version": "relcompat3d_row_reproduction_manifest_v1",
   "status": "completed",
   "validations": {
-    "all_canonical_cells_within_tolerance": true,
+    "all_reported_values_within_tolerance": true,
     "all_table1_selected_counts_bounded": true,
     "candidate_row_counts_match": true,
-    "canonical_reference_hashes_match": true,
+    "reported_reference_hashes_match": true,
     "ground_truth_denominator_3972": true,
     "table_rows_hashes_match": true,
     "table3_all_selected_rows_have_accounted_status": true

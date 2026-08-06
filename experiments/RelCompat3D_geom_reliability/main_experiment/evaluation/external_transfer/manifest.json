@@ -8,7 +8,7 @@
     },
     "summary.json": {
       "path": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/external_transfer/summary.json",
-      "sha256": "fdc26115ccef34c0bfc444aef3f19d3049fc277e81eb8df5d2323edb7d099106"
+      "sha256": "930ed58f656b9d14bb077ad64167327825c32b9180b33ae311985eb4e9c2ebc0"
     },
     "summary.md": {
       "path": "experiments/RelCompat3D_geom_reliability/main_experiment/evaluation/external_transfer/summary.md",

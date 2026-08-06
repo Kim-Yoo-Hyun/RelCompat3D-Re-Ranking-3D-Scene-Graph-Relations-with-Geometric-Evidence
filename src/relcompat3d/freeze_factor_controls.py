@@ -427,7 +427,7 @@ def equivalence_for_source(
     verification_path = resolve(root, spec["verification"])
     prediction_digest = hashlib.sha256()
     verification_digest = hashlib.sha256()
-    canonical_digest = hashlib.sha256()
+    reference_digest = hashlib.sha256()
     independent_digest = hashlib.sha256()
     counts: Counter[str] = Counter()
     exact_c_matches = 0
@@ -460,37 +460,37 @@ def equivalence_for_source(
             in_scope_subgraphs.add(prediction["subgraph_id"])
             counts[f"family:{family}"] += 1
             compact = eval_module.compact_verification(verification)
-            canonical_c = eval_module.family_specific_p_geom_valid(
+            reference_c = eval_module.family_specific_p_geom_valid(
                 prediction, compact, family_model
             )
             independent_c = independent_family_score(prediction, verification, family_model)
             semantic = semantic_score(prediction)
-            if canonical_c is None or semantic is None:
+            if reference_c is None or semantic is None:
                 counts["missing_required_score"] += 1
                 continue
-            canonical_product = semantic * canonical_c
+            reference_product = semantic * reference_c
             independent_product = semantic * independent_c
-            c_error = abs(canonical_c - independent_c)
-            product_error = abs(canonical_product - independent_product)
+            c_error = abs(reference_c - independent_c)
+            product_error = abs(reference_product - independent_product)
             max_c_error = max(max_c_error, c_error)
             max_product_error = max(max_product_error, product_error)
-            if canonical_c == independent_c:
+            if reference_c == independent_c:
                 exact_c_matches += 1
             elif len(mismatch_examples) < 10:
                 mismatch_examples.append(
                     {
                         "prediction_id": prediction["prediction_id"],
-                        "canonical_c": canonical_c,
+                        "reference_c": reference_c,
                         "independent_c": independent_c,
                     }
                 )
-            if canonical_product == independent_product:
+            if reference_product == independent_product:
                 exact_product_matches += 1
             update_score_hash(
-                canonical_digest,
+                reference_digest,
                 prediction["prediction_id"],
-                canonical_c,
-                canonical_product,
+                reference_c,
+                reference_product,
             )
             update_score_hash(
                 independent_digest,
@@ -512,7 +512,7 @@ def equivalence_for_source(
         "all_in_scope_rows_scored": counts["missing_required_score"] == 0,
         "compatibility_bit_exact_all_rows": exact_c_matches == in_scope,
         "product_bit_exact_all_rows": exact_product_matches == in_scope,
-        "score_stream_sha256_equal": canonical_digest.hexdigest()
+        "score_stream_sha256_equal": reference_digest.hexdigest()
         == independent_digest.hexdigest(),
     }
     result = {
@@ -537,7 +537,7 @@ def equivalence_for_source(
             "product_exact_matches": exact_product_matches,
             "max_abs_compatibility_error": max_c_error,
             "max_abs_product_error": max_product_error,
-            "canonical_score_stream_sha256": canonical_digest.hexdigest(),
+            "reference_score_stream_sha256": reference_digest.hexdigest(),
             "independent_score_stream_sha256": independent_digest.hexdigest(),
             "mismatch_examples": mismatch_examples,
             "rank_average_invariance": {
@@ -988,7 +988,7 @@ def main() -> int:
         "schema_version": SCHEMA_VERSION,
         "status": "bit_exact" if all(equivalence_checks.values()) else "failed",
         "definition": (
-            "independent factor-ledger scorer versus canonical frozen family scorer; "
+            "independent factor-ledger scorer versus reference frozen family scorer; "
             "semantic Z is read only for product continuity"
         ),
         "sources": equivalence_sources,

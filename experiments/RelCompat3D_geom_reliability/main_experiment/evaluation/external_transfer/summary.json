@@ -3909,7 +3909,7 @@
   },
   "protocol": {
     "path": "experiments/RelCompat3D_geom_reliability/main_experiment/protocols/external_transfer.json",
-    "sha256": "3cf219454b474f190122156b7a7cf0bdfe7f1225775f082e6e9621502fa6ca94"
+    "sha256": "117e76294a9ac46bb7c6164e9ab83740eec04efc4a548255af98733d036aee83"
   },
   "schema_version": "relcompat3d_external_dataset_transfer_v1",
   "status": "blocked_external_dataset_evaluation",

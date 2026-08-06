@@ -27,7 +27,7 @@
     "expected_candidate_rows": 4293,
     "expected_exact_label_gt": 172,
     "semantic_source": "official FROSS VisualGenome RT-DETR-EGTR predictions regenerated under the previously documented official route",
-    "geometry": "ReplicaSSG instance-annotated face-center geometry with canonical axis conversion"
+    "geometry": "ReplicaSSG instance-annotated face-center geometry with reference axis conversion"
   },
   "scope": {
     "predicate_mapping": {

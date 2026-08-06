@@ -64350,7 +64350,7 @@
     "all_source_scores_nonnegative": true,
     "all_sources_have_157_scans": true,
     "all_sources_have_548_contexts": true,
-    "canonical_points_exact": true,
+    "reported_points_exact": true,
     "family_slots_preserve_family_sequence": true,
     "family_slots_preserve_support_ids": true,
     "identity_route_exact": true,

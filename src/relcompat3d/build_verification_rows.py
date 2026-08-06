@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Join canonical source predictions with ordered-pair geometry evidence.
+"""Join standardized source predictions with ordered-pair geometry evidence.
 
 The join is intentionally row-preserving: every prediction row receives one
 verification row, including predicates outside the evaluated geometry scope.

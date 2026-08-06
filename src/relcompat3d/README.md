@@ -87,7 +87,7 @@ env UID=$(id -u) GID=$(id -g) $compose run --rm relcompat3d_adapt_open3dsg
 The adapters write:
 
 ```text
-local_dataset/RelCompat3D/canonical/
+local_dataset/RelCompat3D/prepared/
 ├── vlsat/predictions.jsonl
 ├── sgfn/predictions.jsonl
 └── open3dsg/predictions.jsonl
@@ -109,7 +109,7 @@ record its SHA-256 digest with the prediction run.
 
 ### Geometry join
 
-The files above contain canonical source predictions. The corresponding
+The files above contain standardized source predictions. The corresponding
 `verification.jsonl` files add ordered-pair measurements and frozen verifier
 outputs. `build_verification_rows.py` reads `semseg.v2.json` OBBs and
 `labels.instances.annotated.v2.ply` instance points from officially obtained

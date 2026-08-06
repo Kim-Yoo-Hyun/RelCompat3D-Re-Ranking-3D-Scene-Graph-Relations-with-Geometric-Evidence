@@ -4,7 +4,7 @@ Status: `completed`
 
 - Candidate rows: 601,140
 - Ground-truth rows: 3,972
-- Canonical cells checked: 291
+- Reported values checked: 291
 - Maximum absolute error: 0.000e+00
 - Required tolerance: 1.0e-12
 

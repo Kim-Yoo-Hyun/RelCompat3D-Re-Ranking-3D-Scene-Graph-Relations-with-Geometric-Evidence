@@ -50,9 +50,9 @@ case "$stage" in
   evaluate)
     scripts/validate.sh --require-models
     for source in vlsat sgfn open3dsg; do
-      require_file "local_dataset/RelCompat3D/canonical/$source/verification.jsonl"
+      require_file "local_dataset/RelCompat3D/prepared/$source/verification.jsonl"
     done
-    require_file local_dataset/RelCompat3D/canonical/ground_truth.jsonl
+    require_file local_dataset/RelCompat3D/prepared/ground_truth.jsonl
     output=experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_evaluation
     require_empty_output "$output"
     run_service relcompat3d_evaluate_public
@@ -72,9 +72,9 @@ case "$stage" in
     ;;
   evaluate-trained)
     for source in vlsat sgfn open3dsg; do
-      require_file "local_dataset/RelCompat3D/canonical/$source/verification.jsonl"
+      require_file "local_dataset/RelCompat3D/prepared/$source/verification.jsonl"
     done
-    require_file local_dataset/RelCompat3D/canonical/ground_truth.jsonl
+    require_file local_dataset/RelCompat3D/prepared/ground_truth.jsonl
     require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/structured_models.json
     require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/nonlinear/models.json
     require_empty_output experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/trained_evaluation
