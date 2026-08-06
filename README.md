@@ -30,8 +30,9 @@ paths are specified below and in the README of the corresponding folder.
 
 ## 1. Setup
 
-Docker is the canonical environment. The image uses Python 3.11.9 and the
-fully pinned `requirements.lock.txt` environment.
+Docker is the canonical environment. The image uses Python 3.11.9.
+`requirements.txt` lists the direct Python dependencies, while
+`requirements.lock.txt` pins their complete dependency set for Docker runs.
 
 ```bash
 git clone https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence.git
@@ -138,10 +139,10 @@ This command performs five stages in order:
 3. evaluate the freshly fitted models;
 4. derive point- and mesh-based audit measurements from official 3RScan
    surfaces; and
-5. generate CSV/LaTeX versions of Tables 1--3 and the Figure 3 data and
+5. generate CSV files for Tables 1--3, along with the Figure 3 data and
    renderings.
 
-Fresh outputs are isolated under:
+Outputs are written to:
 
 ```text
 experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated/
