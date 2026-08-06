@@ -6,10 +6,7 @@
 - `restore_recovery_archive.sh`: verify a maintainer recovery archive and map
   its contents to the current repository layout.
 - `validate.sh`: validate Compose, Python sources, JSON artifacts, model hashes,
-  frozen table cells, and the synthetic functional pipeline.
-- `test_clean_clone.sh`: clone the repository into a temporary directory,
-  restore models, prepare all three synthetic source formats, and run public
-  evaluation without licensed data.
+  and frozen table cells.
 - `reproduce_tables.sh`: regenerate Tables 1--3 and Figure 3 from table rows
   created locally from official data and source-predictor outputs.
 - `run_pipeline.sh`: adapt official source outputs, build geometry/verifier

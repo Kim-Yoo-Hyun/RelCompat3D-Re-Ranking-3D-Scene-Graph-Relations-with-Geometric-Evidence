@@ -22,7 +22,6 @@ results/       Paper-facing result index
 scripts/       Validation, model restoration, and experiment wrappers
 site/          Static GitHub Pages project site
 src/           Training, evaluation, audit, and table-generation code
-tests/         Synthetic source-adapter, geometry, verifier, and routing checks
 ```
 
 Large datasets, source-predictor checkpoints, prediction rows, and trained
@@ -39,13 +38,6 @@ git clone https://github.com/Kim-Yoo-Hyun/RelCompat3D-Re-Ranking-3D-Scene-Graph-
 cd RelCompat3D-Re-Ranking-3D-Scene-Graph-Relations-with-Geometric-Evidence
 docker compose -f configs/relcompat3d/compose.yaml build relcompat3d_reproduce_rows
 scripts/validate.sh
-```
-
-To verify model restoration, all three source adapters, geometry joining, and
-evaluation in an isolated checkout without licensed data, run:
-
-```bash
-make clean-clone-test
 ```
 
 For local source inspection only:

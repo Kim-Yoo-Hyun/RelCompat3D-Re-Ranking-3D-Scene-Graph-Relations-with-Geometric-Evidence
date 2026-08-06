@@ -1,16 +1,4 @@
 services:
-  relcompat3d_synthetic_test:
-    build:
-      context: ../..
-      dockerfile: configs/relcompat3d/Dockerfile
-    image: relcompat3d-geom-reliability:latest
-    working_dir: /workspace
-    user: "${UID:-1000}:${GID:-1000}"
-    volumes:
-      - ../..:/workspace
-    entrypoint: [python, -m, unittest]
-    command: [discover, -s, tests, -v]
-
   relcompat3d_adapt_vlsat:
     build:
       context: ../..

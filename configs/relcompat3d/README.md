@@ -4,7 +4,7 @@
   `requirements.lock.txt`.
 - `compose.yaml`: source adaptation, geometry joining, training-row generation,
   isolated Linear/MLP fitting, evaluation, audit, robustness, row-export,
-  table-regeneration, and synthetic-test services.
+  and table-regeneration services.
 
 The repository root is mounted at `/workspace`. Dataset and result locations
 therefore follow the same relative paths on the host and in the container.
