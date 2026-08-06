@@ -17,8 +17,8 @@ paper and supplement.
 | `training_protocol/` | split firewall and train-only provenance |
 
 `evaluation/` directories are frozen references. Reproduction services write
-to ignored `regenerated/` directories. Fitted JSON models can be trained from
-official data or restored with `scripts/download_models.sh`.
+to ignored `regenerated/` directories. The training services generate the
+fitted JSON models, which are ignored by Git.
 
 The active evaluation uses 157 validation scans, 548 contexts, and 3,972
 exact-match ground-truth relations. Licensed inputs and commands are described
@@ -67,9 +67,8 @@ same method and metric contracts with locally generated official inputs.
 
 Model fitting requires the official `relationships_train.json`, matching
 3RScan geometry, and the tracked scan lists under `training_protocol/splits/`.
-The base feature template and training-split normalization statistics are
-generated from the same training rows, so fresh fitting does not require a
-pretrained RelCompat3D model. Run:
+The pipeline first generates the base feature template and training-split
+normalization statistics, then fits the Linear and MLP estimators:
 
 ```bash
 compose="docker compose -f configs/relcompat3d/compose.yaml"
@@ -85,8 +84,8 @@ internal-development scans. The 157 final-validation scans remain excluded.
 The fitting services write to `main_experiment/regenerated/` and refuse
 nonempty output directories. The Linear and MLP outputs are
 `fit/structured_models.json` and `nonlinear/models.json`, respectively.
-Source-predictor evaluation is a separate step performed with restored or
-newly fitted models after training is complete.
+Source-predictor evaluation is a separate step performed with the fitted
+RelCompat3D estimators after training is complete.
 
 ### Local paper rows
 
@@ -131,13 +130,6 @@ Validate a Git checkout:
 scripts/validate.sh
 ```
 
-Restore and verify the learned compatibility models:
-
-```bash
-scripts/download_models.sh
-scripts/validate.sh --require-models
-```
-
 After exporting the local paper rows, regenerate Tables 1--3 and Figure 3:
 
 ```bash
@@ -148,20 +140,12 @@ Outputs are written to `paper_reproduction/regenerated/`. A valid run reports
 291 matching canonical values with maximum absolute error no larger than
 `1e-12`.
 
-Prepare the canonical inputs from official source outputs and evaluate the
-restored models in a separate regenerated directory:
-
-```bash
-scripts/run_pipeline.sh prepare
-scripts/download_models.sh
-scripts/run_pipeline.sh evaluate
-```
-
 The frozen `main_experiment/evaluation/` directories are paper references and
-are never overwritten by this route. Public evaluation writes to
-`main_experiment/regenerated/public_evaluation/`. Exact re-fitting uses the
-same `fit_linear.py` and `fit_mlp.py` implementations and requires the official
-training annotations and geometry plus the listed split files.
+are never overwritten by the reproduction route. Fresh-model evaluation writes
+to `main_experiment/regenerated/trained_evaluation/`. Fitting uses the same
+`fit_linear.py` and `fit_mlp.py` implementations as the reported experiments
+and requires the official training annotations, geometry, and listed split
+files.
 
 The complete fresh route is:
 
@@ -197,7 +181,6 @@ Expected output locations are:
 
 | Task | Output |
 | --- | --- |
-| Restored reported models | `main_experiment/fit/` and `main_experiment/evaluation/nonlinear/` |
 | Fresh main evaluation | `main_experiment/regenerated/public_evaluation/` |
 | Fresh base template | `main_experiment/regenerated/base/` |
 | Fresh Linear fit | `main_experiment/regenerated/fit/` |
@@ -209,21 +192,10 @@ Expected output locations are:
 | Candidate oracle | `candidate_oracle/regenerated/` |
 | Compact result index | `../../results/relcompat3d_geom_reliability/manifest.json` |
 
-A fresh server needs Docker with Compose v2, official 3RScan/3DSSG access,
-source-predictor environments and checkpoints, and the canonical geometry and
-prediction inputs prepared from those resources. The RelCompat3D model archive
-is optional because the training route generates the compatibility models.
-The Git repository does not contain licensed geometry or third-party
-predictions.
-
-Maintainers with a verified recovery archive may restore the table inputs or
-the complete local experiment state with:
-
-```bash
-scripts/restore_recovery_archive.sh /path/to/recovery-archive tables
-scripts/restore_recovery_archive.sh /path/to/recovery-archive complete
-```
-
-The script verifies the archive manifest before writing files. This recovery
-route is optional and is not required when inputs are generated from the
-official resources.
+A fresh server needs Docker with Compose v2, official 3RScan/3DSSG access, and
+the three source-predictor environments. Users train the source checkpoints in
+the official VL-SAT, SGFN, and Open3DSG repositories and run inference to
+create the three documented `raw.jsonl` files. The RelCompat3D training route
+then generates the compatibility models and all subsequent evaluation and
+table artifacts. The Git repository does not contain licensed geometry,
+third-party checkpoints, or source predictions.

@@ -19,7 +19,7 @@ family-aware re-ranking.
 configs/       Pinned Docker environment and Compose services
 experiments/   Frozen protocols and compact paper evidence
 results/       Paper-facing result index
-scripts/       Validation, model restoration, and experiment wrappers
+scripts/       Validation and experiment wrappers
 site/          Static GitHub Pages project site
 src/           Training, evaluation, audit, and table-generation code
 ```
@@ -60,9 +60,20 @@ Obtain 3RScan/3DSSG and the source predictors from their official projects:
 - [SGFN/3DSSG](https://github.com/ShunChengWu/3DSSG)
 - [Open3DSG](https://github.com/boschresearch/Open3DSG)
 
-For Open3DSG, train the pinned official implementation with the provided
-non-averaged BLIP configuration and select the checkpoint with the lowest
-development loss:
+### Train the source predictors
+
+Source-predictor checkpoints are required. They are not included in this
+repository. Create them in the official predictor repositories before running
+RelCompat3D:
+
+- VL-SAT: prepare its 3RScan/3DSSG data and run
+  `python -m main --mode train --config <config_path> --exp <exp_name>`.
+- SGFN: prepare the official 3DSSG experiment data and run
+  `python main.py --mode train --config <config_path>` with the 160-object,
+  26-relation configuration used by this evaluation.
+- Open3DSG: use the pinned helper below to train the official implementation
+  with the non-averaged BLIP configuration and select the checkpoint with the
+  lowest development loss.
 
 ```bash
 scripts/train_open3dsg.sh prepare
@@ -74,6 +85,11 @@ scripts/train_open3dsg.sh select
 
 The source revision, data coverage gates, hyperparameters, and selection rule
 are described [here](configs/open3dsg/README.md).
+
+Run inference from each resulting checkpoint, then export its fixed relation
+candidates to the JSONL contract below. The checkpoints remain in their
+respective source repositories and are inputs to source inference, not inputs
+to the RelCompat3D fitting code.
 
 The repository does not redistribute licensed scans, meshes, annotations,
 dataset-derived candidate rows, or third-party checkpoints. Run inference in
@@ -105,13 +121,13 @@ dataset layout is described
 ## 3. Train, evaluate, and regenerate tables
 
 Place `relationships_train.json` beside the validation annotation and make the
-official 3RScan scans available under `local_dataset/3RScan/scans/`. No
-RelCompat3D checkpoint is required. The following command runs the complete
-repository-owned route after the three upstream `raw.jsonl` files have been
-created:
+official 3RScan scans available under `local_dataset/3RScan/scans/`. After the
+source checkpoints have produced the three upstream `raw.jsonl` files, the
+following command trains RelCompat3D and runs the complete repository-owned
+route:
 
 ```bash
-make from-official
+make from-source-outputs
 ```
 
 This target performs five stages in order:
@@ -145,10 +161,12 @@ experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_surf
 experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/{public_rows,public_tables}/
 ```
 
-The tracked 1,061/117/157 scan lists define the training, internal-development,
-and final-validation firewall. The fit-only commands do not read source scores,
-predictor identities, source-predictor validation rows, or final-validation
-labels. See the
+The source checkpoints are used only to produce the three input files at this
+stage. RelCompat3D then fits its compatibility estimators from the official
+training split. The tracked 1,061/117/157 scan lists define the training,
+internal-development, and final-validation firewall. The fitting commands do
+not read source scores, predictor identities, source-predictor validation rows,
+or final-validation labels. See the
 [experiment README](experiments/RelCompat3D_geom_reliability/README.md#model-fitting)
 for individual Docker commands and required inputs.
 
@@ -159,21 +177,13 @@ route checks dataset scope, identities, ranking constraints, metric accounting,
 and output integrity without treating a different upstream run as a failed
 paper-value comparison.
 
-## 4. Optional reported-model and frozen-result checks
+## 4. Frozen-result checks
 
-The lightweight reported RelCompat3D parameters are available
-[here](https://drive.google.com/file/d/1DaZoibKFyPS681e728Tzs613qscMgv4u/view).
-They are optional for fresh training. To restore and verify them, run:
-
-```bash
-scripts/download_models.sh
-scripts/validate.sh --require-models
-scripts/run_pipeline.sh evaluate
-```
-
-If the exact local table-row bundle for the reported run has already been
-generated from licensed inputs, `scripts/reproduce_tables.sh` regenerates the
-paper tables and checks 291 frozen values at tolerance `1e-12`.
+`scripts/validate.sh` verifies the tracked code, configurations, protocols, and
+compact result artifacts. If the exact local table rows for the reported run
+have been generated from the official licensed inputs and the corresponding
+source checkpoints, `scripts/reproduce_tables.sh` regenerates the paper tables
+and checks 291 frozen values at tolerance `1e-12`.
 
 ## 5. Extended analyses
 
@@ -201,27 +211,25 @@ evaluation on the shared 3DSSG validation scenes.
 
 ## Reproducibility boundary
 
-There are three supported levels:
+There are two supported levels:
 
 1. A Git-only checkout validates code, configuration, protocols, and frozen
    results.
-2. A Git checkout combined with officially obtained 3RScan/3DSSG data and
-   outputs generated with the official source-predictor repositories supports
-   training, geometry joining, evaluation, point/mesh auditing, and table
-   generation.
-3. Git plus the optional RelCompat3D model archive restores the learned
-   compatibility parameters used by the reported run.
+2. A Git checkout combined with officially obtained 3RScan/3DSSG data,
+   source-predictor checkpoints trained in the official repositories, and the
+   resulting fixed predictions supports RelCompat3D training, geometry
+   joining, evaluation, point/mesh auditing, and table generation.
 
 Source-predictor inference remains governed by the upstream licenses and data
 terms. VL-SAT and SGFN follow their official repositories. The Open3DSG
 training configuration in this repository invokes the pinned official source
 without redistributing its code or model files.
 
-The repository does not automate licensed dataset download or inference in
-the three independent source-predictor repositories. Those stages follow the
-official projects. Once their outputs use the documented contract,
-`make from-official` covers the complete RelCompat3D-owned process through
-table generation.
+The repository does not replace training or inference in the three independent
+source-predictor repositories. Users first create the source checkpoints and
+fixed predictions with those official projects. Once the predictions use the
+documented contract, `make from-source-outputs` covers the complete
+RelCompat3D-owned process through table generation.
 
 ## Citation
 

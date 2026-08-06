@@ -1,6 +1,5 @@
 # Scripts
 
-- `download_models.sh`: download and verify the external RelCompat3D model archive.
 - `train_open3dsg.sh`: coordinate the pinned Open3DSG preparation, feature
   extraction, source-model training, and checkpoint-selection stages.
 - `restore_recovery_archive.sh`: verify a maintainer recovery archive and map
@@ -11,9 +10,15 @@
   created locally from official data and source-predictor outputs.
 - `run_pipeline.sh`: adapt official source outputs, build geometry/verifier and
   training rows, fit both estimators, run the point/mesh audit, and generate
-  tables without overwriting frozen references. `make from-official` invokes
-  its complete repository-owned route.
+  tables without overwriting frozen references. After source-predictor
+  checkpoints and fixed outputs have been created in the official projects,
+  `make from-source-outputs` invokes the complete RelCompat3D-owned route.
 - `validate_repository.py`: standard-library repository and numerical checks.
 
 All paper experiment execution remains Docker-based. Shell scripts only
 coordinate pinned Compose services.
+
+The normal reproduction route trains the RelCompat3D estimators. The
+`download_models.sh` and `restore_recovery_archive.sh` utilities are retained
+only for maintainers who verify archived historical artifacts; they are not
+part of the public training workflow.
