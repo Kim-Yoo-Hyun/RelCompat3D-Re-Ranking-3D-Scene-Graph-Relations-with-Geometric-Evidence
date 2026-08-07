@@ -1,0 +1,40 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_candidate_oracle",
+  "outputs": {
+    "candidate_pool_coverage.csv": {
+      "sha256": "eccedffe37eb9c5f8984091209f59f49d9c9f83813746a0d8b8d4a101688637c",
+      "size_bytes": 324
+    },
+    "oracle_recall.csv": {
+      "sha256": "4825d0aa0e53b521af460c6c4d692c712518539078ce6904cf334f3024d2ca4c",
+      "size_bytes": 6842
+    },
+    "summary.json": {
+      "sha256": "63724c8fe0f486dc1da3f8cf7af54cbdc5ed3974341c2716e1f42e822c8a1306",
+      "size_bytes": 22324
+    },
+    "summary.md": {
+      "sha256": "fe824bb889921b5325f1b2ecdefe2efd91a782b697da6722b4faeec6a32f4aab",
+      "size_bytes": 1432
+    }
+  },
+  "protocol": {
+    "path": "experiments/relcompat3d/candidate_oracle/protocol.json",
+    "sha256": "de6db24249d09dc37e44fe6cb648834e1786a2131a991aea87ad92a203595d9d"
+  },
+  "table_rows": {
+    "manifest_sha256": "9881b2c6d3207cd68126edc516690033ed0204e937fa64ce530629fcaa48fd43",
+    "path": "experiments/relcompat3d/paper_results/regenerated/rows"
+  },
+  "schema_version": "relcompat3d_candidate_oracle_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "evaluated_methods_within_oracle": true,
+    "all_points_finite": true,
+    "candidate_identity_unique": true,
+    "ground_truth_denominator": true,
+    "oracle_ordering": true,
+    "oracle_recall_monotone_in_k": true,
+    "table_rows_hashes_match": true
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": "relcompat3d_linear_training_v1",
+  "status": "ready_for_linear_fit",
+  "purpose": "Fit RelCompat3D-Linear on the training split and report development diagnostics before validation evaluation.",
+  "data_splits": {
+    "training_scans": 1061,
+    "development_scans": 117,
+    "validation_scans": 157,
+    "fit": "training split only",
+    "development": "diagnostics only",
+    "validation": "not read by the fitting stage"
+  },
+  "optimizer": {
+    "epochs": 800,
+    "learning_rate": 0.2,
+    "l2": 0.0001,
+    "initial_weights": 0.0,
+    "batching": "deterministic_full_batch",
+    "pairwise_loss": "softplus(margin - (logit_positive - logit_negative))",
+    "pairwise_margin": 1.0,
+    "pairwise_weight": 0.25
+  },
+  "development": {
+    "bootstrap_resamples": 1000,
+    "bootstrap_seed": 20260720,
+    "selection_allowed": false
+  },
+  "inputs": {
+    "calibration_table": "experiments/relcompat3d/training/calibration/export/table.jsonl",
+    "train_scans": "experiments/relcompat3d/training/splits/train_scans.txt",
+    "development_scans": "experiments/relcompat3d/training/splits/development_scans.txt",
+    "final_validation_scans": "experiments/relcompat3d/training/splits/final_validation_scans.txt",
+    "current_base_models": "experiments/relcompat3d/training/calibration/fitted/models.json",
+    "development_verification": "experiments/relcompat3d/training/development/geometry/verification.jsonl",
+    "development_ground_truth": "experiments/relcompat3d/training/development_ground_truth.jsonl"
+  },
+  "evaluation_scope": "The reported evaluation uses fixed predictions from three source predictors on the 3DSSG validation split."
+}

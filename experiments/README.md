@@ -1,8 +1,8 @@
 # Experiments
 
-`RelCompat3D_geom_reliability/` contains the frozen 3DSSG protocols, public
-execution protocols, model locks, and compact paper evidence. Generated rows,
-fresh or restored model files, and new run outputs are ignored by Git.
+`relcompat3d/` contains the experiment configurations, reported results, and
+paths used by the reproduction pipeline. New runs write to ignored
+`regenerated/` directories so the reported result files remain unchanged.
 
-The active method is identified by `active_method.json`. A reproduction should
-follow the versioned protocols rather than editing stored results in place.
+See [relcompat3d/README.md](relcompat3d/README.md) for data preparation,
+training, evaluation, and supplementary analyses.

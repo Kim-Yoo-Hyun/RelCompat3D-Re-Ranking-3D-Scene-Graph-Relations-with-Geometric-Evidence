@@ -70,7 +70,7 @@ scripts/train_open3dsg.sh preprocess
 scripts/train_open3dsg.sh features
 ```
 
-The coverage gate expects 3,744 of 3,852 training subgraphs and 156 of 160
+The coverage check expects 3,744 of 3,852 training subgraphs and 156 of 160
 development subgraphs after official preprocessing. Feature extraction uses
 OpenSeg and non-averaged BLIP features with three scales and five frames.
 

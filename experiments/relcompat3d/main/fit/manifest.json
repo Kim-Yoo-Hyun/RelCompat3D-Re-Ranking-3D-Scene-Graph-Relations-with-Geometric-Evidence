@@ -1,0 +1,85 @@
+{
+  "created_at_utc": "2026-07-19T20:05:08.787303+00:00",
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit",
+  "inputs": {
+    "calibration_table": {
+      "path": "experiments/relcompat3d/training/calibration/export/table.jsonl",
+      "sha256": "ada87676faf0df67c8d8873ceb8efa54ab29507306fca24d4020b21d5e39af6e"
+    },
+    "current_base_models": {
+      "path": "experiments/relcompat3d/training/calibration/fitted/models.json",
+      "sha256": "ac6959a779b0cdb7c5a57afaca023552b97bffc40dd63136cccbd3aed5a9be32"
+    },
+    "final_validation_scans": {
+      "path": "experiments/relcompat3d/training/splits/final_validation_scans.txt",
+      "sha256": "3687b892938c25a44a07d6e0e26788b98ffe5c5319f04407d446247c2a67e7e4"
+    },
+    "development_ground_truth": {
+      "path": "experiments/relcompat3d/training/development_ground_truth.jsonl",
+      "sha256": "3425be6aba974345a8aadc279b06e6a56dca6407c123ad45374adcfc137e199b"
+    },
+    "development_scans": {
+      "path": "experiments/relcompat3d/training/splits/development_scans.txt",
+      "sha256": "25fb5aba714b0c9bf00f36b04fb890de6dd4a197628dd179812189511c01343b"
+    },
+    "development_verification": {
+      "path": "experiments/relcompat3d/training/development/geometry/verification.jsonl",
+      "sha256": "458bdf95447052bd71f297ce2c2a0ee70af84447c75e56201180f58106e18618"
+    },
+    "train_scans": {
+      "path": "experiments/relcompat3d/training/splits/train_scans.txt",
+      "sha256": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53"
+    }
+  },
+  "outputs": {
+    "model_selection.json": {
+      "path": "experiments/relcompat3d/main/fit/model_selection.json",
+      "sha256": "5b1aef1077d942fe0a385d604bc161e03a70217e7bccca8ef1f1056c2c57fdf7"
+    },
+    "development_metrics.json": {
+      "path": "experiments/relcompat3d/main/fit/development_metrics.json",
+      "sha256": "004d2c034d1d97774acb1607690aaaec7b2fe06f20f3bb2a833d25a7fa812277"
+    },
+    "development_predictions.json": {
+      "path": "experiments/relcompat3d/main/fit/development_predictions.json",
+      "sha256": "ed5870e4faddaa0148a388781ac3e1f1dd69caff5ed5dfca66f8326cb03481ee"
+    },
+    "score_definition.json": {
+      "path": "experiments/relcompat3d/main/fit/score_definition.json",
+      "sha256": "165ff31e8189c556e8074fb065af8198b0f2c04e3ec86a87bc74c61d70961b7b"
+    },
+    "base_models.json": {
+      "path": "experiments/relcompat3d/main/fit/base_models.json",
+      "sha256": "8786fba9095e1dec1c2d3fea9f6ed918ec87ecd58d1e4c5cad37dcaddef7fb26"
+    },
+    "linear_models.json": {
+      "path": "experiments/relcompat3d/main/fit/linear_models.json",
+      "sha256": "fefbc4370e597acac1f0d4183def578147eb97ad5413ea96fb9d57ef9293ca6c"
+    }
+  },
+  "protocol": {
+    "path": "experiments/relcompat3d/main/protocol.json",
+    "sha256": "b64337f51825edfbf3d69244205f1cf7e61c47cb97b02d49156427e8bbcd7549"
+  },
+  "schema_version": "relcompat3d_linear_fit_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_parameters_finite": true,
+    "feature_templates_unchanged": true,
+    "development_contexts_354": true,
+    "development_gt_denominator_2730": true,
+    "validation_not_used_for_model_selection": true,
+    "development_rows_6246": true,
+    "normalization_statistics_unchanged": true,
+    "one_family_feature_removed_per_head": true,
+    "optimizer_configuration_matches": true,
+    "source_score_and_identity_excluded": true,
+    "split_counts_1061_117_157": true,
+    "split_sets_pairwise_disjoint": true,
+    "base_family_indicators_absent": true,
+    "linear_family_indicators_absent": true,
+    "train_rows_60208": true,
+    "zero_final_rows_in_calibration": true
+  },
+  "warnings": []
+}

@@ -17,9 +17,9 @@ import numpy as np
 
 import compatibility_features as calibration
 import relation_consistency as algebra
-import evaluate_main as evaluation
-import evaluate_support_intervals as scan_bootstrap
-import evaluate_train_only as strict
+import evaluate_all_families as evaluation
+import evaluate_support_bootstrap as scan_bootstrap
+import evaluate_base_models as model_eval
 
 
 FAMILIES = ("support_contact", "proximity", "relative_vertical")
@@ -29,7 +29,7 @@ CONDITIONS = (
     "primitive_family_held_out",
     "alternative_evidence_only",
 )
-METHODS = ("source_score", *CONDITIONS)
+METHODS = ("source", *CONDITIONS)
 METRICS = ("recall", "violation_all")
 
 
@@ -172,7 +172,7 @@ def fit_one_model(
         orbit_x, orbit_y, optimizer, pair_diffs=orbit_pair_diffs
     )
     return {
-        "architecture": "held_out_primitive_family_logistic",
+        "architecture": "feature_removal_family_logistic",
         "family": family,
         "feature_names": features,
         "numeric_stats": spec["numeric_stats"],
@@ -203,7 +203,7 @@ def projected_scorer(models: dict[str, Any]) -> Callable[[str, str, dict[str, fl
 
 def fit_conditions(
     prepared: list[dict[str, Any]],
-    strict_models: dict[str, Any],
+    base_models: dict[str, Any],
     main_models: dict[str, Any],
     protocol: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Callable[[str, str, dict[str, float]], float]]]:
@@ -226,7 +226,7 @@ def fit_conditions(
                 for row in train
                 if row["predicate"]["predicate_family"] == family
             ]
-            base_model = strict_models["family_models"][family]
+            base_model = base_models["family_models"][family]
             features = select_features(
                 base_model, family, condition, protocol["held_out_conditions"]
             )
@@ -311,8 +311,8 @@ def load_candidates(
                 continue
             in_scope_rows += 1
             predicate = row["predicate"]["predicate_label"]
-            raw = strict.raw_numeric(row)
-            semantic = strict.finite((row.get("semantic") or {}).get("ranking_score"))
+            raw = model_eval.raw_numeric(row)
+            semantic = model_eval.finite((row.get("semantic") or {}).get("ranking_score"))
             if semantic is None:
                 raise ValueError(f"missing_semantic:{row['prediction_id']}")
             compatibility = {
@@ -323,13 +323,13 @@ def load_candidates(
                 {
                     "id": row["prediction_id"],
                     "scan": row["scan_id"],
-                    "key": strict.candidate_key(row),
+                    "key": model_eval.candidate_key(row),
                     "family": family,
                     "semantic": float(semantic),
                     "compatibility": compatibility,
                     "status": row.get("verification_status")
                     or (row.get("verification") or {}).get("verification_status"),
-                    "scores": {"source_score": float(semantic)},
+                    "scores": {"source": float(semantic)},
                 }
             )
     for candidates in grouped.values():
@@ -351,13 +351,13 @@ def load_candidates(
                         ),
                     )
             offsets = {family: 0 for family in FAMILIES}
-            routed: list[dict[str, Any]] = []
+            ranked: list[dict[str, Any]] = []
             for source_item in source_order:
                 family = source_item["family"]
-                routed.append(queues[family][offsets[family]])
+                ranked.append(queues[family][offsets[family]])
                 offsets[family] += 1
-            size = len(routed)
-            for rank, item in enumerate(routed, 1):
+            size = len(ranked)
+            for rank, item in enumerate(ranked, 1):
                 item["scores"][condition] = float(size - rank + 1)
     return grouped, {
         "input_rows": input_rows,
@@ -380,7 +380,7 @@ def scan_summary(values: dict[str, Any], weights: np.ndarray) -> dict[str, Any]:
                 boot = scan_bootstrap.weighted_ratio(numerator, denominator, weights)
                 report[method][str(k)][metric] = {
                     "point": point,
-                    "scan_cluster_ci95": evaluation.ci95(boot),
+                    "bootstrap_intervals_ci95": evaluation.ci95(boot),
                     "numerator": int(numerator.sum()),
                     "denominator": int(denominator.sum()),
                 }
@@ -395,7 +395,7 @@ def scan_summary(values: dict[str, Any], weights: np.ndarray) -> dict[str, Any]:
             report["deltas_vs_main_route"][method][str(k)] = {}
             for metric in METRICS:
                 for reference, target in (
-                    ("source_score", "deltas_vs_source_score"),
+                    ("source", "deltas_vs_source_score"),
                     ("main_route", "deltas_vs_main_route"),
                 ):
                     point = (
@@ -405,7 +405,7 @@ def scan_summary(values: dict[str, Any], weights: np.ndarray) -> dict[str, Any]:
                     delta = cache[method][str(k)][metric] - cache[reference][str(k)][metric]
                     report[target][method][str(k)][metric] = {
                         "point": point,
-                        "paired_scan_cluster_ci95": evaluation.ci95(delta),
+                        "paired_bootstrap_intervals_ci95": evaluation.ci95(delta),
                     }
     return report
 
@@ -444,7 +444,7 @@ def evaluate_source(
             **cluster_counts,
         },
         "overall": overall,
-        "scan_cluster": scan_summary(overall_values, weights),
+        "bootstrap_intervals": scan_summary(overall_values, weights),
         "within_family": within,
         "global_topk_family_slice": global_slice,
     }
@@ -455,18 +455,18 @@ def csv_rows(sources: dict[str, Any]) -> list[dict[str, Any]]:
     for source, payload in sources.items():
         for method in METHODS:
             for k in evaluation.KS:
-                cell = payload["scan_cluster"][method][str(k)]
+                cell = payload["bootstrap_intervals"][method][str(k)]
                 rows.append(
                     {
                         "source": source,
                         "method": method,
                         "k": k,
                         "recall": cell["recall"]["point"],
-                        "recall_ci_low": cell["recall"]["scan_cluster_ci95"][0],
-                        "recall_ci_high": cell["recall"]["scan_cluster_ci95"][1],
+                        "recall_ci_low": cell["recall"]["bootstrap_intervals_ci95"][0],
+                        "recall_ci_high": cell["recall"]["bootstrap_intervals_ci95"][1],
                         "violation": cell["violation_all"]["point"],
-                        "violation_ci_low": cell["violation_all"]["scan_cluster_ci95"][0],
-                        "violation_ci_high": cell["violation_all"]["scan_cluster_ci95"][1],
+                        "violation_ci_low": cell["violation_all"]["bootstrap_intervals_ci95"][0],
+                        "violation_ci_high": cell["violation_all"]["bootstrap_intervals_ci95"][1],
                     }
                 )
     return rows
@@ -499,7 +499,7 @@ def markdown(summary: dict[str, Any]) -> str:
         "| --- | --- | ---: | ---: | ---: | ---: |",
     ]
     for source in ("vlsat", "open3dsg", "sgfn"):
-        payload = summary["sources"][source]["scan_cluster"]
+        payload = summary["sources"][source]["bootstrap_intervals"]
         for method in CONDITIONS:
             cell = payload[method]["50"]
             delta = payload["deltas_vs_source_score"][method]["50"]
@@ -526,22 +526,22 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_held_out_primitive_refit_and_evaluation":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     missing = [name for name, path in paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
-    if sha256(paths["main_models"]) != protocol["locked_hashes"]["main_models_sha256"]:
+    if sha256(paths["main_models"]) != protocol["expected_hashes"]["main_models_sha256"]:
         raise ValueError("main_model_hash_mismatch")
-    if sha256(paths["strict_models"]) != protocol["locked_hashes"]["strict_models_sha256"]:
-        raise ValueError("strict_model_hash_mismatch")
+    if sha256(paths["base_models"]) != protocol["expected_hashes"]["base_models_sha256"]:
+        raise ValueError("base_model_hash_mismatch")
 
     train_scans = read_scans(paths["train_scans"])
-    dev_scans = read_scans(paths["internal_dev_scans"])
+    dev_scans = read_scans(paths["development_scans"])
     final_scans = read_scans(paths["final_validation_scans"])
     if train_scans & dev_scans or train_scans & final_scans or dev_scans & final_scans:
-        raise ValueError("split_firewall_overlap")
+        raise ValueError("data_split_overlap")
     table_rows = calibration.load_jsonl(paths["calibration_table"])
     leaked = sorted({row["scan_id"] for row in table_rows} & final_scans)
     if leaked:
@@ -549,14 +549,14 @@ def main() -> int:
     prepared, warnings = calibration.prepare_rows(
         table_rows, train_scans, dev_scans, set(FAMILIES)
     )
-    strict_models = json.loads(paths["strict_models"].read_text(encoding="utf-8"))
+    base_models = json.loads(paths["base_models"].read_text(encoding="utf-8"))
     main_models = json.loads(paths["main_models"].read_text(encoding="utf-8"))
     held_out_models, scorers = fit_conditions(
-        prepared, strict_models, main_models, protocol
+        prepared, base_models, main_models, protocol
     )
     diagnostics = calibration_diagnostics(prepared, scorers)
 
-    gt, gt_family = strict.load_gt(paths["ground_truth"])
+    gt, gt_family = model_eval.load_gt(paths["ground_truth"])
     official_annotations = json.loads(
         paths["official_context_annotations"].read_text(encoding="utf-8")
     )
@@ -599,9 +599,9 @@ def main() -> int:
     for source, payload in sources.items():
         for k in evaluation.KS:
             for metric in METRICS:
-                actual = payload["scan_cluster"]["main_route"][str(k)][metric]["point"]
+                actual = payload["bootstrap_intervals"]["main_route"][str(k)][metric]["point"]
                 if source == "open3dsg":
-                    expected_point = open3dsg_reference["routes"]["official_strict_full_548"]["overall"]["family_slot_rerank"][str(k)][metric]["point"]
+                    expected_point = open3dsg_reference["routes"]["official_full_548"]["overall"]["family_slot_rerank"][str(k)][metric]["point"]
                 else:
                     expected_point = routing_reference["sources"][source]["overall"]["family_slot_rerank"][str(k)][metric]["point"]
                 main_route_matches_reference &= abs(actual - expected_point) <= 1e-12
@@ -624,7 +624,7 @@ def main() -> int:
         "split_sets_pairwise_disjoint": not (train_scans & dev_scans or train_scans & final_scans or dev_scans & final_scans),
         "zero_final_validation_rows_in_fit": not leaked,
         "train_rows_60208": sum(row["_role"] == "train" for row in prepared) == 60208,
-        "internal_dev_rows_6246": sum(row["_role"] == "dev" for row in prepared) == 6246,
+        "development_rows_6246": sum(row["_role"] == "dev" for row in prepared) == 6246,
         "exact_verifier_scalars_absent": exact_scalar_absent,
         "primitive_families_absent": primitive_family_absent,
         "no_source_features": all(
@@ -656,16 +656,16 @@ def main() -> int:
             sources[source]["counts"]["in_scope_rows"] == count
             for source, count in expected.items()
         ),
-        "main_route_point_estimates_match_promoted_references": main_route_matches_reference,
+        "main_results_match_reported_results": main_route_matches_reference,
         "all_k_and_conditions_reported": all(
-            set(payload["scan_cluster"][method]) == {str(k) for k in evaluation.KS}
+            set(payload["bootstrap_intervals"][method]) == {str(k) for k in evaluation.KS}
             for payload in sources.values()
             for method in METHODS
         ),
     }
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_held_out_primitive_evaluation_v1",
+        "schema_version": "relcompat3d_relcompat3d_feature_removal_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "classification": protocol["classification"],
@@ -674,7 +674,7 @@ def main() -> int:
         "diagnostics": diagnostics,
         "sources": sources,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     out.mkdir(parents=True, exist_ok=True)
     models_path = out / "models.json"
@@ -682,7 +682,7 @@ def main() -> int:
     markdown_path = out / "summary.md"
     metrics_path = out / "metrics.csv"
     write_json(models_path, {
-        "schema_version": "relcompat3d_held_out_primitive_models_v1",
+        "schema_version": "relcompat3d_feature_removal_models_v1",
         "models": held_out_models,
         "source_score_input": False,
         "source_identity_input": False,
@@ -692,7 +692,7 @@ def main() -> int:
     write_csv(metrics_path, csv_rows(sources))
     outputs = (models_path, summary_path, markdown_path, metrics_path)
     manifest = {
-        "schema_version": "relcompat3d_held_out_primitive_manifest_v1",
+        "schema_version": "relcompat3d_feature_removal_manifest_v1",
         "created_at_utc": summary["created_at_utc"],
         "status": status,
         "protocol": {"path": relpath(root, protocol_path), "sha256": sha256(protocol_path)},
@@ -704,7 +704,7 @@ def main() -> int:
             path.name: {"path": relpath(root, path), "sha256": sha256(path)} for path in outputs
         },
         "validations": validations,
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm held_out_primitive_evaluation",
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_feature_removal",
     }
     write_json(out / "manifest.json", manifest)
     print(json.dumps({"status": status, "validations": validations, "out": relpath(root, out)}))

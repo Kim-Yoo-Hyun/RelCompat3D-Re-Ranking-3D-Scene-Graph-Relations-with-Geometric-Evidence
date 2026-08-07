@@ -332,7 +332,7 @@ def adapt_open3dsg(
         context = context_lookup.get(subgraph_id)
         if context is None:
             # Official Open3DSG dumps may also contain non-evaluation contexts.
-            # The frozen evaluation universe is defined by the 3DSSG subset.
+            # The fixed evaluation universe is defined by the 3DSSG subset.
             continue
         edge = raw["edge"]
         subject_id, object_id = int(edge["subject_id"]), int(edge["object_id"])

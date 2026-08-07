@@ -1,0 +1,98 @@
+{
+  "created_at_utc": "2026-07-19T20:13:40.296331+00:00",
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_evaluate_linear",
+  "inputs": {
+    "final_validation_scans": {
+      "path": "experiments/relcompat3d/training/splits/final_validation_scans.txt",
+      "sha256": "3687b892938c25a44a07d6e0e26788b98ffe5c5319f04407d446247c2a67e7e4",
+      "size_bytes": 5809
+    },
+    "ground_truth": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c",
+      "size_bytes": 7443974
+    },
+    "development_scans": {
+      "path": "experiments/relcompat3d/training/splits/development_scans.txt",
+      "sha256": "25fb5aba714b0c9bf00f36b04fb890de6dd4a197628dd179812189511c01343b",
+      "size_bytes": 4329
+    },
+    "open3dsg_verification": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+      "sha256": "89ab2324654d07e8c2bde2c4aec3b5bdf9b916898b7e0bb40d4f9c582d58c58e",
+      "size_bytes": 2628812470
+    },
+    "relation_diagnostics": {
+      "path": "experiments/relcompat3d/main/fit/development_metrics.json",
+      "sha256": "86b4c6348bde098d1d474bab65b50bb9b4b51564b2a6bce0b84197dfd554ee7f",
+      "size_bytes": 16127
+    },
+    "relation_manifest": {
+      "path": "experiments/relcompat3d/main/fit/manifest.json",
+      "sha256": "c79682efbde74d0581a99f17aceac3e8acfd53e57672bd84ab3e058ae9a75d7f",
+      "size_bytes": 4178
+    },
+    "sgfn_verification": {
+      "path": "experiments/relcompat3d/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32",
+      "size_bytes": 3574769466
+    },
+    "base_models": {
+      "path": "experiments/relcompat3d/main/fit/base_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2",
+      "size_bytes": 44819
+    },
+    "linear_models": {
+      "path": "experiments/relcompat3d/main/fit/linear_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194",
+      "size_bytes": 84377
+    },
+    "train_scans": {
+      "path": "experiments/relcompat3d/training/splits/train_scans.txt",
+      "sha256": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53",
+      "size_bytes": 39257
+    },
+    "vlsat_verification": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd",
+      "size_bytes": 3510883578
+    }
+  },
+  "outputs": {
+    "metrics.csv": {
+      "path": "experiments/relcompat3d/main/evaluation/all_family_comparison/metrics.csv",
+      "sha256": "bfc8105018235862a7f6edeac5bd44b2b00279af3bf56e30ca14b1627d2f8408"
+    },
+    "summary.json": {
+      "path": "experiments/relcompat3d/main/evaluation/all_family_comparison/summary.json",
+      "sha256": "31ddfd721630d4dc058617dcc833ef702c5ba30a7aa6aaf92ff0ac0d149874a2"
+    },
+    "summary.md": {
+      "path": "experiments/relcompat3d/main/evaluation/all_family_comparison/summary.md",
+      "sha256": "2b03581b6b4bc8096745a3606d7920f6c73b93d5289333d9e656d4e5c8aeaa8c"
+    },
+    "uncertainty.csv": {
+      "path": "experiments/relcompat3d/main/evaluation/all_family_comparison/uncertainty.csv",
+      "sha256": "ff7965a6341a4bfdb66ea97a7d09858e075b03501314eb50445aec41a15ae8a6"
+    }
+  },
+  "protocol": {
+    "path": "experiments/relcompat3d/main/protocols/all_family_comparison.json",
+    "sha256": "6ecdfa9325460ebd72a306bc61e8cce590a1c7bd07e089d2051e9e1b68124ab5"
+  },
+  "schema_version": "relcompat3d_all_family_comparison_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_k_reported": true,
+    "all_methods_reported": true,
+    "familywise_intervals_reported": true,
+    "hard_filter_has_zero_violations": true,
+    "source_context_and_transform_checks": true,
+    "source_row_counts": true,
+    "split_counts_1061_117_157": true,
+    "split_sets_pairwise_disjoint": true,
+    "base_model_schema": true,
+    "linear_model_excludes_source": true,
+    "linear_model_hash_matches": true
+  }
+}

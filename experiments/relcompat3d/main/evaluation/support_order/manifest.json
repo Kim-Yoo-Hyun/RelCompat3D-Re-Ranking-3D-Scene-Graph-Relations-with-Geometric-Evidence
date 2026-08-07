@@ -1,0 +1,65 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_support_order",
+  "inputs": {
+    "final_ground_truth": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "development_ground_truth": {
+      "path": "experiments/relcompat3d/training/development_ground_truth.jsonl",
+      "sha256": "3425be6aba974345a8aadc279b06e6a56dca6407c123ad45374adcfc137e199b"
+    },
+    "development_verification": {
+      "path": "experiments/relcompat3d/training/development/geometry/verification.jsonl",
+      "sha256": "458bdf95447052bd71f297ce2c2a0ee70af84447c75e56201180f58106e18618"
+    },
+    "open3dsg_verification": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+      "sha256": "89ab2324654d07e8c2bde2c4aec3b5bdf9b916898b7e0bb40d4f9c582d58c58e"
+    },
+    "sgfn_verification": {
+      "path": "experiments/relcompat3d/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+    },
+    "base_models": {
+      "path": "experiments/relcompat3d/main/fit/base_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2"
+    },
+    "linear_models": {
+      "path": "experiments/relcompat3d/main/fit/linear_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    },
+    "vlsat_verification": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+    }
+  },
+  "outputs": {
+    "metrics.csv": {
+      "path": "experiments/relcompat3d/main/evaluation/support_order/metrics.csv",
+      "sha256": "d1b9e3f199c89fc18735a66f4611ca44ecd72ad3b4fee0a61d95b9aeb926af9d"
+    },
+    "summary.json": {
+      "path": "experiments/relcompat3d/main/evaluation/support_order/summary.json",
+      "sha256": "fdeba11eccb373e4ec0683b9cd5c5963a4c40908b9a3c4e08a62f387f12d9164"
+    },
+    "summary.md": {
+      "path": "experiments/relcompat3d/main/evaluation/support_order/summary.md",
+      "sha256": "daff874180d21ea8b2441c6609877a81f8e6369185f2ea055f8ff3115820fd28"
+    }
+  },
+  "protocol": {
+    "path": "experiments/relcompat3d/main/protocols/support_order.json",
+    "sha256": "6eb02566afd8083a8b1e56da9be62d8ab4782d5e478572588d5538a43bb44e27"
+  },
+  "schema_version": "relcompat3d_relcompat3d_support_order_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_final_support_contact_slices_exact": true,
+    "all_sources_evaluated": true,
+    "inputs_exist": true,
+    "development_family_composition_exact": true,
+    "development_gate_selected_family_slot_rerank": true,
+    "development_support_selection_exact": true
+  }
+}

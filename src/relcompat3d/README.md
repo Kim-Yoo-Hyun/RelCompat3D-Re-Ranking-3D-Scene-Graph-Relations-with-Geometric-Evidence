@@ -8,9 +8,9 @@ modules use file-relative imports and the packages pinned in
 
 ## Functional Groups
 
-- Training: `build_training_rows.py`, `fit_train_only.py`, `fit_linear.py`,
-  `fit_mlp.py`, and `fit_factor_controls.py`.
-  `fit_train_only.py` creates the base feature template and training-split
+- Training: `build_training_rows.py`, `input_features.py`,
+  `fit_base_models.py`, `fit_linear.py`, and `fit_mlp.py`.
+  `fit_base_models.py` creates the base feature template and training-split
   normalization statistics. `fit_linear.py` and `fit_mlp.py` provide
   `--fit-only` for fitting from a locally regenerated calibration table without
   source-predictor evaluation.
@@ -25,20 +25,20 @@ modules use file-relative imports and the packages pinned in
   source revision, data coverage, and development-loss selection checks.
 - Core logic: `compatibility_features.py`, `relation_consistency.py`,
   `control_utils.py`, `evaluate_metrics.py`, and `paths.py`.
-- Main evaluation: `evaluate_public.py`, `evaluate_main.py`, `evaluate_comparators.py`,
+- Main evaluation: `evaluate_predictions.py`, `evaluate_all_families.py`, `evaluate_comparators.py`,
   `evaluate_linear_controls.py`, `evaluate_mlp_controls.py`, and
   `evaluate_component_removals.py`.
 - Family and uncertainty checks: `evaluate_support_order.py`,
-  `evaluate_support_intervals.py`, and `evaluate_scan_intervals.py`.
-- Construct checks: `audit_point_mesh.py`, `audit_mlp_point_mesh.py`,
+  `evaluate_support_bootstrap.py`, and `evaluate_bootstrap_intervals.py`.
+- Measurement checks: `audit_point_mesh.py`, `audit_mlp_point_mesh.py`,
   `evaluate_feature_removal.py`, `evaluate_counterfactuals.py`, and
-  `build_construct_package.py`.
-- Additional evidence: `evaluate_score_robustness.py`,
+  `build_measurement_analysis.py`.
+- Additional analyses: `evaluate_score_robustness.py`,
   `evaluate_routing_constraints.py`, `evaluate_components.py`,
-  `evaluate_seeds.py`, `benchmark_runtime.py`, `evaluate_open3dsg.py`, and
+  `evaluate_seeds.py`, `benchmark_runtime.py`, `evaluate_open3dsg_coverage.py`, and
   `evaluate_transfer.py`. Shared training-control helpers are in
   `training_control_utils.py`.
-- Row-level verification: `build_reproduction_rows.py`,
+- Table generation: `build_reproduction_rows.py`,
   `reproduce_from_rows.py`, and `evaluate_candidate_oracle.py`.
 - Local identifier setup: `create_local_key.py` creates the private key used
   only for local table-row identifiers.
@@ -97,9 +97,9 @@ Each adjacent `predictions.manifest.json` records input and output hashes, row
 counts, context counts, and identity checks. The adapters neither normalize
 source scores nor create missing edges.
 
-After restriction to the evaluated relation families, the frozen paper inputs
-contain 220,848 VL-SAT rows, 159,444 Open3DSG rows, and 220,848 SGFN rows. The
-adapters reproduce these counts, ordered-pair identities, and source scores.
+After restriction to the evaluated relation families, the reported inputs contain
+220,848 VL-SAT rows, 159,444 Open3DSG rows, and 220,848 SGFN rows. The adapters
+reproduce these counts, ordered-pair identities, and source scores.
 Open3DSG hexadecimal split suffixes are converted to the integer split
 identifiers used by 3DSSG.
 
@@ -110,13 +110,13 @@ record its SHA-256 digest with the prediction run.
 ### Geometry join
 
 The files above contain standardized source predictions. The corresponding
-`verification.jsonl` files add ordered-pair measurements and frozen verifier
+`verification.jsonl` files add ordered-pair measurements and reported verifier
 outputs. `build_verification_rows.py` reads `semseg.v2.json` OBBs and
 `labels.instances.annotated.v2.ply` instance points from officially obtained
-3RScan scans. It preserves every candidate row and applies the frozen
+3RScan scans. It preserves every candidate row and applies the reported
 proximity, vertical-order, and subtype-aware support/contact rules.
 
-The public wrapper runs the adapters, ground-truth export, and all three joins:
+The pipeline runs the adapters, ground-truth export, and all three joins:
 
 ```bash
 scripts/run_pipeline.sh prepare

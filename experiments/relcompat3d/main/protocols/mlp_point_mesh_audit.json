@@ -1,0 +1,82 @@
+{
+  "schema_version": "relcompat3d_relcompat3d_mlp_point_mesh_audit_protocol_v1",
+  "created_at_kst": "2026-07-20",
+  "status": "ready",
+  "purpose": "Apply the already fixed raw-surface construct audit to RelCompat3D-MLP selections without changing thresholds, statuses, relation scope, or ranking parameters.",
+  "parent_protocol": "experiments/relcompat3d/main/protocols/point_mesh_audit.json",
+  "scope": {
+    "target": "official 157-scan, 548-context 3DSSG validation universe",
+    "sources": ["vlsat", "open3dsg", "sgfn"],
+    "primary_families": ["proximity", "relative_vertical"],
+    "methods": ["source", "relcompat3d_mlp"],
+    "ks": [5, 10, 20, 50, 100]
+  },
+  "point_mesh_config": {
+    "maximum_vertices_per_object": 128,
+    "maximum_triangles_per_object": 96,
+    "minimum_metric_scale_m": 0.05,
+    "thresholds": "reuse the point/mesh thresholds fitted exclusively on the fixed 1,061-scan training split",
+    "additional_measurements": "measure only MLP-selected ordered pairs absent from the precomputed Source/Linear union, using the unchanged surface estimators"
+  },
+  "synthetic_intervention": {
+    "selection": "reuse the fixed 1,024 mechanism cases from the linear audit",
+    "levels_in_pair_scale_units": [0.0, 0.5, 1.0, 2.0],
+    "reported": "MLP compatibility monotonicity and endpoint change"
+  },
+  "uncertainty": {
+    "bootstrap_unit": "scan_id cluster",
+    "resamples": 1000,
+    "seed": 20260717,
+    "shared_scan_indices": "the same resampling seed and 157-scan universe as the linear audit"
+  },
+  "inputs": {
+    "nonlinear_models": {
+      "path": "experiments/relcompat3d/main/evaluation/mlp/models.json",
+      "sha256": "ccf4107c06d95161df8ecb1948b37f781025407d7b3596ddd6886394a2976c3e"
+    },
+    "linear_models": {
+      "path": "experiments/relcompat3d/main/fit/linear_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    },
+    "routed_comparator_summary": {
+      "path": "experiments/relcompat3d/main/evaluation/ranking_baselines/summary.json",
+      "sha256": "de89026f74375668b36b870af3e512be8e766baf9b0bc5bd5d4248c516df0ba1"
+    },
+    "thresholds": {
+      "path": "experiments/relcompat3d/main/evaluation/point_mesh_audit/thresholds.json",
+      "sha256": "b37bc6189b3a201d3a99f19640896ebe79f61a4f51aecf32396b88ba154a7437"
+    },
+    "evaluation_measurements": {
+      "path": "experiments/relcompat3d/main/evaluation/point_mesh_audit/evaluation_measurements.jsonl",
+      "sha256": "6faaf68264660c7122fe1f307cb7cf2b24247c08d4725cde60ee3d2b55f1831c"
+    },
+    "mechanism_cases": {
+      "path": "experiments/relcompat3d/main/evaluation/point_mesh_audit/mechanism_rows.csv",
+      "sha256": "c660be81f4230392a4edbd1ea9caa62f6d6f85a3867612590c953a33b2dcd0e3"
+    },
+    "ground_truth": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "official_context_annotations": {
+      "path": "local_dataset/3DSSG_subset/relationships_validation.json",
+      "sha256": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e"
+    },
+    "vlsat_verification": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+    },
+    "open3dsg_verification": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/geometry/verification.jsonl",
+      "sha256": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720"
+    },
+    "sgfn_verification": {
+      "path": "experiments/relcompat3d/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+    },
+    "raw_scan_root": {
+      "path": "local_dataset/3RScan/scans"
+    }
+  },
+  "evaluation_scope": "This reuses the fixed automatic point/mesh construct and adds no human or cross-sensor ground truth. Agreement across Linear and MLP selections supports capacity robustness of the framework, not universal physical validity or dataset-level generalization."
+}

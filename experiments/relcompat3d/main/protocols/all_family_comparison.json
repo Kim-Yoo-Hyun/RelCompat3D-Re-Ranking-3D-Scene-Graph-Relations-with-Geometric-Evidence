@@ -1,0 +1,95 @@
+{
+  "evaluation_scope": {
+    "allowed": "source-level evidence across VL-SAT, Open3DSG, and SGFN on one fixed geometry-identifiable 3DSSG target",
+    "blocked": [
+      "dataset-level generalization",
+      "prospective or untouched-target wording",
+      "universally optimal fusion",
+      "best-rescorer claim",
+      "independent human physical validity",
+      "support/contact solved claim"
+    ]
+  },
+  "classification": "main_fixed_model_benchmark_evaluation",
+  "created_at_kst": "2026-07-20",
+  "evaluation": {
+    "bootstrap_resamples": 1000,
+    "bootstrap_seed": 20260713,
+    "bootstrap_unit": "relation context",
+    "contexts": 548,
+    "exact_label_denominator": 3972,
+    "families": [
+      "support_contact",
+      "proximity",
+      "relative_vertical"
+    ],
+    "hard_filter_synthetic_fill": false,
+    "ks": [
+      5,
+      10,
+      20,
+      50,
+      100
+    ],
+    "primary_k": 100,
+    "report": [
+      "overall Recall and verifier Violation with paired confidence intervals",
+      "within-family metrics with simultaneous family-wise intervals",
+      "global-top-K family composition",
+      "decidable-only violation, uncertainty rate, pessimistic violation, decidable coverage, and status coverage",
+      "proximity swap and vertical inverse-equivariance errors",
+      "linked counterfactual ordering"
+    ],
+    "shared_indices_within_source": true,
+    "sources": [
+      "vlsat",
+      "open3dsg",
+      "sgfn"
+    ],
+    "target": "3DSSG/3RScan official validation scope",
+    "violation_all": "violated/(satisfied+uncertain+violated)"
+  },
+  "inputs": {
+    "final_validation_scans": "experiments/relcompat3d/training/splits/final_validation_scans.txt",
+    "ground_truth": "experiments/relcompat3d/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+    "development_scans": "experiments/relcompat3d/training/splits/development_scans.txt",
+    "open3dsg_verification": "experiments/relcompat3d/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+    "relation_diagnostics": "experiments/relcompat3d/main/fit/development_metrics.json",
+    "relation_manifest": "experiments/relcompat3d/main/fit/manifest.json",
+    "sgfn_verification": "experiments/relcompat3d/sources/sgfn/geometry/verification.jsonl",
+    "base_models": "experiments/relcompat3d/main/fit/base_models.json",
+    "linear_models": "experiments/relcompat3d/main/fit/linear_models.json",
+    "train_scans": "experiments/relcompat3d/training/splits/train_scans.txt",
+    "vlsat_verification": "experiments/relcompat3d/sources/vlsat/full_validation/geometry/verification.jsonl"
+  },
+  "main_compatibility": {
+    "artifact_id": "main_orbit_pairwise_projected",
+    "definition": "family-specific logistic compatibility without a family-indicator input, trained with the unchanged BCE, relation-preserving augmentation, and linked-counterfactual margin; inference transformation averaging and family-aware score use are unchanged",
+    "model_bundle_sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194",
+    "paper_name": "relation-algebra-constrained compatibility",
+    "source_identity_input": false,
+    "source_score_input": false,
+    "source_specific_exact_label_input": false,
+    "base_fit": "1061 training scans only; training-only normalization and imputation"
+  },
+  "methods": {
+    "family_product_continuity": "Z times the previous strict train-only family-specific compatibility",
+    "hard_rule_filter": "rank by Z after retaining only point_subtype statuses satisfied or uncertain",
+    "pooled_product": "Z times strict train-only pooled interaction calibrator M_int",
+    "source": "original source relation score Z",
+    "compatibility_only_all_families": "C_alg without Z",
+    "all_family_product": "Z times relation-algebra-constrained compatibility C_alg",
+    "rank_average_all_families": "equal mean of deterministic within-context percentile ranks of Z and C_alg",
+    "rrf_all_families": "1/(60+rank_Z) + 1/(60+rank_C_alg)"
+  },
+  "model_selection": "experiments/relcompat3d/main/fit/model_selection.json",
+  "schema_version": "relcompat3d_all_family_comparison_protocol_v1",
+  "data_splits": {
+    "final_validation_rows_in_compatibility_fit": 0,
+    "final_validation_scans": 157,
+    "development_scans": 117,
+    "sets_pairwise_disjoint": true,
+    "train_scans": 1061
+  },
+  "status": "ready"
+}

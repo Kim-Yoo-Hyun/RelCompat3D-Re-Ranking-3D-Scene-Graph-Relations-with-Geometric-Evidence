@@ -1,0 +1,353 @@
+{
+  "evaluation_scope": "The package documents partial construct dependence and verifies the existing sensitivity evidence. It does not convert verifier-derived Violation into independent physical-validity ground truth, add human labels, or support dataset-level generalization.",
+  "claims": {
+    "component_removals": {
+      "conditions": [
+        "full_linear",
+        "no_pairwise_loss",
+        "no_transformation_averaging",
+        "source"
+      ],
+      "ks": [
+        5,
+        10,
+        20,
+        50,
+        100
+      ],
+      "rows": 60,
+      "sources": [
+        "open3dsg",
+        "sgfn",
+        "vlsat"
+      ]
+    },
+    "counterfactual_sensitivity": {
+      "conditions": [
+        "default",
+        "negative_cap_1",
+        "negative_cap_4",
+        "pair_weight_0.125",
+        "pair_weight_0.5",
+        "proximity_2.0",
+        "proximity_3.0",
+        "vertical_0.20m",
+        "vertical_0.30m"
+      ],
+      "ks": [
+        5,
+        10,
+        20,
+        50,
+        100
+      ],
+      "rows": 135,
+      "sources": [
+        "open3dsg",
+        "sgfn",
+        "vlsat"
+      ]
+    },
+    "feature_removal": {
+      "conditions": [
+        "alternative_evidence_only",
+        "exact_scalar_held_out",
+        "main_route",
+        "primitive_family_held_out",
+        "source"
+      ],
+      "expected_conditions_present": true,
+      "ks": [
+        5,
+        10,
+        20,
+        50,
+        100
+      ],
+      "rows": 75,
+      "sources": [
+        "open3dsg",
+        "sgfn",
+        "vlsat"
+      ]
+    },
+    "point_mesh_linear": {
+      "cells": 15,
+      "maximum_delta": 0.0,
+      "minimum_delta": -0.819469910683687,
+      "negative_delta_cells": 14,
+      "paired_ci_strictly_below_zero_cells": 14,
+      "positive_delta_cells": 0,
+      "tied_delta_cells": 1
+    },
+    "point_mesh_mlp": {
+      "cells": 15,
+      "maximum_delta": 0.0,
+      "minimum_delta": -0.6635767363008661,
+      "negative_delta_cells": 14,
+      "paired_ci_strictly_below_zero_cells": 14,
+      "positive_delta_cells": 0,
+      "tied_delta_cells": 1
+    },
+    "uncertainty_policy": {
+      "cells": 30,
+      "comparisons": [
+        {
+          "decidable_delta": -0.001699234731579308,
+          "estimator": "linear",
+          "k": 5,
+          "pessimistic_delta": -0.001824817518248173,
+          "primary_delta": -0.00145985401459854,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.0029839375306568152,
+          "estimator": "linear",
+          "k": 10,
+          "pessimistic_delta": -0.0027372262773722456,
+          "primary_delta": -0.0025547445255474453,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.003486279802069274,
+          "estimator": "linear",
+          "k": 20,
+          "pessimistic_delta": -0.002828467153284664,
+          "primary_delta": -0.002828467153284671,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.009606928018075389,
+          "estimator": "linear",
+          "k": 50,
+          "pessimistic_delta": -0.005802919708029208,
+          "primary_delta": -0.007007299270072993,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.027718295155621804,
+          "estimator": "linear",
+          "k": 100,
+          "pessimistic_delta": -0.017262773722627744,
+          "primary_delta": -0.018156934306569342,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.0016985138004246285,
+          "estimator": "mlp",
+          "k": 5,
+          "pessimistic_delta": -0.001459854014598555,
+          "primary_delta": -0.00145985401459854,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.0036292596252345682,
+          "estimator": "mlp",
+          "k": 10,
+          "pessimistic_delta": -0.004197080291970801,
+          "primary_delta": -0.003102189781021898,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.004063742821443632,
+          "estimator": "mlp",
+          "k": 20,
+          "pessimistic_delta": -0.004197080291970828,
+          "primary_delta": -0.003284671532846714,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.010886045732679362,
+          "estimator": "mlp",
+          "k": 50,
+          "pessimistic_delta": -0.00864963503649635,
+          "primary_delta": -0.007883211678832117,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.027597220201946264,
+          "estimator": "mlp",
+          "k": 100,
+          "pessimistic_delta": -0.01859489051094898,
+          "primary_delta": -0.01801094890510949,
+          "source": "vlsat"
+        },
+        {
+          "decidable_delta": -0.7129836105258482,
+          "estimator": "linear",
+          "k": 5,
+          "pessimistic_delta": -0.5962476547842401,
+          "primary_delta": -0.5110694183864916,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": -0.4396993663910957,
+          "estimator": "linear",
+          "k": 10,
+          "pessimistic_delta": -0.3566604127579738,
+          "primary_delta": -0.30562851782363976,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": -0.26033966455880825,
+          "estimator": "linear",
+          "k": 20,
+          "pessimistic_delta": -0.21463414634146344,
+          "primary_delta": -0.17861163227016885,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": -0.1731109865795782,
+          "estimator": "linear",
+          "k": 50,
+          "pessimistic_delta": -0.12753416428893238,
+          "primary_delta": -0.10448265505331131,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": -0.15784844192766623,
+          "estimator": "linear",
+          "k": 100,
+          "pessimistic_delta": -0.0993289102417449,
+          "primary_delta": -0.09176008541142378,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": -0.6541098893243238,
+          "estimator": "mlp",
+          "k": 5,
+          "pessimistic_delta": -0.4547842401500939,
+          "primary_delta": -0.47091932457786123,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": -0.3981077610834038,
+          "estimator": "mlp",
+          "k": 10,
+          "pessimistic_delta": -0.2651031894934334,
+          "primary_delta": -0.2791744840525328,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": -0.23711768712404913,
+          "estimator": "mlp",
+          "k": 20,
+          "pessimistic_delta": -0.1604127579737336,
+          "primary_delta": -0.16435272045028143,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": -0.15966905377550983,
+          "estimator": "mlp",
+          "k": 50,
+          "pessimistic_delta": -0.0988136356810333,
+          "primary_delta": -0.09742453821895179,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": -0.14784832706175416,
+          "estimator": "mlp",
+          "k": 100,
+          "pessimistic_delta": -0.07654617555098003,
+          "primary_delta": -0.0870128879737665,
+          "source": "open3dsg"
+        },
+        {
+          "decidable_delta": 0.0,
+          "estimator": "linear",
+          "k": 5,
+          "pessimistic_delta": 0.0,
+          "primary_delta": 0.0,
+          "source": "sgfn"
+        },
+        {
+          "decidable_delta": -0.00032356108763249153,
+          "estimator": "linear",
+          "k": 10,
+          "pessimistic_delta": -0.0007299270072992914,
+          "primary_delta": -0.0001824817518248159,
+          "source": "sgfn"
+        },
+        {
+          "decidable_delta": -0.004024938093423663,
+          "estimator": "linear",
+          "k": 20,
+          "pessimistic_delta": -0.003284671532846617,
+          "primary_delta": -0.002463503649635032,
+          "source": "sgfn"
+        },
+        {
+          "decidable_delta": -0.01909581418169938,
+          "estimator": "linear",
+          "k": 50,
+          "pessimistic_delta": -0.011240875912408799,
+          "primary_delta": -0.012153284671532847,
+          "source": "sgfn"
+        },
+        {
+          "decidable_delta": -0.04396817367774531,
+          "estimator": "linear",
+          "k": 100,
+          "pessimistic_delta": -0.020894160583941668,
+          "primary_delta": -0.027956204379562047,
+          "source": "sgfn"
+        },
+        {
+          "decidable_delta": -1.71555469689888e-05,
+          "estimator": "mlp",
+          "k": 5,
+          "pessimistic_delta": -0.00036496350364967345,
+          "primary_delta": 0.0,
+          "source": "sgfn"
+        },
+        {
+          "decidable_delta": -0.00032356108763249153,
+          "estimator": "mlp",
+          "k": 10,
+          "pessimistic_delta": -0.0007299270072992914,
+          "primary_delta": -0.0001824817518248159,
+          "source": "sgfn"
+        },
+        {
+          "decidable_delta": -0.004532735261867642,
+          "estimator": "mlp",
+          "k": 20,
+          "pessimistic_delta": -0.006295620437956173,
+          "primary_delta": -0.0026459854014598515,
+          "source": "sgfn"
+        },
+        {
+          "decidable_delta": -0.020220642804486495,
+          "estimator": "mlp",
+          "k": 50,
+          "pessimistic_delta": -0.01587591240875913,
+          "primary_delta": -0.012700729927007298,
+          "source": "sgfn"
+        },
+        {
+          "decidable_delta": -0.04413946557115945,
+          "estimator": "mlp",
+          "k": 100,
+          "pessimistic_delta": -0.02308394160583943,
+          "primary_delta": -0.027937956204379562,
+          "source": "sgfn"
+        }
+      ],
+      "decidable_nonincreasing_cells": 30,
+      "pessimistic_nonincreasing_cells": 30,
+      "primary_nonincreasing_cells": 30
+    }
+  },
+  "created_at_utc": "2026-08-02T16:01:46.118313+00:00",
+  "schema_version": "relcompat3d_measurement_analysis_package_v1",
+  "status": "completed",
+  "validations": {
+    "all_input_hashes_match": true,
+    "all_manifests_completed": true,
+    "all_uncertainty_policies_nonincreasing": true,
+    "dependency_matrix_complete": true,
+    "feature_removal_conditions_present": true,
+    "linear_point_mesh_all_cells_nonpositive": true,
+    "mlp_point_mesh_all_cells_nonpositive": true
+  }
+}

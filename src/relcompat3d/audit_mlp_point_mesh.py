@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply the frozen point/mesh audit to RelCompat3D-MLP selections."""
+"""Apply the fixed point/mesh audit to RelCompat3D-MLP selections."""
 
 from __future__ import annotations
 
@@ -15,9 +15,9 @@ from typing import Any
 import numpy as np
 
 import audit_point_mesh as audit
-import evaluate_main as base
+import evaluate_all_families as base
 import fit_mlp as nonlinear
-import evaluate_train_only as strict
+import evaluate_base_models as model_eval
 
 
 def parse_args() -> argparse.Namespace:
@@ -43,15 +43,15 @@ def load_measurements(path: Path) -> dict[tuple[str, int, int], dict[str, Any]]:
 def add_mlp_ranking(grouped: dict[str, list[dict[str, Any]]]) -> None:
     for candidates in grouped.values():
         source_order = sorted(
-            candidates, key=lambda row: (-row["scores"]["source_score"], row["key"])
+            candidates, key=lambda row: (-row["scores"]["source"], row["key"])
         )
         queues: dict[str, list[dict[str, Any]]] = {}
         for family in base.FAMILIES:
             rows = [row for row in candidates if row["family"] == family]
             score_name = (
-                "source_score"
+                "source"
                 if family == "support_contact"
-                else "shared_nonlinear_structured_product"
+                else "shared_mlp_pairwise_product"
             )
             queues[family] = sorted(
                 rows, key=lambda row: (-row["scores"][score_name], row["key"])
@@ -81,7 +81,7 @@ def load_rankings(
     for context in contexts:
         rows = grouped.get(context, [])
         source = sorted(
-            rows, key=lambda row: (-row["scores"]["source_score"], row["key"])
+            rows, key=lambda row: (-row["scores"]["source"], row["key"])
         )[:100]
         reranked = sorted(
             rows, key=lambda row: (-row["scores"]["relcompat3d"], row["key"])
@@ -131,7 +131,7 @@ def load_case_rows(
                 "subject_id": int(row["edge"]["subject_id"]),
                 "object_id": int(row["edge"]["object_id"]),
             }
-            features[prediction_id] = strict.raw_numeric(row)
+            features[prediction_id] = model_eval.raw_numeric(row)
             if len(identities) == len(target_ids):
                 break
     return identities, features
@@ -227,7 +227,7 @@ def markdown(summary: dict[str, Any]) -> str:
         "",
         f"Status: `{summary['status']}`",
         "",
-        "The frozen point, mesh, and strict-consensus statuses are applied to RelCompat3D-MLP selections. Their absolute values are not directly comparable to the primary OBB-derived Violation metric.",
+        "The fixed point, mesh, and strict-consensus statuses are applied to RelCompat3D-MLP selections. Their absolute values are not directly comparable to the primary OBB-derived Violation metric.",
         "",
         "| Predictor | K | Source consensus V | RelCompat3D-MLP consensus V | Change (95% scan-cluster CI) | MLP coverage |",
         "| --- | ---: | ---: | ---: | ---: | ---: |",
@@ -238,7 +238,7 @@ def markdown(summary: dict[str, Any]) -> str:
             source_cell = cells["source"][str(k)]
             mlp_cell = cells["relcompat3d"][str(k)]
             delta = cells["relcompat3d_minus_source"][str(k)]["violation"]
-            ci = delta["paired_scan_cluster_ci95"]
+            ci = delta["paired_bootstrap_intervals_ci95"]
             lines.append(
                 f"| {source} | {k} | {source_cell['violation']['point']:.4f} | "
                 f"{mlp_cell['violation']['point']:.4f} | {delta['point']:+.4f} "
@@ -256,10 +256,10 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_relcompat3d_mlp_surface_audit_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     if tuple(protocol["scope"]["ks"]) != audit.KS:
-        raise ValueError("k_contract_mismatch")
+        raise ValueError("rank_cutoffs_mismatch")
 
     paths = {name: audit.resolve(root, spec["path"]) for name, spec in protocol["inputs"].items()}
     missing = [name for name, path in paths.items() if not path.exists()]
@@ -280,12 +280,12 @@ def main() -> int:
         else:
             input_checks[name] = {"path": audit.relpath(root, path), "type": "directory"}
 
-    linear_models = json.loads(paths["structured_models"].read_text(encoding="utf-8"))
+    linear_models = json.loads(paths["linear_models"].read_text(encoding="utf-8"))
     nonlinear_models = json.loads(paths["nonlinear_models"].read_text(encoding="utf-8"))
-    mlp_model = nonlinear_models["shared_nonlinear_structured"]
-    bce_model = nonlinear_models["shared_nonlinear_bce"]
-    feature_contract = mlp_model["feature_contract"]
-    linear_scorer = base.make_structured_scorer(linear_models)
+    mlp_model = nonlinear_models["shared_mlp_pairwise"]
+    bce_model = nonlinear_models["shared_mlp_bce"]
+    feature_spec = mlp_model["feature_spec"]
+    linear_scorer = base.make_linear_scorer(linear_models)
     annotations = json.loads(paths["official_context_annotations"].read_text(encoding="utf-8"))
     contexts = sorted({f"{row['scan']}_{row['split']}" for row in annotations["scans"]})
     scans = sorted({context.rsplit("_", 1)[0] for context in contexts})
@@ -321,9 +321,9 @@ def main() -> int:
         additional, _, additional_inventory = audit.measure_pairs(
             paths["raw_scan_root"],
             grouped_missing,
-            int(protocol["raw_surface_contract"]["maximum_vertices_per_object"]),
-            int(protocol["raw_surface_contract"]["maximum_triangles_per_object"]),
-            float(protocol["raw_surface_contract"]["minimum_metric_scale_m"]),
+            int(protocol["point_mesh_config"]["maximum_vertices_per_object"]),
+            int(protocol["point_mesh_config"]["maximum_triangles_per_object"]),
+            float(protocol["point_mesh_config"]["minimum_metric_scale_m"]),
         )
         measurements.update(additional)
 
@@ -353,8 +353,8 @@ def main() -> int:
     for source in source_paths:
         recall_equivalence[source] = {}
         for current_method, reference_method in (
-            ("source", "source_score"),
-            ("relcompat3d", "routed_matched_mlp"),
+            ("source", "source"),
+            ("relcompat3d", "relcompat3d_mlp"),
         ):
             recall_equivalence[source][current_method] = {}
             for k in audit.KS:
@@ -363,12 +363,12 @@ def main() -> int:
                 recall_equivalence[source][current_method][str(k)] = abs(current - expected)
 
     validations = {
-        "all_locked_file_hashes_match": all(
+        "all_file_hashes_match": all(
             not spec.get("sha256") or input_checks[name].get("sha256") == spec["sha256"]
             for name, spec in protocol["inputs"].items()
         ),
-        "mlp_excludes_source_score_and_identity": not feature_contract["source_score_input"]
-        and not feature_contract["source_identity_input"],
+        "mlp_excludes_source_score_and_identity": not feature_spec["source_score_input"]
+        and not feature_spec["source_identity_input"],
         "official_contexts_548": len(contexts) == 548,
         "validation_scans_157": len(scans) == 157,
         "paper_scope_gt_denominator_3972": sum(len(rows) for rows in all_gt.values()) == 3972,
@@ -398,7 +398,7 @@ def main() -> int:
     }
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_relcompat3d_mlp_surface_audit_evaluation_v1",
+        "schema_version": "relcompat3d_relcompat3d_mlp_point_mesh_audit_evaluation_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "method": {
@@ -418,8 +418,8 @@ def main() -> int:
         "mechanism": mechanism,
         "recall_equivalence_to_routed_comparator": recall_equivalence,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_mlp_surface_audit",
+        "evaluation_scope": protocol["evaluation_scope"],
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_mlp_point_mesh_audit",
     }
 
     out.mkdir(parents=True, exist_ok=True)
@@ -435,7 +435,7 @@ def main() -> int:
     audit.write_jsonl(additional_path, audit.measurement_rows(additional))
     output_paths = (summary_path, summary_md, metrics_path, mechanism_path, additional_path)
     manifest = {
-        "schema_version": "relcompat3d_relcompat3d_mlp_surface_audit_manifest_v1",
+        "schema_version": "relcompat3d_relcompat3d_mlp_point_mesh_audit_manifest_v1",
         "status": status,
         "protocol": {
             "path": audit.relpath(root, protocol_path),

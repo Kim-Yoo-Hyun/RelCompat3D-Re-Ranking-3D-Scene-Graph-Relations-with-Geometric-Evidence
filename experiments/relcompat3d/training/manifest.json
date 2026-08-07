@@ -1,0 +1,19 @@
+{
+  "schema_version": "relcompat3d_training_files_v1",
+  "status": "ready",
+  "configuration": {
+    "protocol": "experiments/relcompat3d/training/protocol.json",
+    "data_splits": "experiments/relcompat3d/training/data_splits.json",
+    "data_provenance": "experiments/relcompat3d/training/data_provenance.json"
+  },
+  "split_files": {
+    "training": "experiments/relcompat3d/training/splits/train_scans.txt",
+    "development": "experiments/relcompat3d/training/splits/development_scans.txt",
+    "validation": "experiments/relcompat3d/training/splits/final_validation_scans.txt",
+    "training_and_development": "experiments/relcompat3d/training/splits/training_and_development_scans.txt"
+  },
+  "generated_inputs": {
+    "training_rows": "experiments/relcompat3d/training/calibration/regenerated/table.jsonl",
+    "development_ground_truth": "experiments/relcompat3d/training/development_ground_truth.jsonl"
+  }
+}

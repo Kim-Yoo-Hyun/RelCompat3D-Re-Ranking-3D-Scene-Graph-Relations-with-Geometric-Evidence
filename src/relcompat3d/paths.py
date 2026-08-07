@@ -19,9 +19,9 @@ RelCompat3D_ARTIFACTS_REL = RelCompat3D_HYPOTHESIS_REL / "artifacts"
 RelCompat3D_HYPOTHESIS_ROOT = REPO_ROOT / RelCompat3D_HYPOTHESIS_REL
 RelCompat3D_ARTIFACTS_ROOT = REPO_ROOT / RelCompat3D_ARTIFACTS_REL
 
-EXPERIMENT_ROOT_REL = Path("experiments/RelCompat3D_geom_reliability")
-RESULT_ROOT_REL = Path("results/relcompat3d_geom_reliability")
-ARCHIVE_EXPERIMENT_ROOT_REL = Path("archive/experiments/RelCompat3D_geom_reliability")
+EXPERIMENT_ROOT_REL = Path("experiments/relcompat3d")
+RESULT_ROOT_REL = Path("results/relcompat3d")
+ARCHIVE_EXPERIMENT_ROOT_REL = Path("archive/experiments/relcompat3d")
 
 EXPERIMENT_ROOT = REPO_ROOT / EXPERIMENT_ROOT_REL
 RESULT_ROOT = REPO_ROOT / RESULT_ROOT_REL

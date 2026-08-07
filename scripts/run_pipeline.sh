@@ -47,74 +47,60 @@ case "$stage" in
     run_service relcompat3d_verify_sgfn
     run_service relcompat3d_verify_open3dsg
     ;;
-  evaluate)
-    scripts/validate.sh --require-models
-    for source in vlsat sgfn open3dsg; do
-      require_file "local_dataset/RelCompat3D/prepared/$source/verification.jsonl"
-    done
-    require_file local_dataset/RelCompat3D/prepared/ground_truth.jsonl
-    output=experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_evaluation
-    require_empty_output "$output"
-    run_service relcompat3d_evaluate_public
-    ;;
   train)
     require_file local_dataset/RelCompat3D/3DSSG_subset/relationships_train.json
     require_file local_dataset/RelCompat3D/3DSSG_subset/relationships.txt
     require_dir local_dataset/3RScan/scans
-    require_empty_output experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated
-    require_empty_output experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/base
-    require_empty_output experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit
-    require_empty_output experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/nonlinear
+    require_empty_output experiments/relcompat3d/training/calibration/regenerated
+    require_empty_output experiments/relcompat3d/main/regenerated/base
+    require_empty_output experiments/relcompat3d/main/regenerated/fit
+    require_empty_output experiments/relcompat3d/main/regenerated/mlp
     run_service relcompat3d_build_training_rows
     run_service relcompat3d_fit_base
     run_service relcompat3d_fit
     run_service relcompat3d_fit_mlp
     ;;
-  evaluate-trained)
+  evaluate)
     for source in vlsat sgfn open3dsg; do
       require_file "local_dataset/RelCompat3D/prepared/$source/verification.jsonl"
     done
     require_file local_dataset/RelCompat3D/prepared/ground_truth.jsonl
-    require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/structured_models.json
-    require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/nonlinear/models.json
-    require_empty_output experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/trained_evaluation
-    run_service relcompat3d_evaluate_trained
+    require_file experiments/relcompat3d/main/regenerated/fit/linear_models.json
+    require_file experiments/relcompat3d/main/regenerated/mlp/models.json
+    require_empty_output experiments/relcompat3d/main/regenerated/evaluation
+    run_service relcompat3d_evaluate
     ;;
-  audit-trained)
+  audit)
     require_dir local_dataset/3RScan/scans
-    require_file experiments/RelCompat3D_geom_reliability/training_protocol/calibration/regenerated/table.jsonl
-    require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/strict_models.json
-    require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/structured_models.json
-    require_empty_output experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_surface_audit
-    run_service relcompat3d_surface_audit_trained
+    require_file experiments/relcompat3d/training/calibration/regenerated/table.jsonl
+    require_file experiments/relcompat3d/main/regenerated/fit/base_models.json
+    require_file experiments/relcompat3d/main/regenerated/fit/linear_models.json
+    require_empty_output experiments/relcompat3d/main/regenerated/point_mesh_analysis
+    run_service relcompat3d_point_mesh_analysis
     ;;
-  tables-trained)
-    require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/fit/structured_models.json
-    require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/nonlinear/models.json
-    require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_surface_audit/thresholds.json
-    require_file experiments/RelCompat3D_geom_reliability/main_experiment/regenerated/public_surface_audit/evaluation_measurements.jsonl
+  tables)
+    require_file experiments/relcompat3d/main/regenerated/fit/linear_models.json
+    require_file experiments/relcompat3d/main/regenerated/mlp/models.json
+    require_file experiments/relcompat3d/main/regenerated/point_mesh_analysis/thresholds.json
+    require_file experiments/relcompat3d/main/regenerated/point_mesh_analysis/evaluation_measurements.jsonl
     key=local_dataset/RelCompat3D/secrets/table_rows_hmac_key.txt
     if [[ ! -f "$key" ]]; then
       run_service relcompat3d_create_local_key
     fi
-    require_empty_output experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/public_rows
-    require_empty_output experiments/RelCompat3D_geom_reliability/paper_reproduction/regenerated/public_tables
-    run_service relcompat3d_export_trained_rows
-    run_service relcompat3d_reproduce_trained_rows
-    ;;
-  tables)
+    require_empty_output experiments/relcompat3d/paper_results/regenerated/rows
+    require_empty_output experiments/relcompat3d/paper_results/regenerated/tables
     run_service relcompat3d_export_rows
-    scripts/reproduce_tables.sh
+    run_service relcompat3d_generate_tables
     ;;
   full)
     "$0" prepare
     "$0" train
-    "$0" evaluate-trained
-    "$0" audit-trained
-    "$0" tables-trained
+    "$0" evaluate
+    "$0" audit
+    "$0" tables
     ;;
   *)
-    echo "usage: $0 {prepare|train|evaluate|evaluate-trained|audit-trained|tables|tables-trained|full}" >&2
+    echo "usage: $0 {prepare|train|evaluate|audit|tables|full}" >&2
     exit 2
     ;;
 esac

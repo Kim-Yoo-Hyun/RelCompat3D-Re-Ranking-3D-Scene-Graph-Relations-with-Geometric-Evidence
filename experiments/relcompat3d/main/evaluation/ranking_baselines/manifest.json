@@ -1,0 +1,67 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_compare_rankings",
+  "inputs": {
+    "ground_truth": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "nonlinear_models": {
+      "path": "experiments/relcompat3d/main/evaluation/mlp/models.json",
+      "sha256": "ccf4107c06d95161df8ecb1948b37f781025407d7b3596ddd6886394a2976c3e"
+    },
+    "official_context_annotations": {
+      "path": "local_dataset/3DSSG_subset/relationships_validation.json",
+      "sha256": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e"
+    },
+    "open3dsg_reference": {
+      "path": "experiments/relcompat3d/main/evaluation/open3dsg_evaluation/summary.json",
+      "sha256": "3ba923e319061f4e35b547b9ba14b9ee4f2711e93d048ab001c5ce6c2955ab5d"
+    },
+    "open3dsg_verification": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/geometry/verification.jsonl",
+      "sha256": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720"
+    },
+    "routing_reference": {
+      "path": "experiments/relcompat3d/main/evaluation/support_order/summary.json",
+      "sha256": "a59eb3544560ede939f6fdc90ff2c3cfb34ef2fee58cc423669fffa101928736"
+    },
+    "sgfn_verification": {
+      "path": "experiments/relcompat3d/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+    },
+    "base_models": {
+      "path": "experiments/relcompat3d/main/fit/base_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2"
+    },
+    "linear_models": {
+      "path": "experiments/relcompat3d/main/fit/linear_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    },
+    "vlsat_verification": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+    }
+  },
+  "outputs": {
+    "metrics.csv": "c8e532db05a33c5f4f48768bfa5b3a0b1326126b3b4079e4488b13b93ceafffb",
+    "summary.json": "71f35ba7c01ff6461ad3a9c4c5ca6b25d98004b9b214280418518c29b3c80f18",
+    "summary.md": "2de0c226acc2a95592310a5b38c163548d5d8c5e1f9a1a71f19f174fada1ce67"
+  },
+  "protocol": {
+    "path": "experiments/relcompat3d/main/protocols/ranking_baselines.json",
+    "sha256": "315228f00a670667b8bb9f9a9d048aa74e17883563c3a89a849d3d6cc89815cc"
+  },
+  "schema_version": "relcompat3d_ranking_baselines_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_gt_denominators_3972": true,
+    "all_sources_157_scans_and_548_contexts": true,
+    "family_composition_exact_for_all_comparators": true,
+    "locked_model_hashes_match": true,
+    "matched_mlp_excludes_source_score_and_identity": true,
+    "official_context_universe_548": true,
+    "open3dsg_missing_predictions_are_empty": true,
+    "relcompat3d_linear_matches_reported_results": true,
+    "support_contact_selection_exact_for_all_comparators": true
+  }
+}

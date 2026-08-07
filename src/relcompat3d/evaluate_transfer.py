@@ -16,22 +16,22 @@ from typing import Any
 import numpy as np
 
 import relation_consistency as algebra
-import evaluate_main as structured
-import evaluate_train_only as strict
+import evaluate_all_families as linear_eval
+import evaluate_base_models as model_eval
 
 
 FAMILIES = ("proximity", "relative_vertical")
 KS = (5, 10, 20, 50, 100)
 METHODS = (
-    "source_score",
-    "routed_product",
+    "source",
+    "relcompat3d_linear",
     "unrestricted_product",
-    "routed_rank_average",
+    "rank_average",
     "global_rank_average",
     "global_rrf_c60",
     "routed_compatibility_only",
 )
-PRIMARY_METHOD = "routed_product"
+PRIMARY_METHOD = "relcompat3d_linear"
 
 
 def parse_args() -> argparse.Namespace:
@@ -176,12 +176,12 @@ def build_rankings(candidates: list[dict[str, Any]]) -> dict[str, list[dict[str,
             )
 
     return {
-        "source_score": source_order,
-        "routed_product": routed_order(candidates, "product"),
+        "source": source_order,
+        "relcompat3d_linear": routed_order(candidates, "product"),
         "unrestricted_product": sorted(
             candidates, key=lambda item: (-item["product"], item["key"])
         ),
-        "routed_rank_average": routed_order(candidates, "family_rank_average"),
+        "rank_average": routed_order(candidates, "family_rank_average"),
         "global_rank_average": sorted(
             candidates, key=lambda item: (-item["global_rank_average"], item["key"])
         ),
@@ -197,7 +197,7 @@ def load_candidates(
     contexts: list[str],
     models: dict[str, Any],
 ) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
-    scorer = structured.make_structured_scorer(models)
+    scorer = linear_eval.make_linear_scorer(models)
     grouped = {context: [] for context in contexts}
     input_rows = 0
     family_rows: Counter[str] = Counter()
@@ -214,7 +214,7 @@ def load_candidates(
             if context not in grouped or family not in FAMILIES:
                 raise ValueError("candidate_outside_protocol_scope")
             predicate = str(row["predicate"]["predicate_label"])
-            raw = strict.raw_numeric(row)
+            raw = model_eval.raw_numeric(row)
             semantic = finite((row.get("semantic") or {}).get("ranking_score"))
             if semantic is None:
                 raise ValueError(f"missing_source_score:{row['prediction_id']}")
@@ -382,11 +382,11 @@ def evaluate(
             for metric in ("recall", "violation"):
                 point = (
                     report[method][str(k)][metric]["point"]
-                    - report["source_score"][str(k)][metric]["point"]
+                    - report["source"][str(k)][metric]["point"]
                 )
                 boot = (
                     cache[method][str(k)][metric]
-                    - cache["source_score"][str(k)][metric]
+                    - cache["source"][str(k)][metric]
                 )
                 valid = boot[np.isfinite(boot)]
                 report["deltas_vs_source_score"][method][str(k)][metric] = {
@@ -419,8 +419,8 @@ def evaluate(
 
     k_index = KS.index(100)
     for ci, context in enumerate(contexts):
-        source_r_den = arrays["source_score"]["recall_den"][k_index, ci]
-        source_v_den = arrays["source_score"]["violation_den"][k_index, ci]
+        source_r_den = arrays["source"]["recall_den"][k_index, ci]
+        source_v_den = arrays["source"]["violation_den"][k_index, ci]
         per_scene[context] = {}
         for method in METHODS:
             recall = (
@@ -435,12 +435,12 @@ def evaluate(
                 else None
             )
             source_recall = (
-                arrays["source_score"]["recall_num"][k_index, ci] / source_r_den
+                arrays["source"]["recall_num"][k_index, ci] / source_r_den
                 if source_r_den
                 else None
             )
             source_violation = (
-                arrays["source_score"]["violation_num"][k_index, ci] / source_v_den
+                arrays["source"]["violation_num"][k_index, ci] / source_v_den
                 if source_v_den
                 else None
             )
@@ -521,7 +521,7 @@ def feature_shift(
             raw_values: list[float] = []
             missing = 0
             for item in rows:
-                aligned = strict.align_predicate(item["raw"], item["predicate"])
+                aligned = model_eval.align_predicate(item["raw"], item["predicate"])
                 value = finite(aligned.get(name))
                 if value is None:
                     missing += 1
@@ -638,7 +638,7 @@ def rank_diagnostics(
         transitions: dict[str, Counter[str]] = {str(k): Counter() for k in KS}
         composition_exact = True
         for context in contexts:
-            source = rankings[context]["source_score"]
+            source = rankings[context]["source"]
             ranked = rankings[context][method]
             source_rank = {item["id"]: rank for rank, item in enumerate(source, 1)}
             method_rank = {item["id"]: rank for rank, item in enumerate(ranked, 1)}
@@ -706,14 +706,14 @@ def construct_alignment(
             "exact_gt_positives": sum(gt_labels),
             "decidable_rows": len(decidable),
             "gt_auc": {
-                "source_score": auc(gt_labels, [item["semantic"] for item in subset]),
+                "source": auc(gt_labels, [item["semantic"] for item in subset]),
                 "compatibility": auc(
                     gt_labels, [item["compatibility"] for item in subset]
                 ),
                 "product": auc(gt_labels, [item["product"] for item in subset]),
             },
             "verifier_satisfaction_auc": {
-                "source_score": auc(
+                "source": auc(
                     verifier_labels, [item["semantic"] for item in decidable]
                 ),
                 "compatibility": auc(
@@ -754,7 +754,7 @@ def markdown(report: dict[str, Any]) -> str:
                 delta.get("violation", {}).get("point", 0.0),
             )
         )
-    source = report["decomposition"]["source_score"]
+    source = report["decomposition"]["source"]
     shift = report["decomposition"]["geometry_shift"]["aggregate"]
     alignment = report["decomposition"]["construct_alignment"]["all"]
     lines.extend(
@@ -825,8 +825,8 @@ def main() -> int:
         name: value["sha256"] for name, value in protocol["inputs"].items()
     }
     composition_methods = (
-        "routed_product",
-        "routed_rank_average",
+        "relcompat3d_linear",
+        "rank_average",
         "routed_compatibility_only",
     )
     all_metrics = [
@@ -836,8 +836,8 @@ def main() -> int:
         for metric in ("recall", "violation")
     ]
     validations = {
-        "protocol_frozen_before_this_evaluation": protocol.get("status")
-        == "frozen_before_final_method_external_evaluation",
+        "protocol_ready": protocol.get("status")
+        == "ready",
         "classification_discloses_prior_target_observation": protocol.get("classification")
         == "cross_dataset_benchmark_evaluation_on_previously_observed_target_no_target_tuning",
         "all_input_hashes_match": input_hashes == expected_hashes,
@@ -866,7 +866,7 @@ def main() -> int:
             cell["max_abs_error"] <= 1e-12
             for cell in candidate_meta["transformation"].values()
         ),
-        "bootstrap_frozen": protocol["evaluation"]["bootstrap"]
+        "bootstrap_configuration_matches": protocol["evaluation"]["bootstrap"]
         == {"unit": "scene", "resamples": 1000, "seed": 20260715, "shared_indices": True},
         "no_target_tuning": protocol["method"]["target_specific_fit_rows"] == 0
         and protocol["method"]["target_specific_hyperparameters"] == 0,
@@ -880,7 +880,7 @@ def main() -> int:
         else "blocked_external_dataset_evaluation"
     )
     report = {
-        "schema_version": "relcompat3d_external_dataset_transfer_v1",
+        "schema_version": "relcompat3d_relcompat3d_transfer_audit_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "classification": protocol["classification"],
@@ -903,7 +903,7 @@ def main() -> int:
             "delta_violation": primary_delta["violation"],
         },
         "decomposition": {
-            "source_score": source_report,
+            "source": source_report,
             "geometry_shift": feature_report,
             "rank_and_selection": rank_report,
             "construct_alignment": alignment_report,
@@ -924,16 +924,14 @@ def main() -> int:
         },
         "candidate_metadata": candidate_meta,
         "validations": validations,
-        "claim_boundary": {
-            "allowed": "cross-dataset behavior of the locked final ranking rule on exact near/above/under mappings",
-            "blocked": [
-                "untouched or prospective confirmation",
-                "dataset-level generalization established",
+        "evaluation_scope": {
+            "reported": "cross-dataset behavior of the fixed ranking rule on exact near/above/under mappings",
+            "not_evaluated": [
+                "dataset-level generalization",
                 "support/contact transfer",
-                "best-rescorer or universal-fusion claim",
-                "independent physical-validity validation",
+                "universal ranking performance",
+                "independent geometric-validity annotations",
             ],
-            "automatic_main_paper_promotion": False,
         },
         "inputs": {
             name: {"path": relpath(root, path), "sha256": input_hashes[name]}
@@ -943,7 +941,7 @@ def main() -> int:
             "path": relpath(root, protocol_path),
             "sha256": sha256_file(protocol_path),
         },
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm external_dataset_transfer",
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_transfer_audit",
     }
     out.mkdir(parents=True, exist_ok=False)
     write_json(out / "summary.json", report)
@@ -974,7 +972,7 @@ def main() -> int:
     write_json(
         out / "manifest.json",
         {
-            "schema_version": "relcompat3d_external_dataset_transfer_manifest_v1",
+            "schema_version": "relcompat3d_relcompat3d_transfer_audit_manifest_v1",
             "created_at_utc": report["created_at_utc"],
             "status": status,
             "validations": validations,

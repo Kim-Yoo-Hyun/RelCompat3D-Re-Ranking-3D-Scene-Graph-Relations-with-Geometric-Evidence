@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the frozen RelCompat3D relation-algebra compatibility development suite."""
+"""Run the fixed RelCompat3D relation-algebra compatibility development suite."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from typing import Any, Callable
 import numpy as np
 
 import compatibility_features as base
-import evaluate_train_only as evalmod
+import evaluate_base_models as model_eval
 
 
 FAMILIES = ("support_contact", "proximity", "relative_vertical")
@@ -156,7 +156,7 @@ def transformed_view(
         transformed["abs_vertical_gap_subject_on_object"] = abs(
             transformed["vertical_gap_subject_on_object"]
         )
-    transformed = evalmod.align_predicate(transformed, transformed_predicate)
+    transformed = model_eval.align_predicate(transformed, transformed_predicate)
     return transformed_predicate, transformed
 
 
@@ -166,7 +166,7 @@ def existing_vector(
     predicate: str,
     raw: dict[str, float],
 ) -> np.ndarray:
-    aligned = evalmod.align_predicate(raw, predicate)
+    aligned = model_eval.align_predicate(raw, predicate)
     values: list[float] = []
     for feature in model["feature_names"]:
         if feature == "bias":
@@ -468,7 +468,7 @@ def fit_attempts(
         if family == "support_contact":
             attempts["algebra_basis"][family] = {
                 **base_model,
-                "architecture": "frozen_support_contact_continuity_model_no_blanket_transform",
+                "architecture": "support_contact_head_no_endpoint_transform",
                 "parameter_count": len(base_model["weights"]),
             }
         else:
@@ -609,7 +609,7 @@ def diagnostics_for_rows(
 
 
 def load_ground_truth(path: Path) -> tuple[dict[str, set[tuple[Any, ...]]], dict[str, dict[str, set[tuple[Any, ...]]]]]:
-    return evalmod.load_gt(path)
+    return model_eval.load_gt(path)
 
 
 def empty_metric_arrays(contexts: list[str]) -> dict[str, dict[str, np.ndarray]]:
@@ -768,8 +768,8 @@ def evaluate_source(
                 continue
             in_scope_rows += 1
             predicate = row["predicate"]["predicate_label"]
-            raw = evalmod.raw_numeric(row)
-            semantic = evalmod.finite((row.get("semantic") or {}).get("ranking_score"))
+            raw = model_eval.raw_numeric(row)
+            semantic = model_eval.finite((row.get("semantic") or {}).get("ranking_score"))
             if semantic is None:
                 raise ValueError(f"missing_semantic:{source}:{row['prediction_id']}")
             compatibilities = {
@@ -795,7 +795,7 @@ def evaluate_source(
                     cell["max_abs_error"] = max(float(cell["max_abs_error"]), error)
             grouped[row["subgraph_id"]].append(
                 {
-                    "key": evalmod.candidate_key(row),
+                    "key": model_eval.candidate_key(row),
                     "family": family,
                     "status": row.get("verification_status")
                     or (row.get("verification") or {}).get("verification_status"),
@@ -885,7 +885,7 @@ def gate_summary(
             "all_source_k100_recall_continuity_vs_family": all_source_recall_continuity,
             "linked_counterfactual_win_rate": pair_win,
             "linked_counterfactual_improves_over_family": pairwise_improved,
-            "novelty_promotion_gate": (
+            "meets_selection_criteria": (
                 structural_pass
                 and all_source_vs_semantic
                 and all_source_recall_continuity
@@ -919,7 +919,7 @@ def make_summary_markdown(summary: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "## Frozen Attempt Gates",
+            "## Fixed Attempt Gates",
             "",
             "| Compatibility | max algebra error | all-source joint vs source | recall continuity vs family | pair win improved | novelty gate |",
             "| --- | ---: | :---: | :---: | :---: | :---: |",
@@ -931,7 +931,7 @@ def make_summary_markdown(summary: dict[str, Any]) -> str:
             f"{'pass' if gate['all_source_k100_joint_gate_vs_semantic'] else 'fail'} | "
             f"{'pass' if gate['all_source_k100_recall_continuity_vs_family'] else 'fail'} | "
             f"{'pass' if gate['linked_counterfactual_improves_over_family'] else 'fail'} | "
-            f"{'pass' if gate['novelty_promotion_gate'] else 'fail'} |"
+            f"{'pass' if gate['meets_selection_criteria'] else 'fail'} |"
         )
     lines.extend(
         [
@@ -953,8 +953,8 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_relation_algebra_development_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     paths = {
         name: resolve(root, value) for name, value in protocol["inputs"].items()
     }
@@ -962,10 +962,10 @@ def main() -> int:
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
     train_scans = read_scans(paths["train_scans"])
-    dev_scans = read_scans(paths["internal_dev_scans"])
+    dev_scans = read_scans(paths["development_scans"])
     final_scans = read_scans(paths["final_validation_scans"])
     if train_scans & dev_scans or train_scans & final_scans or dev_scans & final_scans:
-        raise ValueError("split_firewall_overlap")
+        raise ValueError("data_split_overlap")
 
     table_rows = base.load_jsonl(paths["calibration_table"])
     leaked = sorted({row["scan_id"] for row in table_rows} & final_scans)
@@ -994,11 +994,11 @@ def main() -> int:
     scorer = build_scorer(direct_score)
     gt, gt_family = load_ground_truth(paths["ground_truth"])
     internal_gt, internal_gt_family = load_ground_truth(
-        paths["internal_dev_ground_truth"]
+        paths["development_ground_truth"]
     )
-    internal_dev_source = evaluate_source(
-        "internal_dev_sgfn",
-        paths["internal_dev_verification"],
+    development_source = evaluate_source(
+        "development_sgfn",
+        paths["development_verification"],
         scorer,
         internal_gt,
         internal_gt_family,
@@ -1027,15 +1027,15 @@ def main() -> int:
         "split_sets_pairwise_disjoint": not (train_scans & dev_scans or train_scans & final_scans or dev_scans & final_scans),
         "zero_final_rows_in_calibration": not leaked,
         "train_rows_60208": sum(row["_role"] == "train" for row in prepared) == 60208,
-        "internal_dev_rows_6246": sum(row["_role"] == "dev" for row in prepared) == 6246,
+        "development_rows_6246": sum(row["_role"] == "dev" for row in prepared) == 6246,
         "source_contexts_548": all(result["contexts"] == 548 for result in source_results.values()),
         "gt_denominator_3972": all(result["gt_denominator"] == 3972 for result in source_results.values()),
         "vlsat_rows_220848": source_results["vlsat"]["in_scope_rows"] == 220848,
         "open3dsg_rows_160596": source_results["open3dsg"]["in_scope_rows"] == 160596,
         "sgfn_rows_220848": source_results["sgfn"]["in_scope_rows"] == 220848,
-        "internal_dev_contexts_354": internal_dev_source["contexts"] == 354,
-        "internal_dev_gt_denominator_2730": internal_dev_source["gt_denominator"] == 2730,
-        "internal_dev_rows_139368": internal_dev_source["in_scope_rows"] == 139368,
+        "development_contexts_354": development_source["contexts"] == 354,
+        "development_gt_denominator_2730": development_source["gt_denominator"] == 2730,
+        "development_rows_139368": development_source["in_scope_rows"] == 139368,
         "all_attempts_reported": set(gates) == set(COMPATIBILITIES[1:]),
         "all_parameters_finite": all(
             math.isfinite(weight)
@@ -1069,29 +1069,29 @@ def main() -> int:
         diagnostics_path,
         {
             "schema_version": "relcompat3d_relation_algebra_diagnostics_v1",
-            "role": "train_only_fit_internal_dev_diagnostic_all_attempts_reported",
+            "role": "training_and_development_metrics",
             "diagnostics": diagnostics,
         },
     )
     write_json(metrics_path, source_results)
     summary = {
-        "schema_version": "relcompat3d_relation_algebra_development_summary_v1",
+        "schema_version": "relcompat3d_relcompat3d_fit_summary_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "classification": protocol["classification"],
         "sources": source_results,
-        "internal_dev_source": internal_dev_source,
+        "development_source": development_source,
         "gates": gates,
         "validations": validations,
         "warnings": warnings,
-        "claim_boundary": protocol["claim_scope"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     write_json(summary_path, summary)
     markdown_path = out / "summary.md"
     markdown_path.write_text(make_summary_markdown(summary), encoding="utf-8")
     compact_inputs: dict[str, Any] = {}
     source_input_keys = {
-        "internal_dev_verification": "internal_dev_sgfn",
+        "development_verification": "development_sgfn",
         "vlsat_verification": "vlsat",
         "open3dsg_verification": "open3dsg",
         "sgfn_verification": "sgfn",
@@ -1100,8 +1100,8 @@ def main() -> int:
         if name in source_input_keys:
             source_key = source_input_keys[name]
             source_payload = (
-                internal_dev_source
-                if source_key == "internal_dev_sgfn"
+                development_source
+                if source_key == "development_sgfn"
                 else source_results[source_key]
             )
             compact_inputs[name] = {
@@ -1116,7 +1116,7 @@ def main() -> int:
                 "sha256": sha256_file(path),
             }
     manifest = {
-        "schema_version": "relcompat3d_relation_algebra_development_manifest_v1",
+        "schema_version": "relcompat3d_relcompat3d_fit_manifest_v1",
         "status": status,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "protocol": {
@@ -1132,7 +1132,7 @@ def main() -> int:
             for path in (models_path, diagnostics_path, metrics_path, summary_path, markdown_path)
         },
         "validations": validations,
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relation_algebra_development",
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit",
     }
     write_json(out / "manifest.json", manifest)
     print(
@@ -1140,7 +1140,7 @@ def main() -> int:
             {
                 "status": status,
                 "gates": {
-                    name: value["novelty_promotion_gate"] for name, value in gates.items()
+                    name: value["meets_selection_criteria"] for name, value in gates.items()
                 },
                 "out": relpath(root, out),
             },

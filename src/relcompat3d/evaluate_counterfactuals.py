@@ -19,8 +19,8 @@ import build_training_rows as exporter
 import compatibility_features as calibration
 import evaluate_feature_removal as heldout
 import relation_consistency as algebra
-import evaluate_main as evaluation
-import evaluate_train_only as strict
+import evaluate_all_families as evaluation
+import evaluate_base_models as model_eval
 
 
 ACTIVE_FAMILIES = ("proximity", "relative_vertical")
@@ -236,7 +236,7 @@ def make_target_rows(
     exporter.VERTICAL_ABS_DELTA_Z_MIN = float(policy["vertical_abs_margin_m"])
     negative_rows, negative_records, skipped = exporter.generate_negatives(
         positives=positives,
-        split_name="counterfactual_threshold_sensitivity_v1",
+        split_name="relcompat3d_counterfactual_controls_v1",
         subset_source=subset_source,
         relationship_id_map=relationship_id_map,
         created_at=created_at,
@@ -283,18 +283,18 @@ def write_metrics(path: Path, sources: dict[str, Any], conditions: tuple[str, ..
     for source, payload in sources.items():
         for condition in conditions:
             for k in evaluation.KS:
-                cell = payload["scan_cluster"][condition][str(k)]
+                cell = payload["bootstrap_intervals"][condition][str(k)]
                 rows.append(
                     {
                         "source": source,
                         "condition": condition,
                         "k": k,
                         "recall": cell["recall"]["point"],
-                        "recall_ci_low": cell["recall"]["scan_cluster_ci95"][0],
-                        "recall_ci_high": cell["recall"]["scan_cluster_ci95"][1],
+                        "recall_ci_low": cell["recall"]["bootstrap_intervals_ci95"][0],
+                        "recall_ci_high": cell["recall"]["bootstrap_intervals_ci95"][1],
                         "violation": cell["violation_all"]["point"],
-                        "violation_ci_low": cell["violation_all"]["scan_cluster_ci95"][0],
-                        "violation_ci_high": cell["violation_all"]["scan_cluster_ci95"][1],
+                        "violation_ci_low": cell["violation_all"]["bootstrap_intervals_ci95"][0],
+                        "violation_ci_high": cell["violation_all"]["bootstrap_intervals_ci95"][1],
                     }
                 )
     with path.open("w", encoding="utf-8", newline="") as handle:
@@ -308,7 +308,7 @@ def dynamic_scan_summary(
     weights: np.ndarray,
     conditions: tuple[str, ...],
 ) -> dict[str, Any]:
-    methods = ("source_score", *conditions)
+    methods = ("source", *conditions)
     report: dict[str, Any] = {method: {} for method in methods}
     cache: dict[str, Any] = {method: {} for method in methods}
     for method in methods:
@@ -320,7 +320,7 @@ def dynamic_scan_summary(
                 boot = heldout.scan_bootstrap.weighted_ratio(numerator, denominator, weights)
                 report[method][str(k)][metric] = {
                     "point": point,
-                    "scan_cluster_ci95": evaluation.ci95(boot),
+                    "bootstrap_intervals_ci95": evaluation.ci95(boot),
                     "numerator": int(numerator.sum()),
                     "denominator": int(denominator.sum()),
                 }
@@ -335,14 +335,14 @@ def dynamic_scan_summary(
             report["deltas_vs_default"][method][str(k)] = {}
             for metric in METRICS:
                 for reference, target in (
-                    ("source_score", "deltas_vs_source_score"),
+                    ("source", "deltas_vs_source_score"),
                     ("default", "deltas_vs_default"),
                 ):
                     delta = cache[method][str(k)][metric] - cache[reference][str(k)][metric]
                     report[target][method][str(k)][metric] = {
                         "point": report[method][str(k)][metric]["point"]
                         - report[reference][str(k)][metric]["point"],
-                        "paired_scan_cluster_ci95": evaluation.ci95(delta),
+                        "paired_bootstrap_intervals_ci95": evaluation.ci95(delta),
                     }
     return report
 
@@ -353,7 +353,7 @@ def markdown(summary: dict[str, Any]) -> str:
         "",
         f"Status: `{summary['status']}`",
         "",
-        "Every row is a one-factor-at-a-time train-only target regeneration and refit. Cells are Recall / verifier V.",
+        "Each row changes one training factor before refitting. Entries report Recall / verifier V.",
         "",
         "| Condition | Dev order | VL-SAT K50/K100 | Open3DSG K50/K100 | SGFN K50/K100 |",
         "| --- | ---: | ---: | ---: | ---: |",
@@ -362,7 +362,7 @@ def markdown(summary: dict[str, Any]) -> str:
         order = summary["conditions"][condition]["ordering"]["overall"]["positive_win_rate"]
         cells: list[str] = []
         for source in ("vlsat", "open3dsg", "sgfn"):
-            values = summary["sources"][source]["scan_cluster"][condition]
+            values = summary["sources"][source]["bootstrap_intervals"][condition]
             cells.append(
                 f"{values['50']['recall']['point']:.4f}/{values['50']['violation_all']['point']:.4f} ; "
                 f"{values['100']['recall']['point']:.4f}/{values['100']['violation_all']['point']:.4f}"
@@ -386,22 +386,22 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_counterfactual_sensitivity_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     missing = [name for name, path in paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
-    for name, expected in protocol["locked_sha256"].items():
+    for name, expected in protocol["expected_sha256"].items():
         if sha256(paths[name]) != expected:
             raise ValueError(f"hash_mismatch:{name}")
 
     train_scans = read_scans(paths["train_scans"])
-    dev_scans = read_scans(paths["internal_dev_scans"])
+    dev_scans = read_scans(paths["development_scans"])
     final_scans = read_scans(paths["final_validation_scans"])
     selected_scans = read_scans(paths["method_development_scans"])
     if train_scans & dev_scans or train_scans & final_scans or dev_scans & final_scans:
-        raise ValueError("split_firewall_overlap")
+        raise ValueError("data_split_overlap")
     if selected_scans != train_scans | dev_scans:
         raise ValueError("method_development_scan_union_mismatch")
 
@@ -412,7 +412,7 @@ def main() -> int:
         selected_scans=selected_scans,
         dataset_root=paths["dataset_root"],
         subset_source=str(paths["train_annotations"].relative_to(root)),
-        split_name="counterfactual_threshold_sensitivity_v1",
+        split_name="relcompat3d_counterfactual_controls_v1",
         relationship_id_map=relationship_id_map,
         created_at=protocol["created_at_kst"],
         allow_selected_scans_without_positive_rows=True,
@@ -478,7 +478,7 @@ def main() -> int:
         if target_key != "default":
             del prepared_cache[target_key]
 
-    gt, gt_family = strict.load_gt(paths["ground_truth"])
+    gt, gt_family = model_eval.load_gt(paths["ground_truth"])
     official = json.loads(paths["official_context_annotations"].read_text(encoding="utf-8"))
     official_contexts = {f"{row['scan']}_{row['split']}" for row in official["scans"]}
     source_paths = {
@@ -490,7 +490,7 @@ def main() -> int:
     original_scan_summary = heldout.scan_summary
     original_eval_methods = evaluation.METHODS
     heldout.CONDITIONS = condition_order
-    heldout.METHODS = ("source_score", *condition_order)
+    heldout.METHODS = ("source", *condition_order)
     heldout.scan_summary = lambda values, weights: dynamic_scan_summary(
         values, weights, condition_order
     )
@@ -522,9 +522,9 @@ def main() -> int:
     for source, payload in sources.items():
         for k in evaluation.KS:
             for metric in METRICS:
-                actual = payload["scan_cluster"]["default"][str(k)][metric]["point"]
+                actual = payload["bootstrap_intervals"]["default"][str(k)][metric]["point"]
                 if source == "open3dsg":
-                    expected = open_reference["routes"]["official_strict_full_548"]["overall"]["family_slot_rerank"][str(k)][metric]["point"]
+                    expected = open_reference["routes"]["official_full_548"]["overall"]["family_slot_rerank"][str(k)][metric]["point"]
                 else:
                     expected = routing_reference["sources"][source]["overall"]["family_slot_rerank"][str(k)][metric]["point"]
                 default_points_match &= abs(actual - expected) <= 1e-12
@@ -564,10 +564,10 @@ def main() -> int:
     }
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_counterfactual_threshold_sensitivity_v1",
+        "schema_version": "relcompat3d_relcompat3d_counterfactual_controls_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
-        "classification": "train_only_one_factor_at_a_time_sensitivity",
+        "classification": "one_factor_training_sensitivity",
         "condition_order": list(condition_order),
         "conditions": condition_details,
         "sources": sources,
@@ -578,7 +578,7 @@ def main() -> int:
             "warnings": warnings,
         },
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     out.mkdir(parents=True, exist_ok=True)
     write_json(out / "summary.json", summary)
@@ -586,7 +586,7 @@ def main() -> int:
     write_metrics(out / "metrics.csv", sources, condition_order)
     (out / "summary.md").write_text(markdown(summary), encoding="utf-8")
     manifest = {
-        "schema_version": "relcompat3d_counterfactual_threshold_sensitivity_manifest_v1",
+        "schema_version": "relcompat3d_relcompat3d_counterfactual_controls_manifest_v1",
         "created_at_utc": summary["created_at_utc"],
         "status": status,
         "validations": validations,
@@ -602,7 +602,7 @@ def main() -> int:
             for name in ("summary.json", "summary.md", "metrics.csv", "models.json")
         },
         "retained_row_level_variant_exports": False,
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm counterfactual_threshold_sensitivity",
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_counterfactual_controls",
     }
     write_json(out / "manifest.json", manifest)
     print(json.dumps({"status": status, "validations": validations, "out": str(out.relative_to(root))}))

@@ -13,13 +13,13 @@ from typing import Any
 
 import numpy as np
 
-import evaluate_main as base
-import evaluate_train_only as strict
+import evaluate_all_families as base
+import evaluate_base_models as model_eval
 
 
 METHODS = (
-    "source_score",
-    "structured_product",
+    "source",
+    "all_family_product",
     "support_passthrough_product",
     "family_slot_rerank",
 )
@@ -65,13 +65,13 @@ def add_routing_scores(grouped: dict[str, list[dict[str, Any]]]) -> None:
         for item in candidates:
             item["scores"]["support_passthrough_product"] = (
                 item["semantic"] if item["family"] == "support_contact"
-                else item["scores"]["structured_product"]
+                else item["scores"]["all_family_product"]
             )
         source_order = sorted(candidates, key=lambda item: (-item["semantic"], item["key"]))
         family_queues: dict[str, list[dict[str, Any]]] = {}
         for family in FAMILIES:
             rows = [item for item in candidates if item["family"] == family]
-            score_name = "source_score" if family == "support_contact" else "structured_product"
+            score_name = "source" if family == "support_contact" else "all_family_product"
             family_queues[family] = sorted(rows, key=lambda item: (-item["scores"][score_name], item["key"]))
         offsets = {family: 0 for family in FAMILIES}
         routed_order: list[dict[str, Any]] = []
@@ -87,14 +87,14 @@ def add_routing_scores(grouped: dict[str, list[dict[str, Any]]]) -> None:
 def evaluate_source(
     path: Path,
     gt_path: Path,
-    structured_score: Any,
-    strict_models: dict[str, Any],
+    linear_score: Any,
+    base_models: dict[str, Any],
     seed: int,
     resamples: int,
 ) -> dict[str, Any]:
-    grouped, load_info = base.load_candidates(path, structured_score, strict_models)
+    grouped, load_info = base.load_candidates(path, linear_score, base_models)
     add_routing_scores(grouped)
-    gt, gt_family = strict.load_gt(gt_path)
+    gt, gt_family = model_eval.load_gt(gt_path)
     contexts = sorted(set(grouped) | set(gt))
     samples = np.random.default_rng(seed).integers(0, len(contexts), size=(resamples, len(contexts)))
     original_methods = base.METHODS
@@ -162,31 +162,31 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_routing_evaluation":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     missing = [name for name, path in paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
-    models = json.loads(paths["structured_models"].read_text(encoding="utf-8"))
-    strict_models = json.loads(paths["strict_models"].read_text(encoding="utf-8"))
-    structured_score = base.make_structured_scorer(models)
+    models = json.loads(paths["linear_models"].read_text(encoding="utf-8"))
+    base_models = json.loads(paths["base_models"].read_text(encoding="utf-8"))
+    linear_score = base.make_linear_scorer(models)
     resamples = int(protocol["evaluation"]["bootstrap_resamples"])
     seed = int(protocol["evaluation"]["bootstrap_seed"])
     sources = {
-        "internal_dev": (paths["internal_dev_verification"], paths["internal_dev_ground_truth"]),
+        "development": (paths["development_verification"], paths["development_ground_truth"]),
         "vlsat": (paths["vlsat_verification"], paths["final_ground_truth"]),
         "open3dsg": (paths["open3dsg_verification"], paths["final_ground_truth"]),
         "sgfn": (paths["sgfn_verification"], paths["final_ground_truth"]),
     }
     results = {
-        source: evaluate_source(path, gt_path, structured_score, strict_models, seed + index, resamples)
+        source: evaluate_source(path, gt_path, linear_score, base_models, seed + index, resamples)
         for index, (source, (path, gt_path)) in enumerate(sources.items())
     }
 
-    dev = results["internal_dev"]
+    dev = results["development"]
     dev_delta = dev["overall"]["deltas_vs_source_score"]["family_slot_rerank"]["100"]
-    support_source = dev["global_topk_family_slice"]["support_contact"]["source_score"]
+    support_source = dev["global_topk_family_slice"]["support_contact"]["source"]
     support_routed = dev["global_topk_family_slice"]["support_contact"]["family_slot_rerank"]
     support_exact = all(
         support_source[str(k)][metric]["numerator"] == support_routed[str(k)][metric]["numerator"]
@@ -194,7 +194,7 @@ def main() -> int:
         for k in KS for metric in ("recall", "violation_all")
     )
     composition_exact = all(
-        dev["global_topk_family_slice"][family]["source_score"][str(k)]["counts"]["selected"]
+        dev["global_topk_family_slice"][family]["source"][str(k)]["counts"]["selected"]
         == dev["global_topk_family_slice"][family]["family_slot_rerank"][str(k)]["counts"]["selected"]
         for family in FAMILIES for k in KS
     )
@@ -209,9 +209,9 @@ def main() -> int:
             "k100_delta_recall": results[source]["overall"]["deltas_vs_source_score"]["family_slot_rerank"]["100"]["recall"],
             "k100_delta_violation": results[source]["overall"]["deltas_vs_source_score"]["family_slot_rerank"]["100"]["violation_all"],
             "support_contact_global_slice_exact": all(
-                results[source]["global_topk_family_slice"]["support_contact"]["source_score"][str(k)][metric]["numerator"]
+                results[source]["global_topk_family_slice"]["support_contact"]["source"][str(k)][metric]["numerator"]
                 == results[source]["global_topk_family_slice"]["support_contact"]["family_slot_rerank"][str(k)][metric]["numerator"]
-                and results[source]["global_topk_family_slice"]["support_contact"]["source_score"][str(k)][metric]["denominator"]
+                and results[source]["global_topk_family_slice"]["support_contact"]["source"][str(k)][metric]["denominator"]
                 == results[source]["global_topk_family_slice"]["support_contact"]["family_slot_rerank"][str(k)][metric]["denominator"]
                 for k in KS for metric in ("recall", "violation_all")
             ),
@@ -221,19 +221,19 @@ def main() -> int:
     validations = {
         "inputs_exist": not missing,
         "all_sources_evaluated": set(results) == set(sources),
-        "internal_dev_support_selection_exact": support_exact,
-        "internal_dev_family_composition_exact": composition_exact,
-        "internal_dev_gate_selected_family_slot_rerank": selected_method == "family_slot_rerank",
+        "development_support_selection_exact": support_exact,
+        "development_family_composition_exact": composition_exact,
+        "development_gate_selected_family_slot_rerank": selected_method == "family_slot_rerank",
         "all_final_support_contact_slices_exact": all(value["support_contact_global_slice_exact"] for value in final_checks.values()),
     }
-    status = "completed" if all(validations.values()) else "completed_no_promotion"
+    status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_support_contact_routing_evaluation_v1",
+        "schema_version": "relcompat3d_relcompat3d_support_order_evaluation_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
-        "selected_on_internal_dev": selected_method,
+        "selected_on_development": selected_method,
         "methods": list(METHODS),
-        "internal_dev_gate": {
+        "development_gate": {
             "support_contact_selection_exact": support_exact,
             "family_composition_exact": composition_exact,
             "k100_delta_recall": dev_delta["recall"],
@@ -242,7 +242,7 @@ def main() -> int:
         "final_benchmark": final_checks,
         "sources": results,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     out.mkdir(parents=True, exist_ok=True)
     write_json(out / "summary.json", summary)
@@ -263,13 +263,13 @@ def main() -> int:
     (out / "summary.md").write_text("\n".join(lines), encoding="utf-8")
     output_paths = [out / "summary.json", out / "summary.md", out / "metrics.csv"]
     write_json(out / "manifest.json", {
-        "schema_version": "relcompat3d_support_contact_routing_manifest_v1",
+        "schema_version": "relcompat3d_relcompat3d_support_order_manifest_v1",
         "status": status,
         "protocol": {"path": relpath(root, protocol_path), "sha256": sha256(protocol_path)},
         "inputs": {name: {"path": relpath(root, path), "sha256": sha256(path)} for name, path in paths.items()},
         "outputs": {path.name: {"path": relpath(root, path), "sha256": sha256(path)} for path in output_paths},
         "validations": validations,
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm support_contact_routing",
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_support_order",
     })
     print(json.dumps({"status": status, "selected": selected_method, "validations": validations}))
     return 0 if status == "completed" else 2

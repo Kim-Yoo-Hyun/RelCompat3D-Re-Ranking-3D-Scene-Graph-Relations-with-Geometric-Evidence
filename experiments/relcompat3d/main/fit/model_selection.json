@@ -1,0 +1,8 @@
+{
+  "schema_version": "relcompat3d_model_selection_v1",
+  "status": "selected",
+  "selection_data": "development split",
+  "validation_data_used_for_fitting": false,
+  "source_relation_score_used_for_compatibility_fitting": false,
+  "predictor_identity_used_for_compatibility_fitting": false
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "relcompat3d_method_v1",
+  "method_name": "RelCompat3D",
+  "compatibility_inputs": {
+    "predicate_semantics": "T_i = p_i",
+    "ordered_pair_geometry": "G_i contains predicate-independent measurements of the corresponding ordered subject-object pair",
+    "source_relation_score": false,
+    "predictor_identity": false
+  },
+  "estimators": {
+    "linear": {
+      "description": "family-specific linear heads",
+      "parameters": {
+        "proximity": 21,
+        "relative_vertical": 22,
+        "support_contact": 23
+      }
+    },
+    "mlp": {
+      "description": "shared two-unit ReLU MLP with a predicate-linear skip connection",
+      "input_features": 29,
+      "hidden_width": 2,
+      "parameters": 69
+    }
+  },
+  "ranking": {
+    "proximity_and_vertical": "multiply the source relation score by compatibility and re-rank within each family",
+    "support_contact": "retain source order",
+    "fitted_fusion_parameters": 0
+  },
+  "reported_results": {
+    "main": "experiments/relcompat3d/main/evaluation/ranking_baselines",
+    "all_family_comparison": "experiments/relcompat3d/main/evaluation/all_family_comparison",
+    "linear_controls": "experiments/relcompat3d/main/evaluation/linear_controls",
+    "mlp_controls": "experiments/relcompat3d/main/evaluation/mlp_ablation",
+    "bootstrap_intervals": "experiments/relcompat3d/main/evaluation/bootstrap_intervals",
+    "point_mesh_audit": "experiments/relcompat3d/main/evaluation/point_mesh_audit",
+    "mlp_point_mesh_audit": "experiments/relcompat3d/main/evaluation/mlp_point_mesh_audit",
+    "runtime": "experiments/relcompat3d/main/evaluation/runtime"
+  },
+  "evaluation_scope": "Three fixed source predictors are evaluated on the shared 3DSSG validation split."
+}

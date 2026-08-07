@@ -1,0 +1,817 @@
+{
+  "evaluation_scope": "Oracle Recall is an upper bound for fixed-candidate re-ranking under the stated constraints, not attainable model performance and not evidence about missing relation generation outside the candidate pool.",
+  "created_at_utc": "2026-07-26T18:58:53.231016+00:00",
+  "definitions": {
+    "active_route_oracle": "preserve source top-K family counts and the selected support/contact subsequence; proximity and vertical-order slots are filled optimally",
+    "candidate_pool_coverage": "fraction of exact ground-truth relation identities present anywhere in the fixed candidate pool",
+    "family_slot_oracle": "preserve the source top-K family counts; choose the maximum number of candidate-pool ground-truth relations inside each family",
+    "unconstrained_oracle": "select up to K candidate-pool ground-truth relations per context without preserving source family slots"
+  },
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_candidate_oracle",
+  "ground_truth_denominator": 3972,
+  "schema_version": "relcompat3d_candidate_oracle_summary_v1",
+  "sources": {
+    "open3dsg": {
+      "candidate_pool_coverage": 0.7968277945619335,
+      "candidate_pool_gt_relations": 3165,
+      "candidate_relations": 159444,
+      "candidate_rows": 159444,
+      "observed": {
+        "RelCompat3D-Linear": {
+          "5": 148,
+          "10": 452,
+          "20": 938,
+          "50": 1755,
+          "100": 2258
+        },
+        "RelCompat3D-MLP": {
+          "5": 147,
+          "10": 468,
+          "20": 980,
+          "50": 1855,
+          "100": 2379
+        },
+        "Source": {
+          "5": 136,
+          "10": 392,
+          "20": 790,
+          "50": 1606,
+          "100": 2030
+        }
+      },
+      "oracle": {
+        "Active-route oracle": {
+          "5": 326,
+          "10": 814,
+          "20": 1591,
+          "50": 2531,
+          "100": 2855
+        },
+        "Family-slot oracle": {
+          "5": 545,
+          "10": 1391,
+          "20": 2436,
+          "50": 2918,
+          "100": 3066
+        },
+        "Unconstrained oracle": {
+          "5": 1988,
+          "10": 2776,
+          "20": 3124,
+          "50": 3165,
+          "100": 3165
+        }
+      },
+      "rows": [
+        {
+          "k": 5,
+          "method": "Source",
+          "recall": 0.03423967774420947,
+          "recall_denominator": 3972,
+          "recall_numerator": 136
+        },
+        {
+          "k": 10,
+          "method": "Source",
+          "recall": 0.0986908358509567,
+          "recall_denominator": 3972,
+          "recall_numerator": 392
+        },
+        {
+          "k": 20,
+          "method": "Source",
+          "recall": 0.19889224572004027,
+          "recall_denominator": 3972,
+          "recall_numerator": 790
+        },
+        {
+          "k": 50,
+          "method": "Source",
+          "recall": 0.4043303121852971,
+          "recall_denominator": 3972,
+          "recall_numerator": 1606
+        },
+        {
+          "k": 100,
+          "method": "Source",
+          "recall": 0.5110775427995972,
+          "recall_denominator": 3972,
+          "recall_numerator": 2030
+        },
+        {
+          "k": 5,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.03726082578046324,
+          "recall_denominator": 3972,
+          "recall_numerator": 148
+        },
+        {
+          "k": 10,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.11379657603222558,
+          "recall_denominator": 3972,
+          "recall_numerator": 452
+        },
+        {
+          "k": 20,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.23615307150050352,
+          "recall_denominator": 3972,
+          "recall_numerator": 938
+        },
+        {
+          "k": 50,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.4418429003021148,
+          "recall_denominator": 3972,
+          "recall_numerator": 1755
+        },
+        {
+          "k": 100,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.5684793554884189,
+          "recall_denominator": 3972,
+          "recall_numerator": 2258
+        },
+        {
+          "k": 5,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.03700906344410876,
+          "recall_denominator": 3972,
+          "recall_numerator": 147
+        },
+        {
+          "k": 10,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.11782477341389729,
+          "recall_denominator": 3972,
+          "recall_numerator": 468
+        },
+        {
+          "k": 20,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.24672708962739173,
+          "recall_denominator": 3972,
+          "recall_numerator": 980
+        },
+        {
+          "k": 50,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.46701913393756295,
+          "recall_denominator": 3972,
+          "recall_numerator": 1855
+        },
+        {
+          "k": 100,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.5989425981873112,
+          "recall_denominator": 3972,
+          "recall_numerator": 2379
+        },
+        {
+          "k": 5,
+          "method": "Unconstrained oracle",
+          "recall": 0.500503524672709,
+          "recall_denominator": 3972,
+          "recall_numerator": 1988
+        },
+        {
+          "k": 10,
+          "method": "Unconstrained oracle",
+          "recall": 0.6988922457200403,
+          "recall_denominator": 3972,
+          "recall_numerator": 2776
+        },
+        {
+          "k": 20,
+          "method": "Unconstrained oracle",
+          "recall": 0.7865055387713998,
+          "recall_denominator": 3972,
+          "recall_numerator": 3124
+        },
+        {
+          "k": 50,
+          "method": "Unconstrained oracle",
+          "recall": 0.7968277945619335,
+          "recall_denominator": 3972,
+          "recall_numerator": 3165
+        },
+        {
+          "k": 100,
+          "method": "Unconstrained oracle",
+          "recall": 0.7968277945619335,
+          "recall_denominator": 3972,
+          "recall_numerator": 3165
+        },
+        {
+          "k": 5,
+          "method": "Family-slot oracle",
+          "recall": 0.13721047331319233,
+          "recall_denominator": 3972,
+          "recall_numerator": 545
+        },
+        {
+          "k": 10,
+          "method": "Family-slot oracle",
+          "recall": 0.3502014098690836,
+          "recall_denominator": 3972,
+          "recall_numerator": 1391
+        },
+        {
+          "k": 20,
+          "method": "Family-slot oracle",
+          "recall": 0.6132930513595166,
+          "recall_denominator": 3972,
+          "recall_numerator": 2436
+        },
+        {
+          "k": 50,
+          "method": "Family-slot oracle",
+          "recall": 0.7346424974823766,
+          "recall_denominator": 3972,
+          "recall_numerator": 2918
+        },
+        {
+          "k": 100,
+          "method": "Family-slot oracle",
+          "recall": 0.7719033232628398,
+          "recall_denominator": 3972,
+          "recall_numerator": 3066
+        },
+        {
+          "k": 5,
+          "method": "Active-route oracle",
+          "recall": 0.08207452165156093,
+          "recall_denominator": 3972,
+          "recall_numerator": 326
+        },
+        {
+          "k": 10,
+          "method": "Active-route oracle",
+          "recall": 0.20493454179254783,
+          "recall_denominator": 3972,
+          "recall_numerator": 814
+        },
+        {
+          "k": 20,
+          "method": "Active-route oracle",
+          "recall": 0.40055387713997986,
+          "recall_denominator": 3972,
+          "recall_numerator": 1591
+        },
+        {
+          "k": 50,
+          "method": "Active-route oracle",
+          "recall": 0.6372104733131924,
+          "recall_denominator": 3972,
+          "recall_numerator": 2531
+        },
+        {
+          "k": 100,
+          "method": "Active-route oracle",
+          "recall": 0.7187814702920443,
+          "recall_denominator": 3972,
+          "recall_numerator": 2855
+        }
+      ]
+    },
+    "sgfn": {
+      "candidate_pool_coverage": 0.9972306143001007,
+      "candidate_pool_gt_relations": 3961,
+      "candidate_relations": 220848,
+      "candidate_rows": 220848,
+      "observed": {
+        "RelCompat3D-Linear": {
+          "5": 1238,
+          "10": 1579,
+          "20": 1952,
+          "50": 2959,
+          "100": 3695
+        },
+        "RelCompat3D-MLP": {
+          "5": 1238,
+          "10": 1579,
+          "20": 1954,
+          "50": 2962,
+          "100": 3689
+        },
+        "Source": {
+          "5": 1238,
+          "10": 1579,
+          "20": 1951,
+          "50": 2940,
+          "100": 3668
+        }
+      },
+      "oracle": {
+        "Active-route oracle": {
+          "5": 1241,
+          "10": 1606,
+          "20": 2134,
+          "50": 3418,
+          "100": 3912
+        },
+        "Family-slot oracle": {
+          "5": 1708,
+          "10": 1908,
+          "20": 2308,
+          "50": 3498,
+          "100": 3958
+        },
+        "Unconstrained oracle": {
+          "5": 2253,
+          "10": 3327,
+          "20": 3859,
+          "50": 3961,
+          "100": 3961
+        }
+      },
+      "rows": [
+        {
+          "k": 5,
+          "method": "Source",
+          "recall": 0.3116817724068479,
+          "recall_denominator": 3972,
+          "recall_numerator": 1238
+        },
+        {
+          "k": 10,
+          "method": "Source",
+          "recall": 0.39753272910372606,
+          "recall_denominator": 3972,
+          "recall_numerator": 1579
+        },
+        {
+          "k": 20,
+          "method": "Source",
+          "recall": 0.4911883182275932,
+          "recall_denominator": 3972,
+          "recall_numerator": 1951
+        },
+        {
+          "k": 50,
+          "method": "Source",
+          "recall": 0.7401812688821753,
+          "recall_denominator": 3972,
+          "recall_numerator": 2940
+        },
+        {
+          "k": 100,
+          "method": "Source",
+          "recall": 0.9234642497482377,
+          "recall_denominator": 3972,
+          "recall_numerator": 3668
+        },
+        {
+          "k": 5,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.3116817724068479,
+          "recall_denominator": 3972,
+          "recall_numerator": 1238
+        },
+        {
+          "k": 10,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.39753272910372606,
+          "recall_denominator": 3972,
+          "recall_numerator": 1579
+        },
+        {
+          "k": 20,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.4914400805639476,
+          "recall_denominator": 3972,
+          "recall_numerator": 1952
+        },
+        {
+          "k": 50,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.7449647532729103,
+          "recall_denominator": 3972,
+          "recall_numerator": 2959
+        },
+        {
+          "k": 100,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.9302618328298087,
+          "recall_denominator": 3972,
+          "recall_numerator": 3695
+        },
+        {
+          "k": 5,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.3116817724068479,
+          "recall_denominator": 3972,
+          "recall_numerator": 1238
+        },
+        {
+          "k": 10,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.39753272910372606,
+          "recall_denominator": 3972,
+          "recall_numerator": 1579
+        },
+        {
+          "k": 20,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.4919436052366566,
+          "recall_denominator": 3972,
+          "recall_numerator": 1954
+        },
+        {
+          "k": 50,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.7457200402819738,
+          "recall_denominator": 3972,
+          "recall_numerator": 2962
+        },
+        {
+          "k": 100,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.9287512588116817,
+          "recall_denominator": 3972,
+          "recall_numerator": 3689
+        },
+        {
+          "k": 5,
+          "method": "Unconstrained oracle",
+          "recall": 0.5672205438066465,
+          "recall_denominator": 3972,
+          "recall_numerator": 2253
+        },
+        {
+          "k": 10,
+          "method": "Unconstrained oracle",
+          "recall": 0.8376132930513596,
+          "recall_denominator": 3972,
+          "recall_numerator": 3327
+        },
+        {
+          "k": 20,
+          "method": "Unconstrained oracle",
+          "recall": 0.9715508559919436,
+          "recall_denominator": 3972,
+          "recall_numerator": 3859
+        },
+        {
+          "k": 50,
+          "method": "Unconstrained oracle",
+          "recall": 0.9972306143001007,
+          "recall_denominator": 3972,
+          "recall_numerator": 3961
+        },
+        {
+          "k": 100,
+          "method": "Unconstrained oracle",
+          "recall": 0.9972306143001007,
+          "recall_denominator": 3972,
+          "recall_numerator": 3961
+        },
+        {
+          "k": 5,
+          "method": "Family-slot oracle",
+          "recall": 0.4300100704934542,
+          "recall_denominator": 3972,
+          "recall_numerator": 1708
+        },
+        {
+          "k": 10,
+          "method": "Family-slot oracle",
+          "recall": 0.48036253776435045,
+          "recall_denominator": 3972,
+          "recall_numerator": 1908
+        },
+        {
+          "k": 20,
+          "method": "Family-slot oracle",
+          "recall": 0.581067472306143,
+          "recall_denominator": 3972,
+          "recall_numerator": 2308
+        },
+        {
+          "k": 50,
+          "method": "Family-slot oracle",
+          "recall": 0.8806646525679759,
+          "recall_denominator": 3972,
+          "recall_numerator": 3498
+        },
+        {
+          "k": 100,
+          "method": "Family-slot oracle",
+          "recall": 0.9964753272910373,
+          "recall_denominator": 3972,
+          "recall_numerator": 3958
+        },
+        {
+          "k": 5,
+          "method": "Active-route oracle",
+          "recall": 0.3124370594159114,
+          "recall_denominator": 3972,
+          "recall_numerator": 1241
+        },
+        {
+          "k": 10,
+          "method": "Active-route oracle",
+          "recall": 0.4043303121852971,
+          "recall_denominator": 3972,
+          "recall_numerator": 1606
+        },
+        {
+          "k": 20,
+          "method": "Active-route oracle",
+          "recall": 0.5372608257804632,
+          "recall_denominator": 3972,
+          "recall_numerator": 2134
+        },
+        {
+          "k": 50,
+          "method": "Active-route oracle",
+          "recall": 0.8605236656596174,
+          "recall_denominator": 3972,
+          "recall_numerator": 3418
+        },
+        {
+          "k": 100,
+          "method": "Active-route oracle",
+          "recall": 0.9848942598187311,
+          "recall_denominator": 3972,
+          "recall_numerator": 3912
+        }
+      ]
+    },
+    "vlsat": {
+      "candidate_pool_coverage": 0.9972306143001007,
+      "candidate_pool_gt_relations": 3961,
+      "candidate_relations": 220848,
+      "candidate_rows": 220848,
+      "observed": {
+        "RelCompat3D-Linear": {
+          "5": 1671,
+          "10": 2518,
+          "20": 3210,
+          "50": 3685,
+          "100": 3836
+        },
+        "RelCompat3D-MLP": {
+          "5": 1672,
+          "10": 2521,
+          "20": 3214,
+          "50": 3683,
+          "100": 3833
+        },
+        "Source": {
+          "5": 1666,
+          "10": 2511,
+          "20": 3207,
+          "50": 3683,
+          "100": 3827
+        }
+      },
+      "oracle": {
+        "Active-route oracle": {
+          "5": 1836,
+          "10": 2813,
+          "20": 3482,
+          "50": 3842,
+          "100": 3924
+        },
+        "Family-slot oracle": {
+          "5": 2067,
+          "10": 3104,
+          "20": 3723,
+          "50": 3953,
+          "100": 3961
+        },
+        "Unconstrained oracle": {
+          "5": 2253,
+          "10": 3327,
+          "20": 3859,
+          "50": 3961,
+          "100": 3961
+        }
+      },
+      "rows": [
+        {
+          "k": 5,
+          "method": "Source",
+          "recall": 0.41943605236656595,
+          "recall_denominator": 3972,
+          "recall_numerator": 1666
+        },
+        {
+          "k": 10,
+          "method": "Source",
+          "recall": 0.6321752265861027,
+          "recall_denominator": 3972,
+          "recall_numerator": 2511
+        },
+        {
+          "k": 20,
+          "method": "Source",
+          "recall": 0.8074018126888217,
+          "recall_denominator": 3972,
+          "recall_numerator": 3207
+        },
+        {
+          "k": 50,
+          "method": "Source",
+          "recall": 0.9272406847935549,
+          "recall_denominator": 3972,
+          "recall_numerator": 3683
+        },
+        {
+          "k": 100,
+          "method": "Source",
+          "recall": 0.9634944612286002,
+          "recall_denominator": 3972,
+          "recall_numerator": 3827
+        },
+        {
+          "k": 5,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.4206948640483384,
+          "recall_denominator": 3972,
+          "recall_numerator": 1671
+        },
+        {
+          "k": 10,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.6339375629405841,
+          "recall_denominator": 3972,
+          "recall_numerator": 2518
+        },
+        {
+          "k": 20,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.8081570996978852,
+          "recall_denominator": 3972,
+          "recall_numerator": 3210
+        },
+        {
+          "k": 50,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.9277442094662638,
+          "recall_denominator": 3972,
+          "recall_numerator": 3685
+        },
+        {
+          "k": 100,
+          "method": "RelCompat3D-Linear",
+          "recall": 0.9657603222557906,
+          "recall_denominator": 3972,
+          "recall_numerator": 3836
+        },
+        {
+          "k": 5,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.4209466263846928,
+          "recall_denominator": 3972,
+          "recall_numerator": 1672
+        },
+        {
+          "k": 10,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.6346928499496476,
+          "recall_denominator": 3972,
+          "recall_numerator": 2521
+        },
+        {
+          "k": 20,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.8091641490433031,
+          "recall_denominator": 3972,
+          "recall_numerator": 3214
+        },
+        {
+          "k": 50,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.9272406847935549,
+          "recall_denominator": 3972,
+          "recall_numerator": 3683
+        },
+        {
+          "k": 100,
+          "method": "RelCompat3D-MLP",
+          "recall": 0.9650050352467271,
+          "recall_denominator": 3972,
+          "recall_numerator": 3833
+        },
+        {
+          "k": 5,
+          "method": "Unconstrained oracle",
+          "recall": 0.5672205438066465,
+          "recall_denominator": 3972,
+          "recall_numerator": 2253
+        },
+        {
+          "k": 10,
+          "method": "Unconstrained oracle",
+          "recall": 0.8376132930513596,
+          "recall_denominator": 3972,
+          "recall_numerator": 3327
+        },
+        {
+          "k": 20,
+          "method": "Unconstrained oracle",
+          "recall": 0.9715508559919436,
+          "recall_denominator": 3972,
+          "recall_numerator": 3859
+        },
+        {
+          "k": 50,
+          "method": "Unconstrained oracle",
+          "recall": 0.9972306143001007,
+          "recall_denominator": 3972,
+          "recall_numerator": 3961
+        },
+        {
+          "k": 100,
+          "method": "Unconstrained oracle",
+          "recall": 0.9972306143001007,
+          "recall_denominator": 3972,
+          "recall_numerator": 3961
+        },
+        {
+          "k": 5,
+          "method": "Family-slot oracle",
+          "recall": 0.520392749244713,
+          "recall_denominator": 3972,
+          "recall_numerator": 2067
+        },
+        {
+          "k": 10,
+          "method": "Family-slot oracle",
+          "recall": 0.7814702920443102,
+          "recall_denominator": 3972,
+          "recall_numerator": 3104
+        },
+        {
+          "k": 20,
+          "method": "Family-slot oracle",
+          "recall": 0.9373111782477341,
+          "recall_denominator": 3972,
+          "recall_numerator": 3723
+        },
+        {
+          "k": 50,
+          "method": "Family-slot oracle",
+          "recall": 0.9952165156092648,
+          "recall_denominator": 3972,
+          "recall_numerator": 3953
+        },
+        {
+          "k": 100,
+          "method": "Family-slot oracle",
+          "recall": 0.9972306143001007,
+          "recall_denominator": 3972,
+          "recall_numerator": 3961
+        },
+        {
+          "k": 5,
+          "method": "Active-route oracle",
+          "recall": 0.4622356495468278,
+          "recall_denominator": 3972,
+          "recall_numerator": 1836
+        },
+        {
+          "k": 10,
+          "method": "Active-route oracle",
+          "recall": 0.7082074521651561,
+          "recall_denominator": 3972,
+          "recall_numerator": 2813
+        },
+        {
+          "k": 20,
+          "method": "Active-route oracle",
+          "recall": 0.8766364551863042,
+          "recall_denominator": 3972,
+          "recall_numerator": 3482
+        },
+        {
+          "k": 50,
+          "method": "Active-route oracle",
+          "recall": 0.9672708962739174,
+          "recall_denominator": 3972,
+          "recall_numerator": 3842
+        },
+        {
+          "k": 100,
+          "method": "Active-route oracle",
+          "recall": 0.9879154078549849,
+          "recall_denominator": 3972,
+          "recall_numerator": 3924
+        }
+      ]
+    }
+  },
+  "status": "completed",
+  "validations": {
+    "evaluated_methods_within_oracle": true,
+    "all_points_finite": true,
+    "candidate_identity_unique": true,
+    "ground_truth_denominator": true,
+    "oracle_ordering": true,
+    "oracle_recall_monotone_in_k": true,
+    "table_rows_hashes_match": true
+  }
+}

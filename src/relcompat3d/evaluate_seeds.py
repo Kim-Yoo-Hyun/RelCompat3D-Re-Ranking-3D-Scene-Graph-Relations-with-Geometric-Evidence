@@ -15,7 +15,7 @@ from typing import Any
 
 import fit_linear
 import fit_mlp as nonlinear
-import evaluate_train_only as strict
+import evaluate_base_models as model_eval
 import relation_consistency as algebra
 import training_control_utils as controls
 
@@ -93,8 +93,8 @@ def load_seed_candidates(
             continue
         in_scope_rows += 1
         predicate = row["predicate"]["predicate_label"]
-        raw = strict.raw_numeric(row)
-        semantic = strict.finite((row.get("semantic") or {}).get("ranking_score"))
+        raw = model_eval.raw_numeric(row)
+        semantic = model_eval.finite((row.get("semantic") or {}).get("ranking_score"))
         if semantic is None:
             raise ValueError(f"missing_semantic:{row['prediction_id']}")
         compatibility = {"source": 1.0}
@@ -108,7 +108,7 @@ def load_seed_candidates(
             {
                 "id": row["prediction_id"],
                 "scan": row["scan_id"],
-                "key": strict.candidate_key(row),
+                "key": model_eval.candidate_key(row),
                 "family": family,
                 "semantic": float(semantic),
                 "status": row.get("verification_status")
@@ -171,8 +171,8 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_five_seed_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     seeds = [int(seed) for seed in protocol["model_seeds"]]
     if len(seeds) != 5 or len(set(seeds)) != 5:
         raise ValueError("five_unique_seeds_required")
@@ -183,8 +183,8 @@ def main() -> int:
     )
 
     prepared, training_counts = controls.prepare_rows(paths)
-    current_strict = json.loads(
-        paths["current_strict_models"].read_text(encoding="utf-8")
+    current_base = json.loads(
+        paths["current_base_models"].read_text(encoding="utf-8")
     )
     active_linear_payload = json.loads(
         paths["active_linear_models"].read_text(encoding="utf-8")
@@ -193,13 +193,13 @@ def main() -> int:
     active_mlp_payload = json.loads(
         paths["active_mlp_models"].read_text(encoding="utf-8")
     )
-    active_mlp = active_mlp_payload["shared_nonlinear_structured"]
+    active_mlp = active_mlp_payload["shared_mlp_pairwise"]
 
     linear_models: dict[str, dict[str, Any]] = {}
     linear_model_hashes: dict[str, str] = {}
     for seed in seeds:
         refitted_strict, _ = fit_linear.refit_strict_family_models(
-            prepared, current_strict
+            prepared, current_base
         )
         attempts, _ = algebra.fit_attempts(
             prepared, refitted_strict, protocol["linear_optimizer"]
@@ -251,7 +251,7 @@ def main() -> int:
     conditions = ("source",) + tuple(scorers)
     context_map = controls.official_context_map(paths["official_context_annotations"])
     contexts = sorted(context_map)
-    gt, _ = strict.load_gt(paths["ground_truth"])
+    gt, _ = model_eval.load_gt(paths["ground_truth"])
     source_paths = {
         source: paths[f"{source}_verification"]
         for source in ("vlsat", "open3dsg", "sgfn")
@@ -300,8 +300,8 @@ def main() -> int:
     for source, payload in source_payloads.items():
         for k in controls.KS:
             for condition, method in (
-                (f"linear_{active_seed}", "routed_product"),
-                (f"mlp_{active_seed}", "routed_matched_mlp"),
+                (f"linear_{active_seed}", "relcompat3d_linear"),
+                (f"mlp_{active_seed}", "relcompat3d_mlp"),
             ):
                 actual = payload["metrics"][condition][str(k)]
                 expected = reference["sources"][source]["results"][method][str(k)]
@@ -328,15 +328,15 @@ def main() -> int:
             == "active model fixed before robustness analysis; no reselection"
         ),
         "constructed_rows_fixed_across_seeds": protocol["construction_seed_policy"]
-        == "frozen calibration table and linked-pair identities; no resampling",
+        == "fixed calibration table and linked-pair identities; no resampling",
         "split_counts_1061_117_157": (
             training_counts["train_scans"],
-            training_counts["internal_dev_scans"],
+            training_counts["development_scans"],
             training_counts["final_validation_scans"],
         )
         == (1061, 117, 157),
         "train_rows_60208": training_counts["train_rows"] == 60208,
-        "internal_dev_rows_6246": training_counts["internal_dev_rows"] == 6246,
+        "development_rows_6246": training_counts["development_rows"] == 6246,
         "mlp_training_counts_match": mlp_counts
         == {
             "train_rows": 60208,
@@ -403,7 +403,7 @@ def main() -> int:
             for source, payload in source_payloads.items()
         },
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     out.mkdir(parents=True, exist_ok=True)
     controls.write_json(out / "summary.json", summary)

@@ -15,9 +15,9 @@ from typing import Any, Callable
 
 import numpy as np
 
-import evaluate_main as base
-import evaluate_support_intervals as scan_bootstrap
-import evaluate_train_only as strict
+import evaluate_all_families as base
+import evaluate_support_bootstrap as scan_bootstrap
+import evaluate_base_models as model_eval
 import fit_mlp as nonlinear
 import relation_consistency as algebra
 
@@ -144,12 +144,12 @@ def routed_order(
         else:
             queues[family] = sorted(rows, key=lambda row: (-score(row), row["key"]))
     offsets = {family: 0 for family in FAMILIES}
-    routed: list[dict[str, Any]] = []
+    ranked: list[dict[str, Any]] = []
     for slot in original:
         family = slot["family"]
-        routed.append(queues[family][offsets[family]])
+        ranked.append(queues[family][offsets[family]])
         offsets[family] += 1
-    return routed
+    return ranked
 
 
 def hard_tail_order(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -170,12 +170,12 @@ def hard_tail_order(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 ),
             )
     offsets = {family: 0 for family in FAMILIES}
-    routed: list[dict[str, Any]] = []
+    ranked: list[dict[str, Any]] = []
     for slot in original:
         family = slot["family"]
-        routed.append(queues[family][offsets[family]])
+        ranked.append(queues[family][offsets[family]])
         offsets[family] += 1
-    return routed
+    return ranked
 
 
 def hard_drop_selection(
@@ -193,7 +193,7 @@ def hard_drop_selection(
 def fit_positive_density(
     path: Path,
     train_scans: set[str],
-    feature_contract: dict[str, list[str]],
+    feature_spec: dict[str, list[str]],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     values: dict[str, dict[str, list[float]]] = defaultdict(
         lambda: defaultdict(list)
@@ -219,11 +219,11 @@ def fit_positive_density(
             counts["train_positive_rows"] += 1
             family = (row.get("predicate") or {}).get("predicate_family")
             predicate = (row.get("predicate") or {}).get("predicate_label")
-            if family not in RERANKED_FAMILIES or predicate not in feature_contract:
+            if family not in RERANKED_FAMILIES or predicate not in feature_spec:
                 continue
-            aligned = strict.align_predicate(strict.raw_numeric(row), predicate)
+            aligned = model_eval.align_predicate(model_eval.raw_numeric(row), predicate)
             row_used = False
-            for feature in feature_contract[predicate]:
+            for feature in feature_spec[predicate]:
                 value = finite(aligned.get(feature))
                 if value is None:
                     counts["missing_feature_cells"] += 1
@@ -233,7 +233,7 @@ def fit_positive_density(
             if row_used:
                 counts["used_rows"] += 1
     stats: dict[str, Any] = {}
-    for predicate, features in feature_contract.items():
+    for predicate, features in feature_spec.items():
         stats[predicate] = {}
         for feature in features:
             array = np.asarray(values[predicate][feature], dtype=np.float64)
@@ -256,7 +256,7 @@ def direct_density(
     raw: dict[str, float],
     stats: dict[str, Any],
 ) -> float:
-    aligned = strict.align_predicate(raw, predicate)
+    aligned = model_eval.align_predicate(raw, predicate)
     squared: list[float] = []
     for feature, cell in stats[predicate].items():
         value = finite(aligned.get(feature))
@@ -312,8 +312,8 @@ def load_candidates(
                 duplicate_prediction_ids += 1
             seen_prediction_ids.add(prediction_id)
             predicate = row["predicate"]["predicate_label"]
-            raw = strict.raw_numeric(row)
-            semantic = strict.finite((row.get("semantic") or {}).get("ranking_score"))
+            raw = model_eval.raw_numeric(row)
+            semantic = model_eval.finite((row.get("semantic") or {}).get("ranking_score"))
             if semantic is None:
                 raise ValueError(f"missing_semantic:{row['prediction_id']}")
             linear = linear_score(family, predicate, raw)
@@ -331,7 +331,7 @@ def load_candidates(
                 {
                     "id": prediction_id,
                     "scan": row["scan_id"],
-                    "key": strict.candidate_key(row),
+                    "key": model_eval.candidate_key(row),
                     "family": family,
                     "predicate": predicate,
                     "semantic": float(semantic),
@@ -461,7 +461,7 @@ def summarize(
                 boot = weighted_ratio(numerator, denominator, weights)
                 report[method][str(k)][metric] = {
                     "point": point,
-                    "scan_cluster_ci95": base.ci95(boot),
+                    "bootstrap_intervals_ci95": base.ci95(boot),
                     "numerator": int(numerator.sum()),
                     "denominator": int(denominator.sum()),
                 }
@@ -486,7 +486,7 @@ def summarize(
                         if left is not None and right is not None
                         else None
                     ),
-                    "paired_scan_cluster_ci95": base.ci95(delta),
+                    "paired_bootstrap_intervals_ci95": base.ci95(delta),
                 }
     return report
 
@@ -706,9 +706,9 @@ def reported_match(
     reference: dict[str, Any],
 ) -> tuple[bool, list[dict[str, Any]]]:
     method_map = {
-        "source": "source_score",
-        "linear__identity": "routed_product",
-        "mlp__identity": "routed_matched_mlp",
+        "source": "source",
+        "linear__identity": "relcompat3d_linear",
+        "mlp__identity": "relcompat3d_mlp",
     }
     rows: list[dict[str, Any]] = []
     exact = True
@@ -761,11 +761,11 @@ def metric_rows(
                         ).get("point"),
                         "recall_delta_ci95_low": (
                             (delta.get("recall") or {})
-                            .get("paired_scan_cluster_ci95", [None, None])[0]
+                            .get("paired_bootstrap_intervals_ci95", [None, None])[0]
                         ),
                         "recall_delta_ci95_high": (
                             (delta.get("recall") or {})
-                            .get("paired_scan_cluster_ci95", [None, None])[1]
+                            .get("paired_bootstrap_intervals_ci95", [None, None])[1]
                         ),
                         "violation": cell["violation_all"]["point"],
                         "violation_delta": (
@@ -773,11 +773,11 @@ def metric_rows(
                         ).get("point"),
                         "violation_delta_ci95_low": (
                             (delta.get("violation_all") or {})
-                            .get("paired_scan_cluster_ci95", [None, None])[0]
+                            .get("paired_bootstrap_intervals_ci95", [None, None])[0]
                         ),
                         "violation_delta_ci95_high": (
                             (delta.get("violation_all") or {})
-                            .get("paired_scan_cluster_ci95", [None, None])[1]
+                            .get("paired_bootstrap_intervals_ci95", [None, None])[1]
                         ),
                         "decidable_violation": cell[
                             "violation_decidable"
@@ -804,9 +804,9 @@ def markdown(summary: dict[str, Any]) -> str:
         "",
         "## Reported-result rerun check",
         "",
-        f"- Identity Linear/MLP and Source match the active routed-comparator "
+        f"- Identity Linear/MLP and Source match the active ranked-comparator "
         f"points: `{summary['validations']['reported_identity_points_exact']}`.",
-        f"- Archived Tier-B hashes match the active manifests: "
+        f"- Archived input hashes match the active manifests: "
         f"`{summary['validations']['tier_b_hashes_match']}`.",
         "",
         "## K=50 operating points",
@@ -859,16 +859,16 @@ def main() -> int:
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
     if (
         protocol.get("status")
-        != "frozen_before_p0_score_mapping_and_simple_baselines"
+        != "ready"
     ):
-        raise ValueError("protocol_not_frozen")
+        raise ValueError("protocol_version_mismatch")
     paths = {
         name: resolve(root, value) for name, value in protocol["inputs"].items()
     }
     missing = [name for name, path in paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
-    locked = protocol["locked_sha256"]
+    locked = protocol["expected_sha256"]
     observed_hashes = {name: sha256_file(path) for name, path in paths.items()}
     mismatches = {
         name: {"expected": expected, "actual": observed_hashes.get(name)}
@@ -888,20 +888,20 @@ def main() -> int:
         raise ValueError("training_table_stream_hash_mismatch")
 
     linear_models = json.loads(
-        paths["structured_models"].read_text(encoding="utf-8")
+        paths["linear_models"].read_text(encoding="utf-8")
     )
     nonlinear_models = json.loads(
         paths["nonlinear_models"].read_text(encoding="utf-8")
     )
-    linear_score = base.make_structured_scorer(linear_models)
-    mlp_model = nonlinear_models["shared_nonlinear_structured"]
+    linear_score = base.make_linear_scorer(linear_models)
+    mlp_model = nonlinear_models["shared_mlp_pairwise"]
     annotations = json.loads(
         paths["official_context_annotations"].read_text(encoding="utf-8")
     )
     contexts = sorted(
         {f"{row['scan']}_{row['split']}" for row in annotations["scans"]}
     )
-    gt, _ = strict.load_gt(paths["ground_truth"])
+    gt, _ = model_eval.load_gt(paths["ground_truth"])
     source_paths = {
         "vlsat": paths["vlsat_verification"],
         "open3dsg": paths["open3dsg_verification"],
@@ -980,10 +980,10 @@ def main() -> int:
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
         "schema_version": "relcompat3d_score_robustness",
-        "protocol_frozen_at_kst": protocol["created_at_kst"],
+        "protocol_created_at_kst": protocol["created_at_kst"],
         "status": status,
         "classification": "post-hoc robustness and closest-simple-baseline analysis; no method selection",
-        "candidate_pool": "active main_experiment routed comparator pool",
+        "candidate_pool": "active main ranked comparator pool",
         "score_mappings": protocol["score_mappings"],
         "simple_baselines": protocol["simple_baselines"],
         "density_fit": {
@@ -994,12 +994,12 @@ def main() -> int:
         "rank_stability": stability,
         "route_checks": route_checks,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     out.mkdir(parents=True, exist_ok=True)
     write_json(out / "summary.json", summary)
     write_json(out / "density_stats.json", summary["density_fit"])
-    write_csv(out / "reported_validation.csv", reference_rows)
+    write_csv(out / "result_check.csv", reference_rows)
     write_csv(out / "score_mapping.csv", metric_rows(sources, mapping_methods))
     write_csv(out / "simple_baselines.csv", metric_rows(sources, baseline_methods))
     stability_rows: list[dict[str, Any]] = []
@@ -1025,7 +1025,7 @@ def main() -> int:
     output_names = (
         "summary.json",
         "density_stats.json",
-        "reported_validation.csv",
+        "result_check.csv",
         "score_mapping.csv",
         "simple_baselines.csv",
         "rank_stability.csv",
@@ -1061,7 +1061,7 @@ def main() -> int:
             "Positive-density is a training-derived diagonal robust-density baseline, not a learned estimator.",
             "The mapping grid is post-hoc and no mapping is selected as a replacement method.",
         ],
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     write_json(out / "manifest.json", manifest)
     return 0 if status == "completed" else 2

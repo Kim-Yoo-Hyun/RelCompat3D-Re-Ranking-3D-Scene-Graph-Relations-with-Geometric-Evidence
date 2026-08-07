@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the frozen raw-surface construct-validity audit for RelCompat3D."""
+"""Run the fixed raw-surface construct-validity audit for RelCompat3D."""
 
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ from typing import Any, Iterable
 
 import numpy as np
 
-import evaluate_main as base
-import evaluate_train_only as strict
+import evaluate_all_families as base
+import evaluate_base_models as model_eval
 
 
 FAMILIES = ("proximity", "relative_vertical")
@@ -553,11 +553,11 @@ def all_audit_statuses(
 
 def add_primary_ranking(grouped: dict[str, list[dict[str, Any]]]) -> None:
     for candidates in grouped.values():
-        source_order = sorted(candidates, key=lambda row: (-row["scores"]["source_score"], row["key"]))
+        source_order = sorted(candidates, key=lambda row: (-row["scores"]["source"], row["key"]))
         queues: dict[str, list[dict[str, Any]]] = {}
         for family in base.FAMILIES:
             rows = [row for row in candidates if row["family"] == family]
-            score_name = "source_score" if family == "support_contact" else "structured_product"
+            score_name = "source" if family == "support_contact" else "all_family_product"
             queues[family] = sorted(rows, key=lambda row: (-row["scores"][score_name], row["key"]))
         offsets = {family: 0 for family in base.FAMILIES}
         output: list[dict[str, Any]] = []
@@ -586,14 +586,14 @@ def load_source_rankings(
     path: Path,
     contexts: list[str],
     scorer: Any,
-    strict_models: dict[str, Any],
+    base_models: dict[str, Any],
 ) -> tuple[dict[str, dict[str, list[dict[str, Any]]]], dict[str, Any]]:
-    grouped, load_info = base.load_candidates(path, scorer, strict_models)
+    grouped, load_info = base.load_candidates(path, scorer, base_models)
     add_primary_ranking(grouped)
     rankings: dict[str, dict[str, list[dict[str, Any]]]] = {method: {} for method in METHODS}
     for context in contexts:
         candidates = grouped.get(context, [])
-        source = sorted(candidates, key=lambda row: (-row["scores"]["source_score"], row["key"]))[:100]
+        source = sorted(candidates, key=lambda row: (-row["scores"]["source"], row["key"]))[:100]
         reranked = sorted(candidates, key=lambda row: (-row["scores"]["relcompat3d"], row["key"]))[:100]
         rankings["source"][context] = [lightweight(row, context) for row in source]
         rankings["relcompat3d"][context] = [lightweight(row, context) for row in reranked]
@@ -639,7 +639,7 @@ def load_raw_features(path: Path, target_ids: set[str]) -> dict[str, dict[str, f
             row = json.loads(line)
             prediction_id = str(row["prediction_id"])
             if prediction_id in target_ids:
-                features[prediction_id] = strict.raw_numeric(row)
+                features[prediction_id] = model_eval.raw_numeric(row)
                 if len(features) == len(target_ids):
                     break
     return features
@@ -654,7 +654,7 @@ def load_ground_truth_scope(path: Path) -> tuple[dict[str, set[tuple[Any, ...]]]
                 continue
             row = json.loads(line)
             context = str(row["subgraph_id"])
-            key = strict.gt_key(row)
+            key = model_eval.gt_key(row)
             family = str(row["predicate_family"])
             if family in base.FAMILIES:
                 all_gt[context].add(key)
@@ -780,7 +780,7 @@ def summarize_contributions(values: dict[str, Any], samples: np.ndarray) -> dict
                     boot = bootstrap_ratio(numerator, denominator, samples)
                     report[source]["recall"][method][str(k)][metric] = {
                         "point": point,
-                        "scan_cluster_ci95": ci95(boot),
+                        "bootstrap_intervals_ci95": ci95(boot),
                         "numerator": int(numerator.sum()),
                         "denominator": int(denominator.sum()),
                     }
@@ -794,7 +794,7 @@ def summarize_contributions(values: dict[str, Any], samples: np.ndarray) -> dict
                 delta = recall_cache["relcompat3d"][str(k)][metric] - recall_cache["source"][str(k)][metric]
                 report[source]["recall"]["relcompat3d_minus_source"][str(k)][metric] = {
                     "point": left - right if left is not None and right is not None else None,
-                    "paired_scan_cluster_ci95": ci95(delta),
+                    "paired_bootstrap_intervals_ci95": ci95(delta),
                 }
         for audit in AUDITS:
             report[source]["audits"][audit] = {method: {} for method in METHODS}
@@ -810,7 +810,7 @@ def summarize_contributions(values: dict[str, Any], samples: np.ndarray) -> dict
                         boot = bootstrap_ratio(numerator, denominator, samples)
                         report[source]["audits"][audit][method][str(k)][metric] = {
                             "point": point,
-                            "scan_cluster_ci95": ci95(boot),
+                            "bootstrap_intervals_ci95": ci95(boot),
                             "numerator": int(numerator.sum()),
                             "denominator": int(denominator.sum()),
                         }
@@ -828,7 +828,7 @@ def summarize_contributions(values: dict[str, Any], samples: np.ndarray) -> dict
                     delta = cache["relcompat3d"][str(k)][metric] - cache["source"][str(k)][metric]
                     report[source]["audits"][audit]["relcompat3d_minus_source"][str(k)][metric] = {
                         "point": left - right if left is not None and right is not None else None,
-                        "paired_scan_cluster_ci95": ci95(delta),
+                        "paired_bootstrap_intervals_ci95": ci95(delta),
                     }
     return report
 
@@ -1012,13 +1012,13 @@ def metrics_csv_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
                         "recall_all": recall["recall_all"]["point"],
                         "recall_scope": recall["recall_scope"]["point"],
                         "violation": cell["violation"]["point"],
-                        "violation_ci_low": cell["violation"]["scan_cluster_ci95"][0],
-                        "violation_ci_high": cell["violation"]["scan_cluster_ci95"][1],
+                        "violation_ci_low": cell["violation"]["bootstrap_intervals_ci95"][0],
+                        "violation_ci_high": cell["violation"]["bootstrap_intervals_ci95"][1],
                         "coverage": cell["coverage"]["point"],
                         "uncertainty": cell["uncertainty"]["point"],
                         "delta_violation": delta["violation"]["point"] if method == "relcompat3d" else None,
-                        "delta_violation_ci_low": delta["violation"]["paired_scan_cluster_ci95"][0] if method == "relcompat3d" else None,
-                        "delta_violation_ci_high": delta["violation"]["paired_scan_cluster_ci95"][1] if method == "relcompat3d" else None,
+                        "delta_violation_ci_low": delta["violation"]["paired_bootstrap_intervals_ci95"][0] if method == "relcompat3d" else None,
+                        "delta_violation_ci_high": delta["violation"]["paired_bootstrap_intervals_ci95"][1] if method == "relcompat3d" else None,
                         **cell["counts"],
                     })
     return rows
@@ -1042,7 +1042,7 @@ def build_markdown(
     results: dict[str, Any],
     mechanism: dict[str, Any],
     coverage: dict[str, Any],
-    claim_boundary: str,
+    evaluation_scope: str,
 ) -> str:
     lines = [
         "# Orthogonal Geometry Audit v1",
@@ -1051,7 +1051,7 @@ def build_markdown(
         "",
         "The primary audit covers proximity and relative-vertical selections only. Point and mesh labels are derived from raw instance surfaces without reading OBB inputs, source scores, compatibility scores, or the existing verifier status.",
         "",
-        "## Frozen train-only thresholds",
+        "## Fixed training-split thresholds",
         "",
         "| Audit | Minimum endpoint support | Proximity P90 / P99 | Vertical absolute-signed P10 |",
         "| --- | ---: | ---: | ---: |",
@@ -1073,7 +1073,7 @@ def build_markdown(
             left = payload["recall"]["source"][str(k)]["recall_all"]["point"]
             right = payload["recall"]["relcompat3d"][str(k)]["recall_all"]["point"]
             delta = payload["recall"]["relcompat3d_minus_source"][str(k)]["recall_all"]
-            ci = delta["paired_scan_cluster_ci95"]
+            ci = delta["paired_bootstrap_intervals_ci95"]
             lines.append(f"| {source} | {k} | {fmt(left)} | {fmt(right)} | {delta['point']:+.4f} [{ci[0]:+.4f}, {ci[1]:+.4f}] |")
     lines += ["", "## Independent audit results", ""]
     for audit in AUDITS:
@@ -1089,7 +1089,7 @@ def build_markdown(
                 source_cell = cell["source"][str(k)]
                 method_cell = cell["relcompat3d"][str(k)]
                 delta = cell["relcompat3d_minus_source"][str(k)]["violation"]
-                ci = delta["paired_scan_cluster_ci95"]
+                ci = delta["paired_bootstrap_intervals_ci95"]
                 lines.append(
                     f"| {source} | {k} | {fmt(source_cell['violation']['point'])} | {fmt(method_cell['violation']['point'])} | "
                     f"{delta['point']:+.4f} [{ci[0]:+.4f}, {ci[1]:+.4f}] | "
@@ -1114,7 +1114,7 @@ def build_markdown(
         "",
         f"Raw-surface inventory: {coverage['evaluation']['scans_available']}/{coverage['evaluation']['scans_requested']} evaluation scans and {coverage['training']['scans_available']}/{coverage['training']['scans_requested']} training scans.",
         "",
-        claim_boundary,
+        evaluation_scope,
         "",
     ]
     return "\n".join(lines)
@@ -1128,20 +1128,17 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") not in {
-        "frozen_before_orthogonal_audit_execution",
-        "public_execution_protocol",
-    }:
+    if protocol.get("status") != "ready":
         raise ValueError("unsupported_protocol_status")
     if tuple(protocol["scope"]["ks"]) != KS:
-        raise ValueError("k_contract_mismatch")
+        raise ValueError("rank_cutoffs_mismatch")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     missing = [name for name, path in paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
-    locked_hashes = protocol.get("locked_sha256", {})
-    public_mode = protocol.get("status") == "public_execution_protocol"
-    for name, expected in locked_hashes.items():
+    expected_hashes = protocol.get("expected_sha256", {})
+    local_input_mode = not bool(expected_hashes)
+    for name, expected in expected_hashes.items():
         actual = sha256_file(paths[name])
         if actual != expected:
             raise ValueError(f"hash_mismatch:{name}:{actual}")
@@ -1156,13 +1153,13 @@ def main() -> int:
     annotations = json.loads(paths["official_context_annotations"].read_text(encoding="utf-8"))
     contexts = sorted({f"{row['scan']}_{row['split']}" for row in annotations["scans"]})
     context_scans = {context.rsplit("_", 1)[0] for context in contexts}
-    structured_models = json.loads(paths["structured_models"].read_text(encoding="utf-8"))
-    strict_models = json.loads(paths["strict_models"].read_text(encoding="utf-8"))
-    scorer = base.make_structured_scorer(structured_models)
+    linear_models = json.loads(paths["linear_models"].read_text(encoding="utf-8"))
+    base_models = json.loads(paths["base_models"].read_text(encoding="utf-8"))
+    scorer = base.make_linear_scorer(linear_models)
 
-    point_maximum = int(protocol["raw_surface_contract"]["point_audit"]["maximum_vertices_per_object"])
-    triangle_maximum = int(protocol["raw_surface_contract"]["mesh_audit"]["maximum_triangles_per_object"])
-    minimum_scale = float(protocol["raw_surface_contract"]["minimum_metric_scale_m"])
+    point_maximum = int(protocol["point_mesh_config"]["point_audit"]["maximum_vertices_per_object"])
+    triangle_maximum = int(protocol["point_mesh_config"]["mesh_audit"]["maximum_triangles_per_object"])
+    minimum_scale = float(protocol["point_mesh_config"]["minimum_metric_scale_m"])
 
     training_cases = load_training_cases(paths["training_table"], train_scans)
     training_measurements, _, train_inventory = measure_pairs(
@@ -1187,7 +1184,7 @@ def main() -> int:
     source_counts: dict[str, Any] = {}
     for source, path in source_paths.items():
         print(json.dumps({"loading_source": source}), flush=True)
-        rankings[source], source_counts[source] = load_source_rankings(path, contexts, scorer, strict_models)
+        rankings[source], source_counts[source] = load_source_rankings(path, contexts, scorer, base_models)
 
     candidates = selected_candidates(rankings)
     maximum_cases = int(protocol["synthetic_intervention"]["maximum_cases_per_family"])
@@ -1247,7 +1244,7 @@ def main() -> int:
         "protocol_fixed_before_execution": True,
         "declared_model_hashes_match": all(
             sha256_file(paths[name]) == expected
-            for name, expected in locked_hashes.items()
+            for name, expected in expected_hashes.items()
         ),
         "train_scans_1061": len(train_scans) == 1061,
         "validation_scans_157": len(validation_scans) == 157,
@@ -1255,7 +1252,9 @@ def main() -> int:
         "paper_scope_gt_denominator_3972": all_gt_denominator == 3972,
         "audit_scope_gt_denominator_2156": scope_gt_denominator == 2156,
         "context_scans_match_validation_split": context_scans == validation_scans,
-        "training_cases_train_only": all(row["scan_id"] in train_scans for row in training_cases),
+        "training_cases_from_training_split": all(
+            row["scan_id"] in train_scans for row in training_cases
+        ),
         "training_and_validation_disjoint": not bool(train_scans & validation_scans),
         "all_training_surface_scans_available": train_inventory["scans_available"] == train_inventory["scans_requested"],
         "all_validation_surface_scans_available": eval_inventory["scans_available"] == eval_inventory["scans_requested"] == 157,
@@ -1263,8 +1262,8 @@ def main() -> int:
         "all_ks_evaluated": tuple(protocol["scope"]["ks"]) == KS,
         "point_mesh_consensus_reported": set(AUDITS) == {"point", "mesh", "consensus"},
         "no_obb_or_existing_verifier_input": (
-            not protocol["firewall"]["obb_measurements_in_audit"]
-            and not protocol["firewall"]["main_verifier_status_in_audit"]
+            not protocol["input_separation"]["obb_measurements_in_audit"]
+            and not protocol["input_separation"]["main_verifier_status_in_audit"]
         ),
         "mechanism_cases_present_for_both_families": all(
             mechanism["families"][family]["selected_cases"] > 0 for family in FAMILIES
@@ -1273,7 +1272,7 @@ def main() -> int:
     status = "completed" if all(validations.values()) else "failed_validation"
     coverage = {"training": train_inventory, "evaluation": eval_inventory, "sources": source_counts}
     summary = {
-        "schema_version": "relcompat3d_orthogonal_geometry_audit_evaluation_v1",
+        "schema_version": "relcompat3d_relcompat3d_point_mesh_analysis_evaluation_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "scope": protocol["scope"],
@@ -1282,13 +1281,13 @@ def main() -> int:
         "results": result_summary,
         "mechanism": mechanism,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     write_json(temp / "summary.json", summary)
     metric_rows = metrics_csv_rows(result_summary)
     write_csv(temp / "metrics.csv", metric_rows)
     (temp / "summary.md").write_text(
-        build_markdown(status, thresholds, result_summary, mechanism, coverage, protocol["claim_boundary"]),
+        build_markdown(status, thresholds, result_summary, mechanism, coverage, protocol["evaluation_scope"]),
         encoding="utf-8",
     )
 
@@ -1313,7 +1312,7 @@ def main() -> int:
                 "evaluation_inventory_sha256": eval_inventory["inventory_sha256"],
             }
     manifest = {
-        "schema_version": "relcompat3d_orthogonal_geometry_audit_manifest_v1",
+        "schema_version": "relcompat3d_relcompat3d_point_mesh_analysis_manifest_v1",
         "status": status,
         "protocol": {"path": relpath(root, protocol_path), "sha256": sha256_file(protocol_path)},
         "inputs": input_manifest,
@@ -1323,9 +1322,9 @@ def main() -> int:
             "env UID=$(id -u) GID=$(id -g) docker compose "
             "-f configs/relcompat3d/compose.yaml run --rm "
             + (
-                "relcompat3d_surface_audit_trained"
-                if public_mode
-                else "relcompat3d_surface_audit"
+                "relcompat3d_point_mesh_analysis"
+                if local_input_mode
+                else "relcompat3d_point_mesh_audit"
             )
         ),
     }

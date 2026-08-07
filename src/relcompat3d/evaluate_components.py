@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import evaluate_train_only as strict
+import evaluate_base_models as model_eval
 import fit_mlp as nonlinear
 import training_control_utils as controls
 
@@ -66,7 +66,7 @@ def make_markdown(summary: dict[str, Any]) -> str:
         f"Status: `{summary['status']}`",
         "",
         "Full, no-pairwise-loss, and no-transformation-averaging are matched "
-        "within each estimator. All results use the frozen candidates and "
+        "within each estimator. All results use the fixed candidates and "
         "family-aware route.",
         "",
         "## Held-out Linked-Pair Diagnostics",
@@ -121,10 +121,10 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_component_analysis":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     if tuple(protocol["conditions"]) != CONDITIONS:
-        raise ValueError("condition_contract_mismatch")
+        raise ValueError("analysis_conditions_mismatch")
     paths, input_checks = controls.validate_inputs(
         root, protocol, deferred=STREAM_INPUTS
     )
@@ -147,7 +147,7 @@ def main() -> int:
     active_mlp_payload = json.loads(
         paths["active_mlp_models"].read_text(encoding="utf-8")
     )
-    active_mlp = active_mlp_payload["shared_nonlinear_structured"]
+    active_mlp = active_mlp_payload["shared_mlp_pairwise"]
     active_mlp_error = max_parameter_error(mlp_full, active_mlp)
 
     linear_payload = json.loads(paths["active_linear_models"].read_text(encoding="utf-8"))
@@ -198,7 +198,7 @@ def main() -> int:
 
     context_map = controls.official_context_map(paths["official_context_annotations"])
     contexts = sorted(context_map)
-    gt, _ = strict.load_gt(paths["ground_truth"])
+    gt, _ = model_eval.load_gt(paths["ground_truth"])
     source_paths = {
         source: paths[f"{source}_verification"]
         for source in ("vlsat", "open3dsg", "sgfn")
@@ -234,8 +234,8 @@ def main() -> int:
     for source in sources:
         for k in controls.KS:
             for condition, reference_method in (
-                ("linear_full", "routed_product"),
-                ("mlp_full", "routed_matched_mlp"),
+                ("linear_full", "relcompat3d_linear"),
+                ("mlp_full", "relcompat3d_mlp"),
             ):
                 actual = sources[source]["metrics"][condition][str(k)]
                 expected = reference["sources"][source]["results"][reference_method][
@@ -296,12 +296,12 @@ def main() -> int:
         "all_input_hashes_match": True,
         "split_counts_1061_117_157": (
             training_counts["train_scans"],
-            training_counts["internal_dev_scans"],
+            training_counts["development_scans"],
             training_counts["final_validation_scans"],
         )
         == (1061, 117, 157),
         "train_rows_60208": training_counts["train_rows"] == 60208,
-        "internal_dev_rows_6246": training_counts["internal_dev_rows"] == 6246,
+        "development_rows_6246": training_counts["development_rows"] == 6246,
         "mlp_training_counts_match": mlp_counts
         == {
             "train_rows": 60208,
@@ -352,7 +352,7 @@ def main() -> int:
         "linked_pair_diagnostics": linked_pair,
         "sources": sources,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     out.mkdir(parents=True, exist_ok=True)
     controls.write_json(out / "summary.json", summary)

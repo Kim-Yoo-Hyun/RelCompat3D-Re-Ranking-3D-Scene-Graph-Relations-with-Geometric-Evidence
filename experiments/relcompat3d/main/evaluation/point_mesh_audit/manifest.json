@@ -1,0 +1,85 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_point_mesh_analysis",
+  "inputs": {
+    "final_validation_scans": {
+      "path": "experiments/relcompat3d/training/splits/final_validation_scans.txt",
+      "sha256": "3687b892938c25a44a07d6e0e26788b98ffe5c5319f04407d446247c2a67e7e4"
+    },
+    "ground_truth": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "official_context_annotations": {
+      "path": "local_dataset/3DSSG_subset/relationships_validation.json",
+      "sha256": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e"
+    },
+    "open3dsg_verification": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/geometry/verification.jsonl",
+      "sha256": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720"
+    },
+    "raw_scan_root": {
+      "evaluation_inventory_sha256": "aae07df0fc86c078a8d8a1aee82a60c0beb2832af768f426ef7551efc2c318f1",
+      "path": "local_dataset/3RScan/scans",
+      "training_inventory_sha256": "421cae06996b2a651b1b9956b0ee7e80e7107e8c1d04a7455e63e014d3cf90e4"
+    },
+    "sgfn_verification": {
+      "path": "experiments/relcompat3d/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+    },
+    "base_models": {
+      "path": "experiments/relcompat3d/main/fit/base_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2"
+    },
+    "linear_models": {
+      "path": "experiments/relcompat3d/main/fit/linear_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    },
+    "train_scans": {
+      "path": "experiments/relcompat3d/training/splits/train_scans.txt",
+      "sha256": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53"
+    },
+    "training_table": {
+      "path": "experiments/relcompat3d/training/calibration/export/table.jsonl",
+      "sha256": "ada87676faf0df67c8d8873ceb8efa54ab29507306fca24d4020b21d5e39af6e"
+    },
+    "vlsat_verification": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+    }
+  },
+  "outputs": {
+    "evaluation_measurements.jsonl": "6faaf68264660c7122fe1f307cb7cf2b24247c08d4725cde60ee3d2b55f1831c",
+    "mechanism.json": "3eb37f45b950bcbe87283b5d64b15e586ceb82445c0086e50f6e450f6ba6780b",
+    "mechanism_rows.csv": "c660be81f4230392a4edbd1ea9caa62f6d6f85a3867612590c953a33b2dcd0e3",
+    "metrics.csv": "1df335d5d3f7575e5837a316c529814fd7804f2e075a36f41143b9dd2aa2c5a3",
+    "summary.json": "490d99a32081ae77a45f8bf9cdebecf6fe46d566cf65222f5d3e6112f6ca56a0",
+    "summary.md": "86297da992714dd48d1c85598df15ceac0fe52b4363c3fd9f37a858ba0c407dc",
+    "thresholds.json": "b37bc6189b3a201d3a99f19640896ebe79f61a4f51aecf32396b88ba154a7437",
+    "training_measurements.jsonl": "1490a9362ab9233f02cecda31b15a218c2210fc824580a1e13c8d6bf479f1e46"
+  },
+  "protocol": {
+    "path": "experiments/relcompat3d/main/protocols/point_mesh_audit.json",
+    "sha256": "c694fb24bb6cafae0d0e185df4428eeec2e5004d82d3467934d7c90af627bd50"
+  },
+  "schema_version": "relcompat3d_relcompat3d_point_mesh_analysis_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_ks_evaluated": true,
+    "all_three_sources_evaluated": true,
+    "all_training_surface_scans_available": true,
+    "all_validation_surface_scans_available": true,
+    "audit_scope_gt_denominator_2156": true,
+    "context_scans_match_validation_split": true,
+    "locked_model_hashes_match": true,
+    "mechanism_cases_present_for_both_families": true,
+    "no_obb_or_existing_verifier_input": true,
+    "official_contexts_548": true,
+    "paper_scope_gt_denominator_3972": true,
+    "point_mesh_consensus_reported": true,
+    "protocol_ready": true,
+    "train_scans_1061": true,
+    "training_and_validation_disjoint": true,
+    "training_cases_train_only": true,
+    "validation_scans_157": true
+  }
+}

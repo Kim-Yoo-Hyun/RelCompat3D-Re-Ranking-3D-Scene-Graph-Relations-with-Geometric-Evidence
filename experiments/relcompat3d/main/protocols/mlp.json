@@ -1,0 +1,27 @@
+{
+  "schema_version": "relcompat3d_mlp_training_v1",
+  "status": "ready_for_mlp_fit",
+  "purpose": "Fit the shared RelCompat3D-MLP estimators on the same training examples used by RelCompat3D-Linear.",
+  "inputs": {
+    "calibration_table": "experiments/relcompat3d/training/calibration/export/table.jsonl",
+    "train_scans": "experiments/relcompat3d/training/splits/train_scans.txt",
+    "development_scans": "experiments/relcompat3d/training/splits/development_scans.txt",
+    "final_validation_scans": "experiments/relcompat3d/training/splits/final_validation_scans.txt"
+  },
+  "model": {
+    "architecture": "two-unit ReLU MLP with a predicate-linear skip connection",
+    "input_features": 29,
+    "parameter_count": 69,
+    "source_relation_score_input": false,
+    "predictor_identity_input": false
+  },
+  "optimizer": {
+    "epochs": 120,
+    "learning_rate": 0.02,
+    "l2": 0.0001,
+    "pairwise_margin": 1.0,
+    "pairwise_weight": 0.25,
+    "seed": 20260714
+  },
+  "evaluation_scope": "The same fitted MLP is applied to VL-SAT, Open3DSG, and SGFN predictions without predictor-specific refitting."
+}

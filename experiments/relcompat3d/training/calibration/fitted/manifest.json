@@ -1,0 +1,64 @@
+{
+  "counts": {
+    "input_rows": 66454,
+    "development_labels": {
+      "0": 3516,
+      "1": 2730
+    },
+    "development_rows": 6246,
+    "development_scans_with_rows": 116,
+    "train_labels": {
+      "0": 33961,
+      "1": 26247
+    },
+    "train_rows": 60208,
+    "train_scans_with_rows": 1057
+  },
+  "created_at_utc": "2026-07-10T14:59:41.434800+00:00",
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit_base",
+  "inputs": {
+    "calibration_table": {
+      "path": "experiments/relcompat3d/training/calibration/export/table.jsonl",
+      "sha256": "ada87676faf0df67c8d8873ceb8efa54ab29507306fca24d4020b21d5e39af6e"
+    },
+    "dev_scans": {
+      "path": "experiments/relcompat3d/training/splits/development_scans.txt",
+      "sha256": "25fb5aba714b0c9bf00f36b04fb890de6dd4a197628dd179812189511c01343b"
+    },
+    "final_scans": {
+      "path": "experiments/relcompat3d/training/splits/final_validation_scans.txt",
+      "sha256": "3687b892938c25a44a07d6e0e26788b98ffe5c5319f04407d446247c2a67e7e4"
+    },
+    "protocol": {
+      "path": "experiments/relcompat3d/training/protocol.json",
+      "sha256": "1a68d3119e3bb48839bb47470eb5533b0beb28d81bfaae2b2b7851dfdf6685ca"
+    },
+    "train_scans": {
+      "path": "experiments/relcompat3d/training/splits/train_scans.txt",
+      "sha256": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53"
+    }
+  },
+  "outputs": {
+    "diagnostics": {
+      "path": "experiments/relcompat3d/training/calibration/fitted/development_metrics.json",
+      "sha256": "fa484f95a7f9d718dc54e26528b0030026db7840e44c740d062a25a40d0d7b32"
+    },
+    "models": {
+      "path": "experiments/relcompat3d/training/calibration/fitted/models.json",
+      "sha256": "ac6959a779b0cdb7c5a57afaca023552b97bffc40dd63136cccbd3aed5a9be32"
+    }
+  },
+  "schema_version": "relcompat3d_base_models_v1",
+  "status": "base_models_ready",
+  "validations": {
+    "all_export_rows_assigned_train_or_dev": true,
+    "all_weights_finite": true,
+    "feature_sets_exact": true,
+    "family_models_exact": true,
+    "no_Z_or_source_features": true,
+    "split_counts_1061_117_157": true,
+    "train_and_dev_nonempty": true,
+    "zero_final_validation_rows": true
+  },
+  "warnings": []
+}

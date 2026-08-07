@@ -18,11 +18,11 @@ from typing import Any
 
 import numpy as np
 
-import evaluate_main as structured
-import evaluate_train_only as strict
+import evaluate_all_families as linear_eval
+import evaluate_base_models as model_eval
 
 
-FAMILIES = structured.FAMILIES
+FAMILIES = linear_eval.FAMILIES
 RERANKED_FAMILIES = {"proximity", "relative_vertical"}
 
 
@@ -78,17 +78,17 @@ def load_rows(path: Path) -> tuple[dict[str, list[dict[str, Any]]], dict[str, in
             if family not in FAMILIES:
                 continue
             family_counts[family] += 1
-            semantic = strict.finite((row.get("semantic") or {}).get("ranking_score"))
+            semantic = model_eval.finite((row.get("semantic") or {}).get("ranking_score"))
             if semantic is None:
                 raise ValueError(f"missing_semantic:{row['prediction_id']}")
             grouped[row["subgraph_id"]].append(
                 {
                     "id": row["prediction_id"],
-                    "key": strict.candidate_key(row),
+                    "key": model_eval.candidate_key(row),
                     "family": family,
                     "predicate": row["predicate"]["predicate_label"],
                     "semantic": float(semantic),
-                    "raw": strict.raw_numeric(row) if family in RERANKED_FAMILIES else None,
+                    "raw": model_eval.raw_numeric(row) if family in RERANKED_FAMILIES else None,
                 }
             )
     return grouped, {
@@ -190,15 +190,15 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_runtime_measurement":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
 
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     missing = [name for name, path in paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
-    model_payload = json.loads(paths["structured_models"].read_text(encoding="utf-8"))
-    scorer = structured.make_structured_scorer(model_payload)
+    model_payload = json.loads(paths["linear_models"].read_text(encoding="utf-8"))
+    scorer = linear_eval.make_linear_scorer(model_payload)
     family_models = model_payload["attempts"]["orbit_pairwise"]
     parameter_counts = {
         family: int(family_models[family]["parameter_count"])
@@ -260,7 +260,7 @@ def main() -> int:
         "schema_version": "relcompat3d_relcompat3d_runtime_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
-        "measurement_contract": protocol["measurement"],
+        "measurement_config": protocol["measurement"],
         "environment": {
             "cpu": cpu_model(),
             "python": platform.python_version(),
@@ -313,7 +313,7 @@ def main() -> int:
         "inputs": {name: {"path": str(path.relative_to(root)), "sha256": sha256_file(path)} for name, path in paths.items()},
         "outputs": {path.name: {"path": str(path.relative_to(root)), "sha256": sha256_file(path)} for path in output_paths},
         "validations": validations,
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm runtime_benchmark",
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_runtime",
     })
     print(json.dumps({"status": status, "validations": validations}, sort_keys=True))
     return 0 if status == "completed" else 2

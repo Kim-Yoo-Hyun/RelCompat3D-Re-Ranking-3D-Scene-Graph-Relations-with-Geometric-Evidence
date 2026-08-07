@@ -1,0 +1,906 @@
+{
+  "bootstrap_resamples": 1000,
+  "bootstrap_unit": "scan_id cluster",
+  "evaluation_scope": "dependence sensitivity for the development-selected applicability route",
+  "created_at_utc": "2026-07-19T20:32:00.284211+00:00",
+  "schema_version": "relcompat3d_relcompat3d_linear_bootstrap_v1",
+  "sources": {
+    "open3dsg": {
+      "counts": {
+        "contexts": 548,
+        "max_contexts_per_scan": 10,
+        "min_contexts_per_scan": 1,
+        "scans": 157
+      },
+      "results": {
+        "family_slot_rerank": {
+          "10": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 452,
+              "point": 0.11379657603222558,
+              "bootstrap_intervals_ci95": [
+                0.10059235102331338,
+                0.12764502546428805
+              ]
+            },
+            "violation_all": {
+              "denominator": 5330,
+              "numerator": 124,
+              "point": 0.02326454033771107,
+              "bootstrap_intervals_ci95": [
+                0.01769007490636704,
+                0.02940086744639376
+              ]
+            }
+          },
+          "100": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 2258,
+              "point": 0.5684793554884189,
+              "bootstrap_intervals_ci95": [
+                0.5390939563774867,
+                0.5990150326190232
+              ]
+            },
+            "violation_all": {
+              "denominator": 52452,
+              "numerator": 1699,
+              "point": 0.03239151986578205,
+              "bootstrap_intervals_ci95": [
+                0.02946285958809607,
+                0.03528090704565408
+              ]
+            }
+          },
+          "20": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 938,
+              "point": 0.23615307150050352,
+              "bootstrap_intervals_ci95": [
+                0.2142392287243701,
+                0.25916465323180027
+              ]
+            },
+            "violation_all": {
+              "denominator": 10660,
+              "numerator": 334,
+              "point": 0.031332082551594746,
+              "bootstrap_intervals_ci95": [
+                0.026243150227211975,
+                0.036487326236370216
+              ]
+            }
+          },
+          "5": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 148,
+              "point": 0.03726082578046324,
+              "bootstrap_intervals_ci95": [
+                0.03025853758643225,
+                0.04394305315258097
+              ]
+            },
+            "violation_all": {
+              "denominator": 2665,
+              "numerator": 25,
+              "point": 0.009380863039399626,
+              "bootstrap_intervals_ci95": [
+                0.005754879966994147,
+                0.013503896231998422
+              ]
+            }
+          },
+          "50": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1755,
+              "point": 0.4418429003021148,
+              "bootstrap_intervals_ci95": [
+                0.41245117642028273,
+                0.4713476183882581
+              ]
+            },
+            "violation_all": {
+              "denominator": 26636,
+              "numerator": 912,
+              "point": 0.03423937528157381,
+              "bootstrap_intervals_ci95": [
+                0.031034175063895754,
+                0.037211132576557844
+              ]
+            }
+          }
+        },
+        "family_slot_rerank_minus_source_score": {
+          "10": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.010477541866478254,
+                0.019911948898684657
+              ],
+              "point": 0.015105740181268881
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.3271095911867593,
+                -0.28434397044485654
+              ],
+              "point": -0.30562851782363976
+            }
+          },
+          "100": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.04628338370340865,
+                0.06855637037489593
+              ],
+              "point": 0.05740181268882172
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.09631337132374844,
+                -0.0872730401879404
+              ],
+              "point": -0.09176008541142378
+            }
+          },
+          "20": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.03013715250427779,
+                0.0449765520941713
+              ],
+              "point": 0.03726082578046325
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.190312328870167,
+                -0.16660802981512224
+              ],
+              "point": -0.17861163227016885
+            }
+          },
+          "5": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.001221530843767339,
+                0.005202394021664186
+              ],
+              "point": 0.003021148036253772
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.543841206249394,
+                -0.4813802271641995
+              ],
+              "point": -0.5110694183864916
+            }
+          },
+          "50": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.02958279958350911,
+                0.0449490950386625
+              ],
+              "point": 0.037512588116817736
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.11050815217391304,
+                -0.0985682610608984
+              ],
+              "point": -0.10448265505331131
+            }
+          }
+        },
+        "source": {
+          "10": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 392,
+              "point": 0.0986908358509567,
+              "bootstrap_intervals_ci95": [
+                0.08699435019798815,
+                0.11128432469906581
+              ]
+            },
+            "violation_all": {
+              "denominator": 5330,
+              "numerator": 1753,
+              "point": 0.32889305816135084,
+              "bootstrap_intervals_ci95": [
+                0.307762987012987,
+                0.35009614506257425
+              ]
+            }
+          },
+          "100": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 2030,
+              "point": 0.5110775427995972,
+              "bootstrap_intervals_ci95": [
+                0.47892483471954256,
+                0.5428961459842208
+              ]
+            },
+            "violation_all": {
+              "denominator": 52452,
+              "numerator": 6512,
+              "point": 0.12415160527720583,
+              "bootstrap_intervals_ci95": [
+                0.11931613309457097,
+                0.12893011140699465
+              ]
+            }
+          },
+          "20": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 790,
+              "point": 0.19889224572004027,
+              "bootstrap_intervals_ci95": [
+                0.18026341300188342,
+                0.21875338031305674
+              ]
+            },
+            "violation_all": {
+              "denominator": 10660,
+              "numerator": 2238,
+              "point": 0.2099437148217636,
+              "bootstrap_intervals_ci95": [
+                0.19795802622319345,
+                0.22166641830128414
+              ]
+            }
+          },
+          "5": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 136,
+              "point": 0.03423967774420947,
+              "bootstrap_intervals_ci95": [
+                0.027960225042305453,
+                0.04070513816897475
+              ]
+            },
+            "violation_all": {
+              "denominator": 2665,
+              "numerator": 1387,
+              "point": 0.5204502814258912,
+              "bootstrap_intervals_ci95": [
+                0.4908650341982979,
+                0.5533843663792665
+              ]
+            }
+          },
+          "50": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1606,
+              "point": 0.4043303121852971,
+              "bootstrap_intervals_ci95": [
+                0.3722508596923511,
+                0.4349266255493181
+              ]
+            },
+            "violation_all": {
+              "denominator": 26636,
+              "numerator": 3695,
+              "point": 0.13872203033488512,
+              "bootstrap_intervals_ci95": [
+                0.13105610378229052,
+                0.14624732470486632
+              ]
+            }
+          }
+        }
+      }
+    },
+    "sgfn": {
+      "counts": {
+        "contexts": 548,
+        "max_contexts_per_scan": 10,
+        "min_contexts_per_scan": 1,
+        "scans": 157
+      },
+      "results": {
+        "family_slot_rerank": {
+          "10": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1579,
+              "point": 0.39753272910372606,
+              "bootstrap_intervals_ci95": [
+                0.36627907929226733,
+                0.4283193742098609
+              ]
+            },
+            "violation_all": {
+              "denominator": 5480,
+              "numerator": 190,
+              "point": 0.03467153284671533,
+              "bootstrap_intervals_ci95": [
+                0.028976299813200497,
+                0.040545454545454544
+              ]
+            }
+          },
+          "100": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 3695,
+              "point": 0.9302618328298087,
+              "bootstrap_intervals_ci95": [
+                0.8931252766710934,
+                0.9605170634386482
+              ]
+            },
+            "violation_all": {
+              "denominator": 54800,
+              "numerator": 1919,
+              "point": 0.03501824817518248,
+              "bootstrap_intervals_ci95": [
+                0.03229317145862552,
+                0.03797401629570747
+              ]
+            }
+          },
+          "20": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1952,
+              "point": 0.4914400805639476,
+              "bootstrap_intervals_ci95": [
+                0.4584005679193798,
+                0.5255138321363124
+              ]
+            },
+            "violation_all": {
+              "denominator": 10960,
+              "numerator": 326,
+              "point": 0.029744525547445257,
+              "bootstrap_intervals_ci95": [
+                0.025601374570446735,
+                0.034273979591836735
+              ]
+            }
+          },
+          "5": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1238,
+              "point": 0.3116817724068479,
+              "bootstrap_intervals_ci95": [
+                0.28459913349256594,
+                0.339658193332639
+              ]
+            },
+            "violation_all": {
+              "denominator": 2740,
+              "numerator": 65,
+              "point": 0.023722627737226276,
+              "bootstrap_intervals_ci95": [
+                0.018048505306693427,
+                0.030127161367279488
+              ]
+            }
+          },
+          "50": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 2959,
+              "point": 0.7449647532729103,
+              "bootstrap_intervals_ci95": [
+                0.705749195452466,
+                0.7815970441138753
+              ]
+            },
+            "violation_all": {
+              "denominator": 27400,
+              "numerator": 721,
+              "point": 0.026313868613138686,
+              "bootstrap_intervals_ci95": [
+                0.02372632282130444,
+                0.02909164354496491
+              ]
+            }
+          }
+        },
+        "family_slot_rerank_minus_source_score": {
+          "10": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.0,
+                0.0
+              ],
+              "point": 0.0
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.0005803271300069527,
+                0.0
+              ],
+              "point": -0.0001824817518248159
+            }
+          },
+          "100": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.004309061398377517,
+                0.009799806617356426
+              ],
+              "point": 0.006797583081570968
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.03042602534243872,
+                -0.025656533920896576
+              ],
+              "point": -0.027956204379562047
+            }
+          },
+          "20": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.0008024451879552724,
+                0.001372095061352989
+              ],
+              "point": 0.000251762336354433
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.004364358538657602,
+                -0.001125703564727954
+              ],
+              "point": -0.002463503649635032
+            }
+          },
+          "5": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.0,
+                0.0
+              ],
+              "point": 0.0
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                0.0,
+                0.0
+              ],
+              "point": 0.0
+            }
+          },
+          "50": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.002769433814777511,
+                0.007003404798755919
+              ],
+              "point": 0.00478348439073506
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.014162617043236047,
+                -0.010166628440366974
+              ],
+              "point": -0.012153284671532847
+            }
+          }
+        },
+        "source": {
+          "10": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1579,
+              "point": 0.39753272910372606,
+              "bootstrap_intervals_ci95": [
+                0.36627907929226733,
+                0.4283193742098609
+              ]
+            },
+            "violation_all": {
+              "denominator": 5480,
+              "numerator": 191,
+              "point": 0.034854014598540144,
+              "bootstrap_intervals_ci95": [
+                0.029280985182865857,
+                0.04057482411016332
+              ]
+            }
+          },
+          "100": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 3668,
+              "point": 0.9234642497482377,
+              "bootstrap_intervals_ci95": [
+                0.8860300456484322,
+                0.9538753319884282
+              ]
+            },
+            "violation_all": {
+              "denominator": 54800,
+              "numerator": 3451,
+              "point": 0.06297445255474453,
+              "bootstrap_intervals_ci95": [
+                0.05880645536493166,
+                0.06714631910140297
+              ]
+            }
+          },
+          "20": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1951,
+              "point": 0.4911883182275932,
+              "bootstrap_intervals_ci95": [
+                0.45798081771845667,
+                0.5256158837408837
+              ]
+            },
+            "violation_all": {
+              "denominator": 10960,
+              "numerator": 353,
+              "point": 0.03220802919708029,
+              "bootstrap_intervals_ci95": [
+                0.02784549495634809,
+                0.03706304851796655
+              ]
+            }
+          },
+          "5": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1238,
+              "point": 0.3116817724068479,
+              "bootstrap_intervals_ci95": [
+                0.28459913349256594,
+                0.339658193332639
+              ]
+            },
+            "violation_all": {
+              "denominator": 2740,
+              "numerator": 65,
+              "point": 0.023722627737226276,
+              "bootstrap_intervals_ci95": [
+                0.018048505306693427,
+                0.030127161367279488
+              ]
+            }
+          },
+          "50": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 2940,
+              "point": 0.7401812688821753,
+              "bootstrap_intervals_ci95": [
+                0.7010008669973861,
+                0.776664021516004
+              ]
+            },
+            "violation_all": {
+              "denominator": 27400,
+              "numerator": 1054,
+              "point": 0.03846715328467153,
+              "bootstrap_intervals_ci95": [
+                0.0349069243293589,
+                0.04187966126954726
+              ]
+            }
+          }
+        }
+      }
+    },
+    "vlsat": {
+      "counts": {
+        "contexts": 548,
+        "max_contexts_per_scan": 10,
+        "min_contexts_per_scan": 1,
+        "scans": 157
+      },
+      "results": {
+        "family_slot_rerank": {
+          "10": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 2518,
+              "point": 0.6339375629405841,
+              "bootstrap_intervals_ci95": [
+                0.591272023970637,
+                0.6757076109623301
+              ]
+            },
+            "violation_all": {
+              "denominator": 5480,
+              "numerator": 31,
+              "point": 0.0056569343065693434,
+              "bootstrap_intervals_ci95": [
+                0.0036894090145089932,
+                0.008032532544665582
+              ]
+            }
+          },
+          "100": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 3836,
+              "point": 0.9657603222557906,
+              "bootstrap_intervals_ci95": [
+                0.9333917911909925,
+                0.9931719150375256
+              ]
+            },
+            "violation_all": {
+              "denominator": 54800,
+              "numerator": 1616,
+              "point": 0.02948905109489051,
+              "bootstrap_intervals_ci95": [
+                0.02708463048390449,
+                0.03224916540050076
+              ]
+            }
+          },
+          "20": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 3210,
+              "point": 0.8081570996978852,
+              "bootstrap_intervals_ci95": [
+                0.7625883477497271,
+                0.852830480670199
+              ]
+            },
+            "violation_all": {
+              "denominator": 10960,
+              "numerator": 125,
+              "point": 0.011405109489051095,
+              "bootstrap_intervals_ci95": [
+                0.008944886238126795,
+                0.014150204322948863
+              ]
+            }
+          },
+          "5": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1671,
+              "point": 0.4206948640483384,
+              "bootstrap_intervals_ci95": [
+                0.3909347114004804,
+                0.451376839333654
+              ]
+            },
+            "violation_all": {
+              "denominator": 2740,
+              "numerator": 4,
+              "point": 0.00145985401459854,
+              "bootstrap_intervals_ci95": [
+                0.0003527181608167524,
+                0.0029250457038391227
+              ]
+            }
+          },
+          "50": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 3685,
+              "point": 0.9277442094662638,
+              "bootstrap_intervals_ci95": [
+                0.8852705713043229,
+                0.9632172604830288
+              ]
+            },
+            "violation_all": {
+              "denominator": 27400,
+              "numerator": 541,
+              "point": 0.019744525547445255,
+              "bootstrap_intervals_ci95": [
+                0.017163001781306104,
+                0.02258076098917009
+              ]
+            }
+          }
+        },
+        "family_slot_rerank_minus_source_score": {
+          "10": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.00048273033366293404,
+                0.003440290525176098
+              ],
+              "point": 0.0017623363544814197
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.00448036533987298,
+                -0.0009522009181744529
+              ],
+              "point": -0.0025547445255474453
+            }
+          },
+          "100": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.00048482795036516033,
+                0.004916340204878582
+              ],
+              "point": 0.0022658610271903967
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.01994250417483734,
+                -0.016561336453267114
+              ],
+              "point": -0.018156934306569342
+            }
+          },
+          "20": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.00026389075620836255,
+                0.0019397217665916393
+              ],
+              "point": 0.0007552870090634656
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.004436244976752695,
+                -0.0015408989871881628
+              ],
+              "point": -0.002828467153284671
+            }
+          },
+          "5": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                0.0,
+                0.0025113166243826714
+              ],
+              "point": 0.0012588116817724426
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.0029611400235663786,
+                -0.0003276212567437256
+              ],
+              "point": -0.00145985401459854
+            }
+          },
+          "50": {
+            "recall": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.0005124361930665122,
+                0.001872781218971932
+              ],
+              "point": 0.000503524672708866
+            },
+            "violation_all": {
+              "paired_bootstrap_intervals_ci95": [
+                -0.008690902360421566,
+                -0.005499842908438062
+              ],
+              "point": -0.007007299270072993
+            }
+          }
+        },
+        "source": {
+          "10": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 2511,
+              "point": 0.6321752265861027,
+              "bootstrap_intervals_ci95": [
+                0.5893285149594271,
+                0.6739398970861007
+              ]
+            },
+            "violation_all": {
+              "denominator": 5480,
+              "numerator": 45,
+              "point": 0.008211678832116789,
+              "bootstrap_intervals_ci95": [
+                0.005369874948749487,
+                0.011359509903504317
+              ]
+            }
+          },
+          "100": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 3827,
+              "point": 0.9634944612286002,
+              "bootstrap_intervals_ci95": [
+                0.9294447920066733,
+                0.9926778077793184
+              ]
+            },
+            "violation_all": {
+              "denominator": 54800,
+              "numerator": 2611,
+              "point": 0.04764598540145985,
+              "bootstrap_intervals_ci95": [
+                0.044337131210353785,
+                0.05136227261019351
+              ]
+            }
+          },
+          "20": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 3207,
+              "point": 0.8074018126888217,
+              "bootstrap_intervals_ci95": [
+                0.7620635726720724,
+                0.8520270750421204
+              ]
+            },
+            "violation_all": {
+              "denominator": 10960,
+              "numerator": 156,
+              "point": 0.014233576642335766,
+              "bootstrap_intervals_ci95": [
+                0.01132928750379593,
+                0.017555648081601063
+              ]
+            }
+          },
+          "5": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 1666,
+              "point": 0.41943605236656595,
+              "bootstrap_intervals_ci95": [
+                0.38955662907097127,
+                0.44944503528849894
+              ]
+            },
+            "violation_all": {
+              "denominator": 2740,
+              "numerator": 8,
+              "point": 0.00291970802919708,
+              "bootstrap_intervals_ci95": [
+                0.0007809126079654511,
+                0.005147058823529412
+              ]
+            }
+          },
+          "50": {
+            "recall": {
+              "denominator": 3972,
+              "numerator": 3683,
+              "point": 0.9272406847935549,
+              "bootstrap_intervals_ci95": [
+                0.8845931082014994,
+                0.963014016537533
+              ]
+            },
+            "violation_all": {
+              "denominator": 27400,
+              "numerator": 733,
+              "point": 0.026751824817518248,
+              "bootstrap_intervals_ci95": [
+                0.023428518091895983,
+                0.03047014893157781
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "status": "completed",
+  "validations": {
+    "all_sources_have_157_scans": true,
+    "all_sources_have_548_contexts": true,
+    "k100_recall_ci_positive": true,
+    "k100_violation_ci_below_zero": true,
+    "model_hash_matches": true,
+    "point_estimates_match_routing_summary": true
+  }
+}

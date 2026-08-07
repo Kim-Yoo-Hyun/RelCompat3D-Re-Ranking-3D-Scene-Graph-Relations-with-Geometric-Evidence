@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Fit the strict RelCompat3D family heads without their constant family indicator.
+"""Fit RelCompat3D-Linear without a constant family-indicator input.
 
-This stage reads only training and internal-development artifacts.  It writes a
-model/score lock for a later, separately invoked official-validation stage.
+This stage reads only training and development data. It writes the fitted
+models and score definition used by the separate validation stage.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from typing import Any
 import numpy as np
 
 import compatibility_features as calibration
-import fit_train_only as strict_fit
+import fit_base_models as base_fit
 import relation_consistency as algebra
 
 
@@ -34,17 +34,17 @@ def parse_args() -> argparse.Namespace:
         help="Override the protocol calibration-table path with a local regenerated table.",
     )
     parser.add_argument(
-        "--current-strict-models",
+        "--base-models",
         type=Path,
         help=(
             "Override the protocol feature-template path. This lets a fresh run use "
-            "the train-only base models generated from the same calibration rows."
+            "base models fitted from the same training rows."
         ),
     )
     parser.add_argument(
         "--fit-only",
         action="store_true",
-        help="Fit and export the Linear estimator without internal-development evaluation.",
+        help="Fit and export the Linear estimator without development evaluation.",
     )
     return parser.parse_args()
 
@@ -105,14 +105,14 @@ def strip_family_indicator(model: dict[str, Any]) -> dict[str, Any]:
     result["weights"] = [float(model["weights"][index]) for index in keep]
     result["families"] = []
     result["parameterization"] = {
-        "id": "main_experiment",
+        "id": "relcompat3d_linear",
         "removed_feature": removed,
         "family_selected_by": "family-specific head",
     }
     return result
 
 
-def refit_strict_family_models(
+def fit_linear_family_models(
     prepared: list[dict[str, Any]], current_models: dict[str, Any]
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     train = [row for row in prepared if row["_role"] == "train"]
@@ -147,21 +147,21 @@ def refit_strict_family_models(
         ]
         train_y = [int(row["_label"]) for row in family_train]
         dev_y = [int(row["_label"]) for row in family_dev]
-        weights, trace = strict_fit.fit_numpy(train_x, train_y)
+        weights, trace = base_fit.fit_numpy(train_x, train_y)
         model = {
             **template,
             "weights": weights,
             "train_prior": sum(train_y) / len(train_y),
-            "fit_split": "strict_train_1061_only",
+            "fit_split": "training_split_1061",
             "training_trace": trace,
             "counts": {
                 "train_rows": len(train_y),
-                "internal_dev_rows": len(dev_y),
+                "development_rows": len(dev_y),
                 "train_labels": {
                     "0": len(train_y) - sum(train_y),
                     "1": sum(train_y),
                 },
-                "internal_dev_labels": {
+                "development_labels": {
                     "0": len(dev_y) - sum(dev_y),
                     "1": sum(dev_y),
                 },
@@ -169,19 +169,19 @@ def refit_strict_family_models(
         }
         family_models[family] = model
         diagnostics[family] = {
-            "train": strict_fit.metrics(strict_fit.predict_numpy(train_x, weights), train_y),
-            "internal_dev_no_selection": strict_fit.metrics(
-                strict_fit.predict_numpy(dev_x, weights), dev_y
+            "train": base_fit.metrics(base_fit.predict_numpy(train_x, weights), train_y),
+            "development": base_fit.metrics(
+                base_fit.predict_numpy(dev_x, weights), dev_y
             ),
         }
-    strict_models = copy.deepcopy(current_models)
-    strict_models["family_models"] = family_models
-    strict_models["parameterization"] = {
-        "id": "main_experiment",
+    base_models = copy.deepcopy(current_models)
+    base_models["family_models"] = family_models
+    base_models["parameterization"] = {
+        "id": "relcompat3d_linear",
         "change": "remove the constant family one-hot from each family-specific head",
         "factor_models": "unchanged; family indicators remain meaningful in pooled heads",
     }
-    return strict_models, diagnostics
+    return base_models, diagnostics
 
 
 def model_features(models: dict[str, Any]) -> list[str]:
@@ -201,21 +201,21 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_relcompat3d_fit":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready_for_linear_fit":
+        raise ValueError("protocol_version_mismatch")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     if args.calibration_table is not None:
         paths["calibration_table"] = resolve(root, args.calibration_table)
-    if args.current_strict_models is not None:
-        paths["current_strict_models"] = resolve(root, args.current_strict_models)
+    if args.base_models is not None:
+        paths["current_base_models"] = resolve(root, args.base_models)
     fit_inputs = {
         name: paths[name]
         for name in (
             "calibration_table",
             "train_scans",
-            "internal_dev_scans",
+            "development_scans",
             "final_validation_scans",
-            "current_strict_models",
+            "current_base_models",
         )
     }
     required_paths = fit_inputs if args.fit_only else paths
@@ -224,10 +224,10 @@ def main() -> int:
         raise FileNotFoundError(f"missing_inputs:{missing}")
 
     train_scans = read_scans(paths["train_scans"])
-    dev_scans = read_scans(paths["internal_dev_scans"])
+    dev_scans = read_scans(paths["development_scans"])
     final_scans = read_scans(paths["final_validation_scans"])
     if train_scans & dev_scans or train_scans & final_scans or dev_scans & final_scans:
-        raise ValueError("split_firewall_overlap")
+        raise ValueError("data_split_overlap")
 
     rows = calibration.load_jsonl(paths["calibration_table"])
     leaked = sorted({str(row["scan_id"]) for row in rows} & final_scans)
@@ -236,18 +236,18 @@ def main() -> int:
     prepared, warnings = calibration.prepare_rows(
         rows, train_scans, dev_scans, set(algebra.FAMILIES)
     )
-    current_strict = json.loads(paths["current_strict_models"].read_text(encoding="utf-8"))
-    new_strict, strict_diagnostics = refit_strict_family_models(prepared, current_strict)
+    current_base = json.loads(paths["current_base_models"].read_text(encoding="utf-8"))
+    fitted_base, base_diagnostics = fit_linear_family_models(prepared, current_base)
     attempts, diagnostics = algebra.fit_attempts(
-        prepared, new_strict, protocol["optimizer"]
+        prepared, fitted_base, protocol["optimizer"]
     )
-    structured_models = {
+    linear_models = {
         "schema_version": "relcompat3d_relation_algebra_models_v1",
         "attempts": attempts,
         "source_score_used": False,
         "source_identity_used": False,
         "parameterization": {
-            "id": "main_experiment",
+            "id": "relcompat3d_linear",
             "family_indicator_input": False,
             "family_selected_by": "family-specific head",
         },
@@ -258,7 +258,7 @@ def main() -> int:
     ) -> float:
         if condition == "family":
             return algebra.existing_probability(
-                new_strict["family_models"][family], family, predicate, raw
+                fitted_base["family_models"][family], family, predicate, raw
             )
         model = attempts[condition][family]
         if condition == "algebra_basis" and family != "support_contact":
@@ -278,11 +278,11 @@ def main() -> int:
             "pairwise_weight": 0.25,
         }
         old_family_features = {
-            family: current_strict["family_models"][family]["feature_names"]
+            family: current_base["family_models"][family]["feature_names"]
             for family in algebra.FAMILIES
         }
         new_family_features = {
-            family: new_strict["family_models"][family]["feature_names"]
+            family: fitted_base["family_models"][family]["feature_names"]
             for family in algebra.FAMILIES
         }
         validations = {
@@ -298,10 +298,10 @@ def main() -> int:
             "train_rows_60208": sum(
                 row["_role"] == "train" for row in prepared
             ) == 60208,
-            "internal_dev_rows_6246": sum(
+            "development_rows_6246": sum(
                 row["_role"] == "dev" for row in prepared
             ) == 6246,
-            "optimizer_exactly_preserved": protocol["optimizer"] == expected_optimizer,
+            "optimizer_configuration_matches": protocol["optimizer"] == expected_optimizer,
             "one_family_feature_removed_per_head": all(
                 len(old_family_features[family])
                 == len(new_family_features[family]) + 1
@@ -313,9 +313,9 @@ def main() -> int:
                 == new_family_features[family]
                 for family in algebra.FAMILIES
             ),
-            "structured_family_features_absent": not any(
+            "linear_family_features_absent": not any(
                 name.startswith("family:")
-                for name in model_features(structured_models)
+                for name in model_features(linear_models)
             ),
             "all_parameters_finite": all(
                 math.isfinite(weight)
@@ -324,28 +324,28 @@ def main() -> int:
                 for weight in model["weights"]
             ),
             "source_score_and_identity_excluded": (
-                not structured_models["source_score_used"]
-                and not structured_models["source_identity_used"]
+                not linear_models["source_score_used"]
+                and not linear_models["source_identity_used"]
             ),
         }
         status = "completed" if all(validations.values()) else "failed_validation"
         out.mkdir(parents=True, exist_ok=True)
-        strict_path = out / "strict_models.json"
-        structured_path = out / "structured_models.json"
+        base_path = out / "base_models.json"
+        linear_path = out / "linear_models.json"
         diagnostics_path = out / "training_diagnostics.json"
-        write_json(strict_path, new_strict)
-        write_json(structured_path, structured_models)
+        write_json(base_path, fitted_base)
+        write_json(linear_path, linear_models)
         write_json(
             diagnostics_path,
             {
                 "schema_version": "relcompat3d_relation_algebra_diagnostics_v1",
-                "role": "train_only_fit",
+                "role": "training_split_fit",
                 "diagnostics": diagnostics,
-                "strict_family_models": strict_diagnostics,
+                "base_family_models": base_diagnostics,
                 "validations": validations,
             },
         )
-        outputs = [strict_path, structured_path, diagnostics_path]
+        outputs = [base_path, linear_path, diagnostics_path]
         write_json(
             out / "manifest.json",
             {
@@ -370,41 +370,41 @@ def main() -> int:
         )
         print(json.dumps({"status": status, "validations": validations}, sort_keys=True))
         return 0 if status == "completed" else 2
-    internal_gt, internal_gt_family = algebra.load_ground_truth(
-        paths["internal_dev_ground_truth"]
+    development_gt, development_gt_family = algebra.load_ground_truth(
+        paths["development_ground_truth"]
     )
-    internal_dev_source = algebra.evaluate_source(
-        "internal_dev_sgfn",
-        paths["internal_dev_verification"],
+    development_source = algebra.evaluate_source(
+        "development_sgfn",
+        paths["development_verification"],
         scorer,
-        internal_gt,
-        internal_gt_family,
-        int(protocol["internal_dev"]["bootstrap_seed"]),
-        int(protocol["internal_dev"]["bootstrap_resamples"]),
+        development_gt,
+        development_gt_family,
+        int(protocol["development"]["bootstrap_seed"]),
+        int(protocol["development"]["bootstrap_resamples"]),
     )
 
     out.mkdir(parents=True, exist_ok=True)
-    strict_path = out / "strict_models.json"
-    structured_path = out / "structured_models.json"
-    diagnostics_path = out / "internal_dev_diagnostics.json"
-    internal_path = out / "internal_dev_source.json"
-    score_path = out / "score_contract.json"
-    write_json(strict_path, new_strict)
-    write_json(structured_path, structured_models)
+    base_path = out / "base_models.json"
+    linear_path = out / "linear_models.json"
+    diagnostics_path = out / "development_metrics.json"
+    development_path = out / "development_predictions.json"
+    score_path = out / "score_definition.json"
+    write_json(base_path, fitted_base)
+    write_json(linear_path, linear_models)
     write_json(
         diagnostics_path,
         {
             "schema_version": "relcompat3d_relation_algebra_diagnostics_v1",
-            "role": "train_only_fit_internal_dev_sanity_no_selection",
+            "role": "training_and_development_diagnostics",
             "diagnostics": diagnostics,
-            "strict_family_models": strict_diagnostics,
+            "base_family_models": base_diagnostics,
         },
     )
-    write_json(internal_path, internal_dev_source)
+    write_json(development_path, development_source)
     write_json(
         score_path,
         {
-            "schema_version": "relcompat3d_main_experiment_score_contract_v1",
+            "schema_version": "relcompat3d_score_definition_v1",
             "compatibility": "orbit_pairwise heads followed by transformation averaging",
             "inputs": {
                 "predicate": True,
@@ -435,11 +435,11 @@ def main() -> int:
         "pairwise_weight": 0.25,
     }
     old_family_features = {
-        family: current_strict["family_models"][family]["feature_names"]
+        family: current_base["family_models"][family]["feature_names"]
         for family in algebra.FAMILIES
     }
     new_family_features = {
-        family: new_strict["family_models"][family]["feature_names"]
+        family: fitted_base["family_models"][family]["feature_names"]
         for family in algebra.FAMILIES
     }
     validations = {
@@ -450,70 +450,70 @@ def main() -> int:
         ),
         "zero_final_rows_in_calibration": not leaked,
         "train_rows_60208": sum(row["_role"] == "train" for row in prepared) == 60208,
-        "internal_dev_rows_6246": sum(row["_role"] == "dev" for row in prepared) == 6246,
-        "optimizer_exactly_preserved": protocol["optimizer"] == expected_optimizer,
+        "development_rows_6246": sum(row["_role"] == "dev" for row in prepared) == 6246,
+        "optimizer_configuration_matches": protocol["optimizer"] == expected_optimizer,
         "one_family_feature_removed_per_head": all(
             len(old_family_features[family]) == len(new_family_features[family]) + 1
             and [name for name in old_family_features[family] if not name.startswith("family:")]
             == new_family_features[family]
             for family in algebra.FAMILIES
         ),
-        "strict_family_features_absent": all(
+        "base_family_features_absent": all(
             not any(name.startswith("family:") for name in names)
             for names in new_family_features.values()
         ),
-        "structured_family_features_absent": not any(
-            name.startswith("family:") for name in model_features(structured_models)
+        "linear_family_features_absent": not any(
+            name.startswith("family:") for name in model_features(linear_models)
         ),
         "normalization_statistics_unchanged": all(
-            current_strict["family_models"][family]["numeric_stats"]
-            == new_strict["family_models"][family]["numeric_stats"]
+            current_base["family_models"][family]["numeric_stats"]
+            == fitted_base["family_models"][family]["numeric_stats"]
             for family in algebra.FAMILIES
         ),
-        "factor_models_unchanged": current_strict["factor_models"]
-        == new_strict["factor_models"],
+        "feature_templates_unchanged": current_base["factor_models"]
+        == fitted_base["factor_models"],
         "all_parameters_finite": all(
             math.isfinite(weight)
             for attempt in attempts.values()
             for model in attempt.values()
             for weight in model["weights"]
         ),
-        "source_score_and_identity_excluded": not structured_models["source_score_used"]
-        and not structured_models["source_identity_used"],
-        "internal_dev_only_before_lock": internal_dev_source["source"]
-        == "internal_dev_sgfn",
-        "internal_dev_contexts_354": internal_dev_source["contexts"] == 354,
-        "internal_dev_gt_denominator_2730": internal_dev_source["gt_denominator"]
+        "source_score_and_identity_excluded": not linear_models["source_score_used"]
+        and not linear_models["source_identity_used"],
+        "validation_not_used_for_model_selection": development_source["source"]
+        == "development_sgfn",
+        "development_contexts_354": development_source["contexts"] == 354,
+        "development_gt_denominator_2730": development_source["gt_denominator"]
         == 2730,
     }
     status = "completed" if all(validations.values()) else "failed_validation"
-    lock_path = out / "final_lock.json"
+    selection_path = out / "model_selection.json"
     write_json(
-        lock_path,
+        selection_path,
         {
-            "schema_version": "relcompat3d_main_experiment_final_lock_v1",
-            "status": "locked_before_official_validation" if status == "completed" else "not_locked",
-            "locked_at_utc": datetime.now(timezone.utc).isoformat(),
+            "schema_version": "relcompat3d_model_selection_v1",
+            "status": "selected" if status == "completed" else "failed_validation",
+            "selected_at_utc": datetime.now(timezone.utc).isoformat(),
             "protocol_sha256": sha256_file(protocol_path),
-            "structured_model_sha256": sha256_file(structured_path),
-            "strict_model_sha256": sha256_file(strict_path),
-            "score_contract_sha256": sha256_file(score_path),
-            "official_validation_read_by_fit_stage": False,
+            "linear_model_sha256": sha256_file(linear_path),
+            "base_model_sha256": sha256_file(base_path),
+            "score_definition_sha256": sha256_file(score_path),
+            "validation_data_used_for_fitting": False,
         },
     )
     manifest_path = out / "manifest.json"
     outputs = [
-        strict_path,
-        structured_path,
+        base_path,
+        linear_path,
         diagnostics_path,
-        internal_path,
+        development_path,
         score_path,
-        lock_path,
+        selection_path,
     ]
     write_json(
         manifest_path,
         {
-            "schema_version": "relcompat3d_relcompat3d_fit_manifest_v1",
+            "schema_version": "relcompat3d_linear_fit_manifest_v1",
             "status": status,
             "created_at_utc": datetime.now(timezone.utc).isoformat(),
             "protocol": {
@@ -537,9 +537,9 @@ def main() -> int:
         json.dumps(
             {
                 "status": status,
-                "structured_model_sha256": sha256_file(structured_path),
-                "strict_model_sha256": sha256_file(strict_path),
-                "score_contract_sha256": sha256_file(score_path),
+                "linear_model_sha256": sha256_file(linear_path),
+                "base_model_sha256": sha256_file(base_path),
+                "score_definition_sha256": sha256_file(score_path),
                 "validations": validations,
             },
             sort_keys=True,

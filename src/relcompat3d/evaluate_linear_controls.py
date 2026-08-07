@@ -15,8 +15,8 @@ from typing import Any
 import numpy as np
 
 import control_utils as ablation
-import evaluate_main as structured
-import evaluate_train_only as strict
+import evaluate_all_families as linear_eval
+import evaluate_base_models as model_eval
 
 
 METHODS = ablation.METHODS
@@ -33,7 +33,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def add_routed_scores(grouped: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
+def add_ranking_scores(grouped: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
     support_exact = True
     composition_exact = True
     for rows in grouped.values():
@@ -54,17 +54,17 @@ def add_routed_scores(grouped: dict[str, list[dict[str, Any]]]) -> dict[str, Any
                         key=lambda row: (-row["scores"][method], row["key"]),
                     )
             offsets = {family: 0 for family in FAMILIES}
-            routed: list[dict[str, Any]] = []
+            ranked: list[dict[str, Any]] = []
             for family in source_family_sequence:
-                routed.append(queues[family][offsets[family]])
+                ranked.append(queues[family][offsets[family]])
                 offsets[family] += 1
             support_exact &= (
-                [row["id"] for row in routed if row["family"] == "support_contact"]
+                [row["id"] for row in ranked if row["family"] == "support_contact"]
                 == source_support_order
             )
-            composition_exact &= [row["family"] for row in routed] == source_family_sequence
-            for rank, row in enumerate(routed, 1):
-                row.setdefault("routed_scores", {})[method] = float(len(routed) - rank + 1)
+            composition_exact &= [row["family"] for row in ranked] == source_family_sequence
+            for rank, row in enumerate(ranked, 1):
+                row.setdefault("ranking_scores", {})[method] = float(len(ranked) - rank + 1)
     return {
         "support_contact_order_exact": support_exact,
         "family_composition_exact": composition_exact,
@@ -144,7 +144,7 @@ def evaluate(
         for method in METHODS:
             ranked = sorted(
                 rows,
-                key=lambda row: (-row["routed_scores"][method], row["key"]),
+                key=lambda row: (-row["ranking_scores"][method], row["key"]),
             )
             for k_index, k in enumerate(KS):
                 selected = ranked[:k]
@@ -182,7 +182,7 @@ def evaluate(
                 boot = weighted_ratio(numerator, denominator, weights)
                 report[method][str(k)][metric] = {
                     "point": point,
-                    "scan_cluster_ci95": ablation.ci95(boot),
+                    "bootstrap_intervals_ci95": ablation.ci95(boot),
                     "numerator": int(numerator.sum()),
                     "denominator": int(denominator.sum()),
                 }
@@ -191,23 +191,23 @@ def evaluate(
                 arrays[method]["selected"][k_index].sum()
             )
 
-    report["deltas_vs_structured_product"] = {}
+    report["deltas_vs_all_family_product"] = {}
     for method in METHODS:
-        if method == "structured_product":
+        if method == "all_family_product":
             continue
-        report["deltas_vs_structured_product"][method] = {}
+        report["deltas_vs_all_family_product"][method] = {}
         for k in KS:
-            report["deltas_vs_structured_product"][method][str(k)] = {}
+            report["deltas_vs_all_family_product"][method][str(k)] = {}
             for metric in ("recall", "violation"):
                 left = report[method][str(k)][metric]["point"]
-                right = report["structured_product"][str(k)][metric]["point"]
+                right = report["all_family_product"][str(k)][metric]["point"]
                 delta = (
                     cache[method][str(k)][metric]
-                    - cache["structured_product"][str(k)][metric]
+                    - cache["all_family_product"][str(k)][metric]
                 )
-                report["deltas_vs_structured_product"][method][str(k)][metric] = {
+                report["deltas_vs_all_family_product"][method][str(k)][metric] = {
                     "point": left - right,
-                    "paired_scan_cluster_ci95": ablation.ci95(delta),
+                    "paired_bootstrap_intervals_ci95": ablation.ci95(delta),
                 }
     return report
 
@@ -224,11 +224,11 @@ def make_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
                         "method": method,
                         "k": k,
                         "recall": cell["recall"]["point"],
-                        "recall_scan_ci95_low": cell["recall"]["scan_cluster_ci95"][0],
-                        "recall_scan_ci95_high": cell["recall"]["scan_cluster_ci95"][1],
+                        "recall_scan_ci95_low": cell["recall"]["bootstrap_intervals_ci95"][0],
+                        "recall_scan_ci95_high": cell["recall"]["bootstrap_intervals_ci95"][1],
                         "violation": cell["violation"]["point"],
-                        "violation_scan_ci95_low": cell["violation"]["scan_cluster_ci95"][0],
-                        "violation_scan_ci95_high": cell["violation"]["scan_cluster_ci95"][1],
+                        "violation_scan_ci95_low": cell["violation"]["bootstrap_intervals_ci95"][0],
+                        "violation_scan_ci95_high": cell["violation"]["bootstrap_intervals_ci95"][1],
                         "selected": cell["selected"],
                     }
                 )
@@ -237,7 +237,7 @@ def make_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
 
 def markdown(summary: dict[str, Any]) -> str:
     lines = [
-        "# Public/Full Routed Ablation Evaluation",
+        "# Public/Full Ranked Ablation Evaluation",
         "",
         f"Status: `{summary['status']}`",
         "",
@@ -259,7 +259,7 @@ def markdown(summary: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "`compatibility_only` removes the source score only inside the routed proximity/vertical families; support/contact remains a source-order pass-through.",
+            "`compatibility_only` removes the source score only inside the ranked proximity/vertical families; support/contact remains a source-order pass-through.",
             "",
         ]
     )
@@ -274,15 +274,15 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_routed_public_ablation_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     if tuple(protocol["evaluation"]["ks"]) != KS:
-        raise ValueError("k_contract_mismatch")
+        raise ValueError("rank_cutoffs_mismatch")
     # JSON object order is not part of the protocol semantics.  The evaluator
     # uses the fixed METHODS tuple below, so validate exact membership rather
     # than the serialization order of the condition descriptions.
     if len(protocol["conditions"]) != len(METHODS) or set(protocol["conditions"]) != set(METHODS):
-        raise ValueError("method_contract_mismatch")
+        raise ValueError("ranking_config_mismatch")
 
     paths: dict[str, Path] = {}
     input_checks: dict[str, Any] = {}
@@ -300,11 +300,11 @@ def main() -> int:
             "size_bytes": path.stat().st_size,
         }
 
-    models = json.loads(paths["structured_models"].read_text(encoding="utf-8"))
+    models = json.loads(paths["linear_models"].read_text(encoding="utf-8"))
     if models.get("source_score_used") is not False or models.get("source_identity_used") is not False:
-        raise ValueError("structured_model_uses_source")
-    scorer = structured.make_structured_scorer(models)
-    gt, _ = strict.load_gt(paths["ground_truth"])
+        raise ValueError("linear_model_uses_source")
+    scorer = linear_eval.make_linear_scorer(models)
+    gt, _ = model_eval.load_gt(paths["ground_truth"])
     context_to_scan = official_context_map(paths["official_context_annotations"])
     contexts = sorted(context_to_scan)
     routing_summary = json.loads(paths["routing_summary"].read_text(encoding="utf-8"))
@@ -323,7 +323,7 @@ def main() -> int:
         donor_audit = ablation.add_scores(
             grouped, scorer, protocol["wrong_predicate_mapping"]
         )
-        routing_audit = add_routed_scores(grouped)
+        routing_audit = add_ranking_scores(grouped)
         weights, scan_counts = scan_weights(
             contexts,
             context_to_scan,
@@ -344,13 +344,13 @@ def main() -> int:
             "metrics": metrics,
         }
         if source == "open3dsg":
-            reference = official_summary["routes"]["official_strict_full_548"]["overall"]
+            reference = official_summary["routes"]["official_full_548"]["overall"]
         else:
             reference = routing_summary["sources"][source]["overall"]
         equivalence[source] = {}
         for current_method, reference_method in (
-            ("source_score", "source_score"),
-            ("structured_product", "family_slot_rerank"),
+            ("source", "source"),
+            ("all_family_product", "family_slot_rerank"),
         ):
             equivalence[source][current_method] = {}
             for k in KS:
@@ -427,7 +427,7 @@ def main() -> int:
     }
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_routed_public_ablation_evaluation_v1",
+        "schema_version": "relcompat3d_linear_controls_evaluation_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "classification": protocol["classification"],
@@ -438,8 +438,8 @@ def main() -> int:
         "sources": sources,
         "point_equivalence_to_main_route": equivalence,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm routed_public_ablation_evaluation",
+        "evaluation_scope": protocol["evaluation_scope"],
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_linear_controls",
     }
 
     out.mkdir(parents=True, exist_ok=True)
@@ -454,7 +454,7 @@ def main() -> int:
         writer.writeheader()
         writer.writerows(rows)
     manifest = {
-        "schema_version": "relcompat3d_routed_public_ablation_manifest_v1",
+        "schema_version": "relcompat3d_linear_controls_manifest_v1",
         "status": status,
         "protocol": {
             "path": ablation.relpath(root, protocol_path),

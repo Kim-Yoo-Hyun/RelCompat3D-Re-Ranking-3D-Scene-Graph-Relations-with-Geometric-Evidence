@@ -13,10 +13,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-import evaluate_main as base
+import evaluate_all_families as base
 import evaluate_score_robustness as robust
-import evaluate_support_intervals as scan_bootstrap
-import evaluate_train_only as strict
+import evaluate_support_bootstrap as scan_bootstrap
+import evaluate_base_models as model_eval
 import fit_mlp as nonlinear
 
 
@@ -106,8 +106,8 @@ def load_candidates(
             duplicates += int(prediction_id in seen)
             seen.add(prediction_id)
             predicate = row["predicate"]["predicate_label"]
-            raw = strict.raw_numeric(row)
-            semantic = strict.finite((row.get("semantic") or {}).get("ranking_score"))
+            raw = model_eval.raw_numeric(row)
+            semantic = model_eval.finite((row.get("semantic") or {}).get("ranking_score"))
             if semantic is None:
                 raise ValueError(f"missing_semantic:{prediction_id}")
             score_min = min(score_min, semantic)
@@ -116,7 +116,7 @@ def load_candidates(
                 {
                     "id": prediction_id,
                     "scan": row["scan_id"],
-                    "key": strict.candidate_key(row),
+                    "key": model_eval.candidate_key(row),
                     "family": family,
                     "predicate": predicate,
                     "semantic": float(semantic),
@@ -285,12 +285,12 @@ def method_rows(
                         "recall_delta": (delta.get("recall") or {}).get("point"),
                         "recall_delta_ci_low": (
                             (delta.get("recall") or {}).get(
-                                "paired_scan_cluster_ci95", [None, None]
+                                "paired_bootstrap_intervals_ci95", [None, None]
                             )[0]
                         ),
                         "recall_delta_ci_high": (
                             (delta.get("recall") or {}).get(
-                                "paired_scan_cluster_ci95", [None, None]
+                                "paired_bootstrap_intervals_ci95", [None, None]
                             )[1]
                         ),
                         "violation": cell["violation_all"]["point"],
@@ -299,12 +299,12 @@ def method_rows(
                         ).get("point"),
                         "violation_delta_ci_low": (
                             (delta.get("violation_all") or {}).get(
-                                "paired_scan_cluster_ci95", [None, None]
+                                "paired_bootstrap_intervals_ci95", [None, None]
                             )[0]
                         ),
                         "violation_delta_ci_high": (
                             (delta.get("violation_all") or {}).get(
-                                "paired_scan_cluster_ci95", [None, None]
+                                "paired_bootstrap_intervals_ci95", [None, None]
                             )[1]
                         ),
                     }
@@ -492,7 +492,7 @@ def evaluate_source(
                             and right_point is not None
                             else None
                         ),
-                        "paired_scan_cluster_ci95": base.ci95(delta),
+                        "paired_bootstrap_intervals_ci95": base.ci95(delta),
                     }
     return {
         "counts": {
@@ -521,10 +521,10 @@ def reported_match(
     reported: dict[str, Any],
 ) -> tuple[bool, list[dict[str, Any]]]:
     mapping = {
-        "source": "source_score",
-        "identity_family_slots": "source_score",
-        "linear_family_slots": "routed_product",
-        "mlp_family_slots": "routed_matched_mlp",
+        "source": "source",
+        "identity_family_slots": "source",
+        "linear_family_slots": "relcompat3d_linear",
+        "mlp_family_slots": "relcompat3d_mlp",
     }
     rows: list[dict[str, Any]] = []
     exact = True
@@ -607,8 +607,8 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_p0_family_routing_controls":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     paths = {
         name: resolve(root, value)
         for name, value in protocol["inputs"].items()
@@ -616,22 +616,22 @@ def main() -> int:
     missing = [name for name, path in paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
-    for name, expected in protocol["locked_sha256"].items():
+    for name, expected in protocol["expected_sha256"].items():
         actual = sha256_file(paths[name])
         if actual != expected:
             raise ValueError(
                 f"hash_mismatch:{name}:expected={expected}:actual={actual}"
             )
 
-    structured_models = json.loads(
-        paths["structured_models"].read_text(encoding="utf-8")
+    linear_models = json.loads(
+        paths["linear_models"].read_text(encoding="utf-8")
     )
     nonlinear_models = json.loads(
         paths["nonlinear_models"].read_text(encoding="utf-8")
     )
-    linear_score = base.make_structured_scorer(structured_models)
-    mlp_model = nonlinear_models["shared_nonlinear_structured"]
-    gt, gt_family = strict.load_gt(paths["ground_truth"])
+    linear_score = base.make_linear_scorer(linear_models)
+    mlp_model = nonlinear_models["shared_mlp_pairwise"]
+    gt, gt_family = model_eval.load_gt(paths["ground_truth"])
     annotations = json.loads(
         paths["official_context_annotations"].read_text(encoding="utf-8")
     )
@@ -725,12 +725,12 @@ def main() -> int:
         "input_counts": input_counts,
         "sources": sources,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     write_json(out / "summary.json", summary)
     write_csv(out / "metrics.csv", method_rows(sources))
     write_csv(out / "family_metrics.csv", family_rows(sources))
-    write_csv(out / "reported_validation.csv", reference_rows)
+    write_csv(out / "result_check.csv", reference_rows)
     membership_rows = [
         {
             "source": source,
@@ -751,7 +751,7 @@ def main() -> int:
         "summary.md",
         "metrics.csv",
         "family_metrics.csv",
-        "reported_validation.csv",
+        "result_check.csv",
         "membership.csv",
     )
     manifest = {

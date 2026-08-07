@@ -14,14 +14,14 @@ from typing import Any, Callable
 
 import numpy as np
 
-import evaluate_main as base
-import evaluate_support_intervals as scan_bootstrap
-import evaluate_train_only as strict
+import evaluate_all_families as base
+import evaluate_support_bootstrap as scan_bootstrap
+import evaluate_base_models as model_eval
 import relation_consistency as algebra
 
 
 METHODS = (
-    "source_score",
+    "source",
     "full_linear",
     "no_pairwise_loss",
     "no_transformation_averaging",
@@ -109,8 +109,8 @@ def load_candidates(
                 continue
             in_scope_rows += 1
             predicate = row["predicate"]["predicate_label"]
-            raw = strict.raw_numeric(row)
-            semantic = strict.finite((row.get("semantic") or {}).get("ranking_score"))
+            raw = model_eval.raw_numeric(row)
+            semantic = model_eval.finite((row.get("semantic") or {}).get("ranking_score"))
             if semantic is None:
                 raise ValueError(f"missing_semantic:{row['prediction_id']}")
             compatibility = {
@@ -133,13 +133,13 @@ def load_candidates(
                 {
                     "id": row["prediction_id"],
                     "scan": row["scan_id"],
-                    "key": strict.candidate_key(row),
+                    "key": model_eval.candidate_key(row),
                     "family": family,
                     "semantic": float(semantic),
                     "status": row.get("verification_status")
                     or (row.get("verification") or {}).get("verification_status"),
                     "compatibility": compatibility,
-                    "scores": {"source_score": float(semantic)},
+                    "scores": {"source": float(semantic)},
                 }
             )
     diagnostics: dict[str, Any] = {}
@@ -241,7 +241,7 @@ def summarize(values: dict[str, Any], weights: np.ndarray) -> dict[str, Any]:
                 boot = weighted_ratio(numerator, denominator, weights)
                 report[method][str(k)][metric] = {
                     "point": point,
-                    "scan_cluster_ci95": base.ci95(boot),
+                    "bootstrap_intervals_ci95": base.ci95(boot),
                     "numerator": int(numerator.sum()),
                     "denominator": int(denominator.sum()),
                 }
@@ -261,7 +261,7 @@ def summarize(values: dict[str, Any], weights: np.ndarray) -> dict[str, Any]:
                         report[method][str(k)][metric]["point"]
                         - report["full_linear"][str(k)][metric]["point"]
                     ),
-                    "paired_scan_cluster_ci95": base.ci95(delta),
+                    "paired_bootstrap_intervals_ci95": base.ci95(delta),
                 }
     return report
 
@@ -276,7 +276,7 @@ def evaluate_source(
 ) -> tuple[dict[str, Any], dict[str, bool]]:
     grouped, counts = load_candidates(path, scorers)
     route_checks = add_family_routes(grouped)
-    gt, gt_family = strict.load_gt(gt_path)
+    gt, gt_family = model_eval.load_gt(gt_path)
     previous_methods = base.METHODS
     base.METHODS = METHODS
     try:
@@ -306,8 +306,8 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_component_removal_evaluation":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     paths = {
         name: resolve(root, spec["path"])
         for name, spec in protocol["inputs"].items()
@@ -320,7 +320,7 @@ def main() -> int:
         if sha256_file(path) != expected:
             raise ValueError(f"hash_mismatch:{name}")
 
-    models = json.loads(paths["structured_models"].read_text(encoding="utf-8"))
+    models = json.loads(paths["linear_models"].read_text(encoding="utf-8"))
     scorers = {
         "full_linear": make_scorer(models, "orbit_pairwise", True),
         "no_pairwise_loss": make_scorer(models, "orbit_augmented", True),
@@ -357,7 +357,7 @@ def main() -> int:
     for source in source_paths:
         for k in base.KS:
             for metric in METRICS:
-                expected = reference["sources"][source]["results"]["routed_product"][
+                expected = reference["sources"][source]["results"]["relcompat3d_linear"][
                     str(k)
                 ][metric]["point"]
                 actual = sources[source]["results"]["full_linear"][str(k)][metric][
@@ -395,7 +395,7 @@ def main() -> int:
             "zero_prediction_contexts"
         ]
         == 15,
-        "full_linear_matches_promoted_reference": full_matches_reference,
+        "linear_results_match_reported_results": full_matches_reference,
         "family_sequence_exact": all(
             cell["family_sequence_exact"] for cell in route_checks.values()
         ),
@@ -420,7 +420,7 @@ def main() -> int:
         "sources": sources,
         "route_checks": route_checks,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     out.mkdir(parents=True, exist_ok=True)
     write_json(out / "summary.json", summary)
@@ -447,7 +447,7 @@ def main() -> int:
         "",
         f"Status: `{status}`",
         "",
-        "All conditions use RelCompat3D-Linear, the same frozen train rows and family-slot route.",
+        "All conditions use RelCompat3D-Linear, the same fixed train rows and family-slot route.",
         "",
         "| Source | Condition | R@50 | V@50 | R@100 | V@100 |",
         "| --- | --- | ---: | ---: | ---: | ---: |",

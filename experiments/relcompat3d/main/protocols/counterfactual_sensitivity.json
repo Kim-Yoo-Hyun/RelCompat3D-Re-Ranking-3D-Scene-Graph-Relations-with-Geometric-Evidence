@@ -1,0 +1,155 @@
+{
+  "evaluation_scope": "This sensitivity tests dependence on the constructed-target policy within 3DSSG. It does not make the target independent of the verifier, establish human physical validity, select a better condition, or expand dataset scope.",
+  "conditions": {
+    "default": {
+      "max_negative_to_positive_ratio_per_family": 3.0,
+      "max_negatives_per_context_family": 200,
+      "negative_cap_per_positive": 2,
+      "pairwise_weight": 0.25,
+      "proximity_threshold": 2.5,
+      "target_key": "default",
+      "vertical_abs_margin_m": 0.25
+    },
+    "negative_cap_1": {
+      "max_negative_to_positive_ratio_per_family": 3.0,
+      "max_negatives_per_context_family": 200,
+      "negative_cap_per_positive": 1,
+      "pairwise_weight": 0.25,
+      "proximity_threshold": 2.5,
+      "target_key": "negative_cap_1",
+      "vertical_abs_margin_m": 0.25
+    },
+    "negative_cap_4": {
+      "max_negative_to_positive_ratio_per_family": 3.0,
+      "max_negatives_per_context_family": 200,
+      "negative_cap_per_positive": 4,
+      "pairwise_weight": 0.25,
+      "proximity_threshold": 2.5,
+      "target_key": "negative_cap_4",
+      "vertical_abs_margin_m": 0.25
+    },
+    "pair_weight_0.125": {
+      "max_negative_to_positive_ratio_per_family": 3.0,
+      "max_negatives_per_context_family": 200,
+      "negative_cap_per_positive": 2,
+      "pairwise_weight": 0.125,
+      "proximity_threshold": 2.5,
+      "target_key": "default",
+      "vertical_abs_margin_m": 0.25
+    },
+    "pair_weight_0.5": {
+      "max_negative_to_positive_ratio_per_family": 3.0,
+      "max_negatives_per_context_family": 200,
+      "negative_cap_per_positive": 2,
+      "pairwise_weight": 0.5,
+      "proximity_threshold": 2.5,
+      "target_key": "default",
+      "vertical_abs_margin_m": 0.25
+    },
+    "proximity_2.0": {
+      "max_negative_to_positive_ratio_per_family": 3.0,
+      "max_negatives_per_context_family": 200,
+      "negative_cap_per_positive": 2,
+      "pairwise_weight": 0.25,
+      "proximity_threshold": 2.0,
+      "target_key": "proximity_2.0",
+      "vertical_abs_margin_m": 0.25
+    },
+    "proximity_3.0": {
+      "max_negative_to_positive_ratio_per_family": 3.0,
+      "max_negatives_per_context_family": 200,
+      "negative_cap_per_positive": 2,
+      "pairwise_weight": 0.25,
+      "proximity_threshold": 3.0,
+      "target_key": "proximity_3.0",
+      "vertical_abs_margin_m": 0.25
+    },
+    "vertical_0.20m": {
+      "max_negative_to_positive_ratio_per_family": 3.0,
+      "max_negatives_per_context_family": 200,
+      "negative_cap_per_positive": 2,
+      "pairwise_weight": 0.25,
+      "proximity_threshold": 2.5,
+      "target_key": "vertical_0.20m",
+      "vertical_abs_margin_m": 0.2
+    },
+    "vertical_0.30m": {
+      "max_negative_to_positive_ratio_per_family": 3.0,
+      "max_negatives_per_context_family": 200,
+      "negative_cap_per_positive": 2,
+      "pairwise_weight": 0.25,
+      "proximity_threshold": 2.5,
+      "target_key": "vertical_0.30m",
+      "vertical_abs_margin_m": 0.3
+    }
+  },
+  "created_at_kst": "2026-07-20",
+  "design": "one-factor-at-a-time; the default condition is included as an exact continuity check and no winner is selected",
+  "evaluation": {
+    "bootstrap_resamples": 1000,
+    "bootstrap_seed": 20260716,
+    "bootstrap_unit": "scan_id cluster",
+    "final_target": "official 157-scan/548-context 3DSSG validation",
+    "ks": [
+      5,
+      10,
+      20,
+      50,
+      100
+    ],
+    "ordering_split": "117-scan development",
+    "reported_ks": [
+      50,
+      100
+    ]
+  },
+  "expected_conditions": [
+    "default",
+    "proximity_2.0",
+    "proximity_3.0",
+    "vertical_0.20m",
+    "vertical_0.30m",
+    "negative_cap_1",
+    "negative_cap_4",
+    "pair_weight_0.125",
+    "pair_weight_0.5"
+  ],
+  "inputs": {
+    "dataset_root": "local_dataset",
+    "final_validation_scans": "experiments/relcompat3d/training/splits/final_validation_scans.txt",
+    "ground_truth": "experiments/relcompat3d/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+    "development_scans": "experiments/relcompat3d/training/splits/development_scans.txt",
+    "main_models": "experiments/relcompat3d/main/fit/linear_models.json",
+    "method_development_scans": "experiments/relcompat3d/training/splits/training_and_development_scans.txt",
+    "official_context_annotations": "local_dataset/3DSSG_subset/relationships_validation.json",
+    "open3dsg_summary": "experiments/relcompat3d/main/evaluation/open3dsg_evaluation/summary.json",
+    "open3dsg_verification": "experiments/relcompat3d/sources/open3dsg/full_validation/geometry/verification.jsonl",
+    "relationships_file": "local_dataset/3DSSG_subset/relationships.txt",
+    "routing_summary": "experiments/relcompat3d/main/evaluation/support_order/summary.json",
+    "sgfn_verification": "experiments/relcompat3d/sources/sgfn/geometry/verification.jsonl",
+    "train_annotations": "local_dataset/3DSSG_subset/relationships_train.json",
+    "train_scans": "experiments/relcompat3d/training/splits/train_scans.txt",
+    "vlsat_verification": "experiments/relcompat3d/sources/vlsat/full_validation/geometry/verification.jsonl"
+  },
+  "expected_sha256": {
+    "main_models": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+  },
+  "optimizer": {
+    "batching": "deterministic_full_batch",
+    "epochs": 800,
+    "initial_weights": 0.0,
+    "l2": 0.0001,
+    "learning_rate": 0.2,
+    "pairwise_loss": "softplus(margin - (logit_positive - logit_negative))",
+    "pairwise_margin": 1.0
+  },
+  "parameterization": {
+    "id": "main",
+    "other_changes": "none",
+    "remove_constant_family_indicator": true
+  },
+  "model_selection": "experiments/relcompat3d/main/fit/model_selection.json",
+  "purpose": "Repeat the unchanged one-factor counterfactual sensitivity while removing the constant family indicator from every family-specific head.",
+  "schema_version": "relcompat3d_relcompat3d_counterfactual_controls_protocol_v1",
+  "status": "ready"
+}

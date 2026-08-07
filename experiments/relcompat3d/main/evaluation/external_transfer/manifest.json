@@ -1,0 +1,42 @@
+{
+  "created_at_utc": "2026-07-19T21:42:22.264830+00:00",
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_transfer_audit",
+  "outputs": {
+    "metrics.csv": {
+      "path": "experiments/relcompat3d/main/evaluation/external_transfer/metrics.csv",
+      "sha256": "43ecaccb3c1408ada1d5a8aadf2c5d953f9b3a7a183781f4b77ebf5d549b1d39"
+    },
+    "summary.json": {
+      "path": "experiments/relcompat3d/main/evaluation/external_transfer/summary.json",
+      "sha256": "c919e64c502b7d5ba6d0b79bb9f142dc06f4a3d9529bd8a3d7d0eb837ce3be19"
+    },
+    "summary.md": {
+      "path": "experiments/relcompat3d/main/evaluation/external_transfer/summary.md",
+      "sha256": "ab65c28f27a86f30caebdfe94bcfaf5117b264d3887fd4baec393649bc4d3eea"
+    }
+  },
+  "schema_version": "relcompat3d_relcompat3d_transfer_audit_manifest_v1",
+  "status": "blocked_external_dataset_evaluation",
+  "validations": {
+    "all_input_hashes_match": true,
+    "all_methods_reported": true,
+    "all_metrics_finite": true,
+    "bootstrap_configuration_matches": true,
+    "candidate_coverage_computed": true,
+    "candidate_rows_exact": true,
+    "classification_discloses_prior_target_observation": true,
+    "compose_hash_matches": true,
+    "contexts_exact": true,
+    "evaluator_hash_matches": true,
+    "families_exact": true,
+    "gt_denominator_exact": true,
+    "locked_model_hash_matches": true,
+    "model_excludes_predictor_identity": true,
+    "model_excludes_source_score": true,
+    "no_target_tuning": true,
+    "predicates_exact": true,
+    "primary_route_family_composition_exact": true,
+    "protocol_ready": false,
+    "relation_algebra_exact": true
+  }
+}

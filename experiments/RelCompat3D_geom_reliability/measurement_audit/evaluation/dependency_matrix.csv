@@ -1,8 +1,0 @@
-information,training_construction,primary_verifier,point_mesh_audit,interpretation
-evaluation_candidate_rows,No,Yes,Yes,Training examples are constructed only from the training split; both evaluations label the frozen evaluation candidates.
-source_relation_score,No,No,No,The score selects rankings outside the label estimators but is not an input to compatibility training or either verifier.
-primary_verifier_status_labels,No,Output,No,Primary status labels do not construct training rows and are not read by the point/mesh audit.
-obb_derived_measurements,Some,Yes,No,Training counterfactuals and the primary verifier share a subset of OBB primitives and family thresholds.
-point_mesh_measurements,No,No,Yes,The alternative audit measures reconstructed point-cloud vertices and mesh triangles directly.
-evaluation_scene_identities,No,Yes,Yes,The two evaluations use the same official validation scenes and fixed candidate identities.
-relation_ontology,Yes,Yes,Yes,"All components share the scoped support/contact, proximity, and vertical-order ontology."

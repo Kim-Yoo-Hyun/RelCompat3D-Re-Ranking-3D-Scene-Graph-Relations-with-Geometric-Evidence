@@ -1,0 +1,15 @@
+{
+  "schema_version": "relcompat3d_data_provenance_v1",
+  "training_data": "official 3DSSG training split",
+  "development_data": "official 3DSSG development split",
+  "validation_data": "official 3DSSG validation split",
+  "compatibility_fitting": {
+    "uses_validation_examples": false,
+    "uses_source_relation_scores": false,
+    "uses_predictor_identity": false
+  },
+  "evaluation": {
+    "uses_fixed_source_predictions": true,
+    "uses_validation_ground_truth_for_metrics": true
+  }
+}

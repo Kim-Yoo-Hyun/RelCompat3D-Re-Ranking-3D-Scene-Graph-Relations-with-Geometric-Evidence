@@ -16,14 +16,14 @@ from typing import Any, Callable
 import numpy as np
 
 import relation_consistency as algebra
-import evaluate_main as structured
-import evaluate_train_only as strict
+import evaluate_all_families as linear_eval
+import evaluate_base_models as model_eval
 
 
 FAMILIES = ("support_contact", "proximity", "relative_vertical")
 METHODS = (
-    "source_score",
-    "structured_product",
+    "source",
+    "all_family_product",
     "wrong_predicate_product",
     "wrong_pair_product",
     "shuffled_geometry_product",
@@ -116,8 +116,8 @@ def load_rows(
                 continue
             in_scope_rows += 1
             predicate = source_row["predicate"]["predicate_label"]
-            raw = strict.raw_numeric(source_row)
-            semantic = strict.finite(
+            raw = model_eval.raw_numeric(source_row)
+            semantic = model_eval.finite(
                 (source_row.get("semantic") or {}).get("ranking_score")
             )
             if semantic is None:
@@ -126,7 +126,7 @@ def load_rows(
                 {
                     "id": source_row["prediction_id"],
                     "scan": source_row["scan_id"],
-                    "key": strict.candidate_key(source_row),
+                    "key": model_eval.candidate_key(source_row),
                     "pair": endpoint_pair(source_row),
                     "family": family,
                     "predicate": predicate,
@@ -210,8 +210,8 @@ def add_scores(
                 else 0.0
             )
             row["scores"] = {
-                "source_score": semantic,
-                "structured_product": semantic * row["compatibility"],
+                "source": semantic,
+                "all_family_product": semantic * row["compatibility"],
                 "wrong_predicate_product": semantic
                 * score_compatibility(family, wrong_name, raw),
                 "wrong_pair_product": semantic
@@ -293,23 +293,23 @@ def evaluate(
                 arrays[method]["selected"][ki].sum()
             )
 
-    report["deltas_vs_structured_product"] = {}
+    report["deltas_vs_all_family_product"] = {}
     for method in METHODS:
-        if method == "structured_product":
+        if method == "all_family_product":
             continue
-        report["deltas_vs_structured_product"][method] = {}
+        report["deltas_vs_all_family_product"][method] = {}
         for k in KS:
-            report["deltas_vs_structured_product"][method][str(k)] = {}
+            report["deltas_vs_all_family_product"][method][str(k)] = {}
             for metric in ("recall", "violation"):
                 point = (
                     report[method][str(k)][metric]["point"]
-                    - report["structured_product"][str(k)][metric]["point"]
+                    - report["all_family_product"][str(k)][metric]["point"]
                 )
                 delta = (
                     cache[method][str(k)][metric]
-                    - cache["structured_product"][str(k)][metric]
+                    - cache["all_family_product"][str(k)][metric]
                 )
-                report["deltas_vs_structured_product"][method][str(k)][metric] = {
+                report["deltas_vs_all_family_product"][method][str(k)][metric] = {
                     "point": point,
                     "paired_ci95": ci95(delta),
                 }
@@ -383,12 +383,12 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_structured_ablation_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     if tuple(protocol["evaluation"]["ks"]) != KS:
-        raise ValueError("k_contract_mismatch")
+        raise ValueError("rank_cutoffs_mismatch")
     if tuple(protocol["conditions"]) != METHODS:
-        raise ValueError("method_contract_mismatch")
+        raise ValueError("ranking_config_mismatch")
 
     paths: dict[str, Path] = {}
     input_checks: dict[str, Any] = {}
@@ -406,12 +406,12 @@ def main() -> int:
             "size_bytes": path.stat().st_size,
         }
 
-    models = json.loads(paths["structured_models"].read_text(encoding="utf-8"))
+    models = json.loads(paths["linear_models"].read_text(encoding="utf-8"))
     if models.get("source_score_used") is not False or models.get("source_identity_used") is not False:
-        raise ValueError("structured_model_uses_source")
-    score_compatibility = structured.make_structured_scorer(models)
-    gt, _ = strict.load_gt(paths["ground_truth"])
-    main_summary = json.loads(paths["structured_main_summary"].read_text(encoding="utf-8"))
+        raise ValueError("linear_model_uses_source")
+    score_compatibility = linear_eval.make_linear_scorer(models)
+    gt, _ = model_eval.load_gt(paths["ground_truth"])
+    main_summary = json.loads(paths["all_family_comparison_summary"].read_text(encoding="utf-8"))
     source_paths = {
         "vlsat": paths["vlsat_verification"],
         "open3dsg": paths["open3dsg_verification"],
@@ -447,7 +447,7 @@ def main() -> int:
             "metrics": metrics,
         }
         source_equivalence: dict[str, Any] = {}
-        for method in ("source_score", "structured_product"):
+        for method in ("source", "all_family_product"):
             source_equivalence[method] = {}
             for k in KS:
                 current = metrics[method][str(k)]
@@ -511,17 +511,17 @@ def main() -> int:
     }
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_structured_ablation_evaluation_v1",
+        "schema_version": "relcompat3d_linear_controls_evaluation_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "classification": protocol["classification"],
         "methods": list(METHODS),
         "ks": list(KS),
         "sources": sources,
-        "point_equivalence_to_structured_main": equivalence,
+        "point_equivalence_to_all_family_comparison": equivalence,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
-        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm structured_ablation_evaluation",
+        "evaluation_scope": protocol["evaluation_scope"],
+        "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_linear_controls",
     }
 
     out.mkdir(parents=True, exist_ok=True)
@@ -532,7 +532,7 @@ def main() -> int:
     metrics_path = out / "metrics.csv"
     write_csv(metrics_path, make_csv(summary))
     manifest = {
-        "schema_version": "relcompat3d_structured_ablation_manifest_v1",
+        "schema_version": "relcompat3d_linear_controls_manifest_v1",
         "status": status,
         "protocol": {
             "path": relpath(root, protocol_path),

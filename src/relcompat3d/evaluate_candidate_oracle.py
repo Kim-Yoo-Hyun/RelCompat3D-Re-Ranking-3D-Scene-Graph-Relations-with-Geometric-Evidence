@@ -203,8 +203,8 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_candidate_oracle_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     manifest_path = rows_dir / "manifest.json"
     manifest_sha = sha256_file(manifest_path)
     if manifest_sha != protocol["input_rows"]["manifest_sha256"]:
@@ -259,7 +259,7 @@ def main() -> int:
             for payload in sources.values()
             for k in ks
         ),
-        "active_methods_below_active_oracle": all(
+        "evaluated_methods_within_oracle": all(
             payload["observed"][method][k]
             <= payload["oracle"]["Active-route oracle"][k]
             for payload in sources.values()
@@ -307,7 +307,7 @@ def main() -> int:
         "ground_truth_denominator": denominator,
         "sources": sources,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
         "docker_command": (
             "env UID=$(id -u) GID=$(id -g) docker compose "
             "-f configs/relcompat3d/compose.yaml run --rm "

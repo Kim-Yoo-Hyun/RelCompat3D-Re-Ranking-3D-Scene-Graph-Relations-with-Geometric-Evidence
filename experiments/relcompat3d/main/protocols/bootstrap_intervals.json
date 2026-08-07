@@ -1,0 +1,16 @@
+{
+  "bootstrap_resamples": 1000,
+  "bootstrap_seed": 20260714,
+  "bootstrap_unit": "scan_id cluster",
+  "created_at_kst": "2026-07-20",
+  "model_sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194",
+  "official_context_annotations": "local_dataset/3DSSG_subset/relationships_validation.json",
+  "open3dsg_official_summary": "experiments/relcompat3d/main/evaluation/open3dsg_evaluation/summary.json",
+  "open3dsg_official_verification": "experiments/relcompat3d/sources/open3dsg/full_validation/geometry/verification.jsonl",
+  "model_selection": "experiments/relcompat3d/main/fit/model_selection.json",
+  "routing_protocol": "experiments/relcompat3d/main/protocols/support_order.json",
+  "routing_summary": "experiments/relcompat3d/main/evaluation/support_order/summary.json",
+  "schema_version": "relcompat3d_relcompat3d_linear_bootstrap_protocol_v1",
+  "selection_or_tuning_allowed": false,
+  "status": "ready"
+}

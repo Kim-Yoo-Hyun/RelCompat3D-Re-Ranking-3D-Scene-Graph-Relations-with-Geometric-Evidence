@@ -1,0 +1,100 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit_mlp",
+  "inputs": {
+    "calibration_table": {
+      "path": "experiments/relcompat3d/training/calibration/export/table.jsonl",
+      "sha256": "ada87676faf0df67c8d8873ceb8efa54ab29507306fca24d4020b21d5e39af6e"
+    },
+    "exact_label_open3dsg_summary": {
+      "path": "experiments/relcompat3d/nonlinear_transfer_v1/open3dsg/summary.json",
+      "sha256": "393036b39cace42c766a87a35f3964dbb9b4e20b5ea10dea3d96f9e0cb26ddec"
+    },
+    "exact_label_sgfn_summary": {
+      "path": "experiments/relcompat3d/nonlinear_fusion_baseline/evaluation_v1/summary.json",
+      "sha256": "e22a39cb8793183d2fec85c55ffd68425d99d31596c93ff046cead9e05a20c25"
+    },
+    "exact_label_vlsat_summary": {
+      "path": "experiments/relcompat3d/nonlinear_transfer_v1/vlsat/summary.json",
+      "sha256": "828c42b8ddb1279a9953997b0f4e34b716ab7b54fecccdb29da6167b87b481e4"
+    },
+    "final_ground_truth": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "final_validation_scans": {
+      "path": "experiments/relcompat3d/training/splits/final_validation_scans.txt",
+      "sha256": "3687b892938c25a44a07d6e0e26788b98ffe5c5319f04407d446247c2a67e7e4"
+    },
+    "development_ground_truth": {
+      "path": "experiments/relcompat3d/training/development_ground_truth.jsonl",
+      "sha256": "3425be6aba974345a8aadc279b06e6a56dca6407c123ad45374adcfc137e199b"
+    },
+    "development_scans": {
+      "path": "experiments/relcompat3d/training/splits/development_scans.txt",
+      "sha256": "25fb5aba714b0c9bf00f36b04fb890de6dd4a197628dd179812189511c01343b"
+    },
+    "development_verification": {
+      "path": "experiments/relcompat3d/training/development/geometry/verification.jsonl",
+      "sha256": "458bdf95447052bd71f297ce2c2a0ee70af84447c75e56201180f58106e18618"
+    },
+    "open3dsg_verification": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+      "sha256": "89ab2324654d07e8c2bde2c4aec3b5bdf9b916898b7e0bb40d4f9c582d58c58e"
+    },
+    "sgfn_verification": {
+      "path": "experiments/relcompat3d/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+    },
+    "linear_models": {
+      "path": "experiments/relcompat3d/main/fit/linear_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    },
+    "train_scans": {
+      "path": "experiments/relcompat3d/training/splits/train_scans.txt",
+      "sha256": "d9df8036092a02212fe9ecfa7b04819c700be26c75a26ca2ee638852a7c3ca53"
+    },
+    "vlsat_verification": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+    }
+  },
+  "outputs": {
+    "comparison.csv": {
+      "path": "experiments/relcompat3d/main/evaluation/mlp/comparison.csv",
+      "sha256": "16dd57bed2de16c092ee546650d217903ffa34c9ba3a671917cac6e43d340f0d"
+    },
+    "models.json": {
+      "path": "experiments/relcompat3d/main/evaluation/mlp/models.json",
+      "sha256": "ccf4107c06d95161df8ecb1948b37f781025407d7b3596ddd6886394a2976c3e"
+    },
+    "paired_contrasts.csv": {
+      "path": "experiments/relcompat3d/main/evaluation/mlp/paired_contrasts.csv",
+      "sha256": "b208089e4818c2d98a75a09cef48f974904c1e7b508215e828602513800630c7"
+    },
+    "summary.json": {
+      "path": "experiments/relcompat3d/main/evaluation/mlp/summary.json",
+      "sha256": "66ac52742e77df75cbce22c7a4dc439e3b49008a76a9ee60ede930cdf2331a66"
+    },
+    "summary.md": {
+      "path": "experiments/relcompat3d/main/evaluation/mlp/summary.md",
+      "sha256": "9b85f74b057e8e56e11d2f7022c151d568eb5d9afedacbea8a4df97a216dccf8"
+    }
+  },
+  "protocol": {
+    "path": "experiments/relcompat3d/main/protocols/mlp.json",
+    "sha256": "456d959bddb42abd4b126c6877868c6c0c82000cd42753a7c2cd897a5697c5d9"
+  },
+  "schema_version": "relcompat3d_relcompat3d_fit_mlp_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_final_gt_denominator_3972": true,
+    "all_parameters_finite": true,
+    "all_sources_context_count_matches": true,
+    "dev_rows_6246": true,
+    "parameter_count_69": true,
+    "source_score_excluded": true,
+    "split_counts_1061_117_157": true,
+    "train_rows_60208": true,
+    "zero_final_rows_in_training_table": true
+  }
+}

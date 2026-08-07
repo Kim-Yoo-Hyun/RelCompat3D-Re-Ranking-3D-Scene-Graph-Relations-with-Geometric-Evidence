@@ -1,0 +1,43 @@
+{
+  "schema_version": "relcompat3d_result_index_v1",
+  "updated_at_kst": "2026-08-07",
+  "status": "ready",
+  "method_pointer": "experiments/relcompat3d/method_config.json",
+  "analysis_hashes": {
+    "score_robustness_manifest_sha256": "fa0b4b951cc465af65ffc61c28e4c7593f7070577ae4f804ec0325fcfb0958fa",
+    "routing_controls_manifest_sha256": "2ef08a58826f07666b441256dd71fc36175102cd4d99ac75f687102b98592d81",
+    "measurement_analysis_manifest_sha256": "7083006344f3ed482f9d6b0d3989939a547f3dba5fbce71e2a837ad3c9840df7",
+    "component_analysis_manifest_sha256": "81e5cd7515a2c9890a688bbb45ee7c7aee62e0d9754e7a1aa23796fef258d0a1",
+    "seed_robustness_manifest_sha256": "77e06d1587c218dd73e62918543e9da3a8248bc410831b2b570fc0ec96667839",
+    "paper_results_manifest_sha256": "e630214edeffe922ecb4dc9c27bdd37cf4d0039caa3eade3b43ee5f4bdc13239",
+    "candidate_oracle_manifest_sha256": "d2b05960bf6f5db4759eb8cb0c864a150fe0a3eb232364d973db8637c79e5de4"
+  },
+  "reported_results": {
+    "main_and_matched_comparators": "experiments/relcompat3d/main/evaluation/ranking_baselines",
+    "all_family_comparison": "experiments/relcompat3d/main/evaluation/all_family_comparison",
+    "linear_controls": "experiments/relcompat3d/main/evaluation/linear_controls",
+    "mlp_controls": "experiments/relcompat3d/main/evaluation/mlp_ablation",
+    "paired_scan_intervals": "experiments/relcompat3d/main/evaluation/bootstrap_intervals",
+    "linear_point_mesh_audit": "experiments/relcompat3d/main/evaluation/point_mesh_audit",
+    "mlp_point_mesh_audit": "experiments/relcompat3d/main/evaluation/mlp_point_mesh_audit",
+    "feature_removal": "experiments/relcompat3d/main/evaluation/feature_removal",
+    "counterfactual_sensitivity": "experiments/relcompat3d/main/evaluation/counterfactual_sensitivity",
+    "direct_component_removals": "experiments/relcompat3d/main/evaluation/component_removals",
+    "runtime": "experiments/relcompat3d/main/evaluation/runtime",
+    "external_transfer_stress_test": "experiments/relcompat3d/main/evaluation/external_transfer",
+    "score_mapping_and_simple_baselines": "experiments/relcompat3d/score_robustness/evaluation",
+    "routing_constraint_controls": "experiments/relcompat3d/routing_controls/evaluation",
+    "measurement_analysis": "experiments/relcompat3d/measurement_analysis/evaluation",
+    "component_analysis": "experiments/relcompat3d/component_analysis/evaluation",
+    "five_seed_robustness": "experiments/relcompat3d/seed_robustness/evaluation",
+    "paper_table_reproduction": "experiments/relcompat3d/paper_results/evaluation",
+    "candidate_pool_oracles": "experiments/relcompat3d/candidate_oracle/evaluation"
+  },
+  "excluded_from_git": [
+    "source prediction and verifier rows",
+    "local table rows derived from officially obtained data and source-predictor outputs",
+    "raw point/mesh audit measurements",
+    "datasets, checkpoints, and feature caches",
+    "historical result copies"
+  ]
+}

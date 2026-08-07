@@ -13,8 +13,8 @@ from typing import Any, Callable, Iterable
 import numpy as np
 
 import compatibility_features as calibration
-import evaluate_main as base
-import evaluate_train_only as strict
+import evaluate_all_families as base
+import evaluate_base_models as model_eval
 import fit_mlp as nonlinear
 import relation_consistency as algebra
 
@@ -94,7 +94,7 @@ def validate_inputs(
 
 def prepare_rows(paths: dict[str, Path]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     train_scans = read_scans(paths["train_scans"])
-    dev_scans = read_scans(paths["internal_dev_scans"])
+    dev_scans = read_scans(paths["development_scans"])
     final_scans = read_scans(paths["final_validation_scans"])
     if train_scans & dev_scans or train_scans & final_scans or dev_scans & final_scans:
         raise ValueError("split_overlap")
@@ -107,10 +107,10 @@ def prepare_rows(paths: dict[str, Path]) -> tuple[list[dict[str, Any]], dict[str
     )
     counts = {
         "train_scans": len(train_scans),
-        "internal_dev_scans": len(dev_scans),
+        "development_scans": len(dev_scans),
         "final_validation_scans": len(final_scans),
         "train_rows": sum(row["_role"] == "train" for row in prepared),
-        "internal_dev_rows": sum(row["_role"] == "dev" for row in prepared),
+        "development_rows": sum(row["_role"] == "dev" for row in prepared),
         "warnings": warnings,
         "zero_final_rows": not leaked,
     }
@@ -391,8 +391,8 @@ def load_candidate_rows(
                 continue
             in_scope_rows += 1
             predicate = row["predicate"]["predicate_label"]
-            raw = strict.raw_numeric(row)
-            semantic = strict.finite((row.get("semantic") or {}).get("ranking_score"))
+            raw = model_eval.raw_numeric(row)
+            semantic = model_eval.finite((row.get("semantic") or {}).get("ranking_score"))
             if semantic is None:
                 raise ValueError(f"missing_semantic:{row['prediction_id']}")
             compatibility: dict[str, float] = {}
@@ -422,7 +422,7 @@ def load_candidate_rows(
                 {
                     "id": row["prediction_id"],
                     "scan": row["scan_id"],
-                    "key": strict.candidate_key(row),
+                    "key": model_eval.candidate_key(row),
                     "family": family,
                     "semantic": float(semantic),
                     "status": row.get("verification_status")
@@ -449,7 +449,7 @@ def load_candidate_rows(
     }
 
 
-def routed_order(
+def family_order(
     candidates: list[dict[str, Any]],
     condition: str,
     transformed: bool = False,
@@ -474,12 +474,12 @@ def routed_order(
                 ),
             )
     offsets = {family: 0 for family in FAMILIES}
-    routed: list[dict[str, Any]] = []
+    ranked: list[dict[str, Any]] = []
     for source_row in source_order:
         family = source_row["family"]
-        routed.append(queues[family][offsets[family]])
+        ranked.append(queues[family][offsets[family]])
         offsets[family] += 1
-    return routed
+    return ranked
 
 
 def evaluate_conditions(
@@ -522,25 +522,25 @@ def evaluate_conditions(
             candidates, key=lambda row: (-row["semantic"], row["key"])
         )
         for condition in conditions:
-            routed = routed_order(candidates, condition, transformed=False)
-            transformed_routed = routed_order(
+            ranked = family_order(candidates, condition, transformed=False)
+            transformed_ranking = family_order(
                 candidates, condition, transformed=True
             )
             route_checks["family_sequence_exact"] &= [
                 row["family"] for row in source_order
-            ] == [row["family"] for row in routed]
+            ] == [row["family"] for row in ranked]
             route_checks["support_subsequence_exact"] &= [
                 row["id"]
                 for row in source_order
                 if row["family"] == "support_contact"
             ] == [
                 row["id"]
-                for row in routed
+                for row in ranked
                 if row["family"] == "support_contact"
             ]
             for k in KS:
-                selected = routed[:k]
-                transformed_selected = transformed_routed[:k]
+                selected = ranked[:k]
+                transformed_selected = transformed_ranking[:k]
                 exact = {row["key"] for row in selected}
                 truth = gt.get(context, set())
                 statuses = [

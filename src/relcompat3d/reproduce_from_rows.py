@@ -385,16 +385,16 @@ def write_table_tex(path: Path, rows: list[dict[str, Any]], table: int) -> None:
 
 def expected_table1(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str, int, str], float]:
     refs = protocol["reported_references"]
-    routed = read_reference_csv(resolve(root, refs["table1_routed"]["path"]))
+    result_rows = read_reference_csv(resolve(root, refs["table1_results"]["path"]))
     method_map = {
-        "source_score": "Source",
-        "routed_product": "RelCompat3D-Linear",
-        "routed_matched_mlp": "RelCompat3D-MLP",
-        "routed_rank_average": "RankAvg",
-        "routed_rrf": "RRF",
+        "source": "Source",
+        "relcompat3d_linear": "RelCompat3D-Linear",
+        "relcompat3d_mlp": "RelCompat3D-MLP",
+        "rank_average": "RankAvg",
+        "rrf": "RRF",
     }
     expected: dict[tuple[str, str, int, str], float] = {}
-    for row in routed:
+    for row in result_rows:
         label = method_map[row["method"]]
         for metric in ("recall", "violation"):
             expected[(row["source"], label, int(row["k"]), metric)] = float(
@@ -407,7 +407,7 @@ def expected_table1(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str
     for row in common:
         if (
             row["source"] in {"vlsat", "sgfn"}
-            and row["method"] == "structured_product"
+            and row["method"] == "all_family_product"
         ):
             expected[
                 (row["source"], "Product (all families)", int(row["k"]), "recall")
@@ -425,8 +425,8 @@ def expected_table1(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str
     )
     for row in open_rows:
         if (
-            row["route"] == "official_strict_full_548"
-            and row["method"] == "structured_product"
+            row["route"] == "official_full_548"
+            and row["method"] == "all_family_product"
         ):
             expected[
                 ("open3dsg", "Product (all families)", int(row["k"]), "recall")
@@ -448,7 +448,7 @@ def expected_table2(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str
         resolve(root, refs["table2_linear_controls"]["path"])
     )
     label_map = {
-        "structured_product": "RelCompat3D-Linear",
+        "all_family_product": "RelCompat3D-Linear",
         "wrong_predicate_product": "Wrong predicate",
         "wrong_pair_product": "Wrong pair",
         "shuffled_geometry_product": "Shuffled geometry",
@@ -465,9 +465,9 @@ def expected_table2(protocol: dict[str, Any], root: Path) -> dict[tuple[str, str
             expected[(row["source"], label, int(row["k"]), metric)] = float(
                 row[metric]
             )
-    routed = read_reference_csv(resolve(root, refs["table1_routed"]["path"]))
-    for row in routed:
-        if row["method"] == "routed_matched_mlp" and int(row["k"]) in {50, 100}:
+    result_rows = read_reference_csv(resolve(root, refs["table1_results"]["path"]))
+    for row in result_rows:
+        if row["method"] == "relcompat3d_mlp" and int(row["k"]) in {50, 100}:
             for metric in ("recall", "violation"):
                 expected[
                     (
@@ -766,10 +766,7 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") not in {
-        "frozen_before_table_row_export",
-        "public_execution_protocol",
-    }:
+    if protocol.get("status") != "ready":
         raise ValueError("unsupported_protocol_status")
     reported_mode = bool(protocol.get("reported_references"))
 
@@ -854,12 +851,12 @@ def main() -> int:
         "table2.csv": out / "table2.csv",
         "table3.csv": out / "table3.csv",
         (
-            "reported_validation.csv"
+            "result_check.csv"
             if reported_mode
             else "run_validation.csv"
         ): out
         / (
-            "reported_validation.csv"
+            "result_check.csv"
             if reported_mode
             else "run_validation.csv"
         ),
@@ -875,7 +872,7 @@ def main() -> int:
     write_csv(output_paths["table2.csv"], table2_csv)
     write_csv(output_paths["table3.csv"], table3_csv)
     validation_name = (
-        "reported_validation.csv" if reported_mode else "run_validation.csv"
+        "result_check.csv" if reported_mode else "run_validation.csv"
     )
     write_csv(output_paths[validation_name], validation_rows)
     write_csv(output_paths["figure3_data.csv"], figure_rows)
@@ -906,12 +903,12 @@ def main() -> int:
         "maximum_absolute_error": max_error,
         "tolerance": protocol["scope"].get("numerical_tolerance"),
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
         "docker_command": (
             "env UID=$(id -u) GID=$(id -g) docker compose "
             "-f configs/relcompat3d/compose.yaml run --rm "
             + (
-                "relcompat3d_reproduce_rows"
+                "relcompat3d_generate_tables"
                 if reported_mode
                 else "relcompat3d_reproduce_trained_rows"
             )

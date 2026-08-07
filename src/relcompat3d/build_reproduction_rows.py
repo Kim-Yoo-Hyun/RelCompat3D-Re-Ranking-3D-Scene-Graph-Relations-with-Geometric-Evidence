@@ -17,8 +17,8 @@ from typing import Any, Iterable
 
 import audit_point_mesh as surface
 import control_utils as controls
-import evaluate_main as linear
-import evaluate_train_only as strict
+import evaluate_all_families as linear
+import evaluate_base_models as model_eval
 import fit_mlp as nonlinear
 
 
@@ -40,7 +40,7 @@ CANDIDATE_FIELDS = (
     "row_uid",
     "predicate",
     "family",
-    "source_score",
+    "source",
     "linear_compatibility",
     "mlp_compatibility",
     "linear_utility",
@@ -177,12 +177,12 @@ def direct_rank(rows: list[dict[str, Any]], score_name: str) -> dict[str, int]:
     return {str(row["id"]): rank for rank, row in enumerate(ordered, 1)}
 
 
-def routed_rank(rows: list[dict[str, Any]], score_name: str) -> dict[str, int]:
-    source_order = sorted(rows, key=lambda row: (-float(row["scores"]["source_score"]), row["key"]))
+def family_rank(rows: list[dict[str, Any]], score_name: str) -> dict[str, int]:
+    source_order = sorted(rows, key=lambda row: (-float(row["scores"]["source"]), row["key"]))
     queues: dict[str, list[dict[str, Any]]] = {}
     for family in FAMILIES:
         family_rows = [row for row in rows if row["family"] == family]
-        family_score = "source_score" if family == "support_contact" else score_name
+        family_score = "source" if family == "support_contact" else score_name
         queues[family] = sorted(
             family_rows,
             key=lambda row: (-float(row["scores"][family_score]), row["key"]),
@@ -198,7 +198,7 @@ def routed_rank(rows: list[dict[str, Any]], score_name: str) -> dict[str, int]:
 
 def add_rank_fusion_scores(rows: list[dict[str, Any]]) -> None:
     denominator = max(len(rows) - 1, 1)
-    source_rank = direct_rank(rows, "source_score")
+    source_rank = direct_rank(rows, "source")
     compatibility_order = sorted(
         rows,
         key=lambda row: (-float(row["compatibility"]), row["key"]),
@@ -218,7 +218,7 @@ def add_rank_fusion_scores(rows: list[dict[str, Any]]) -> None:
 
 def assign_ranks(grouped: dict[str, list[dict[str, Any]]]) -> None:
     route_columns = {
-        "rank_linear": "structured_product",
+        "rank_linear": "all_family_product",
         "rank_mlp": "mlp_product",
         "rank_rankavg": "rankavg",
         "rank_rrf": "rrf",
@@ -232,10 +232,10 @@ def assign_ranks(grouped: dict[str, list[dict[str, Any]]]) -> None:
     for rows in grouped.values():
         add_rank_fusion_scores(rows)
         rank_maps = {
-            "rank_source": direct_rank(rows, "source_score"),
-            "rank_product_all_families": direct_rank(rows, "structured_product"),
+            "rank_source": direct_rank(rows, "source"),
+            "rank_product_all_families": direct_rank(rows, "all_family_product"),
             **{
-                column: routed_rank(rows, score_name)
+                column: family_rank(rows, score_name)
                 for column, score_name in route_columns.items()
             },
         }
@@ -296,10 +296,10 @@ def candidate_export_rows(
                 "row_uid": aliases.make("row", source, candidate_uid),
                 "predicate": predicate,
                 "family": family,
-                "source_score": format(float(row["semantic"]), ".17g"),
+                "source": format(float(row["semantic"]), ".17g"),
                 "linear_compatibility": format(float(row["compatibility"]), ".17g"),
                 "mlp_compatibility": format(float(row["mlp_compatibility"]), ".17g"),
-                "linear_utility": format(float(scores["structured_product"]), ".17g"),
+                "linear_utility": format(float(scores["all_family_product"]), ".17g"),
                 "mlp_utility": format(float(scores["mlp_product"]), ".17g"),
                 "exact_match": int(row["key"] in gt.get(context, set())),
                 "verifier_status": row["status"] or "",
@@ -357,12 +357,9 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") not in {
-        "frozen_before_table_row_export",
-        "public_execution_protocol",
-    }:
+    if protocol.get("status") != "ready":
         raise ValueError("unsupported_protocol_status")
-    public_mode = protocol.get("status") == "public_execution_protocol"
+    local_input_mode = not bool(protocol.get("reported_references"))
 
     paths: dict[str, Path] = {}
     input_checks: dict[str, Any] = {}
@@ -386,26 +383,26 @@ def main() -> int:
                 "distribution": spec.get("distribution", "local input"),
             }
 
-    key_text = paths["id_key"].read_text(encoding="utf-8").strip()
+    key_text = paths["identifier_key"].read_text(encoding="utf-8").strip()
     if len(key_text) < 32:
-        raise ValueError("id_key_too_short")
+        raise ValueError("identifier_key_too_short")
     aliases = Pseudonyms(bytes.fromhex(key_text))
     contexts, context_index, scans, scan_index = official_maps(
         paths["official_context_annotations"]
     )
-    gt, _ = strict.load_gt(paths["ground_truth"])
-    structured_models = json.loads(
-        paths["structured_models"].read_text(encoding="utf-8")
+    gt, _ = model_eval.load_gt(paths["ground_truth"])
+    linear_models = json.loads(
+        paths["linear_models"].read_text(encoding="utf-8")
     )
-    nonlinear_models = json.loads(
-        paths["nonlinear_models"].read_text(encoding="utf-8")
+    mlp_models = json.loads(
+        paths["mlp_models"].read_text(encoding="utf-8")
     )
-    linear_scorer = linear.make_structured_scorer(structured_models)
-    mlp_model = nonlinear_models["shared_nonlinear_structured"]
-    thresholds = json.loads(paths["surface_thresholds"].read_text(encoding="utf-8"))
-    measurement_paths = [paths["surface_measurements"]]
-    if "additional_surface_measurements" in paths:
-        measurement_paths.append(paths["additional_surface_measurements"])
+    linear_scorer = linear.make_linear_scorer(linear_models)
+    mlp_model = mlp_models["shared_mlp_pairwise"]
+    thresholds = json.loads(paths["point_mesh_thresholds"].read_text(encoding="utf-8"))
+    measurement_paths = [paths["point_mesh_measurements"]]
+    if "additional_point_mesh_measurements" in paths:
+        measurement_paths.append(paths["additional_point_mesh_measurements"])
     measurements = load_measurements(measurement_paths)
 
     out.mkdir(parents=True, exist_ok=True)
@@ -423,7 +420,7 @@ def main() -> int:
 
     candidate_counts: dict[str, int] = {}
     candidate_paths: dict[str, Path] = {}
-    route_checks: dict[str, Any] = {}
+    ranking_checks: dict[str, Any] = {}
     for source, input_name in SOURCE_PATH_KEYS.items():
         grouped, load_counts = controls.load_rows(
             paths[input_name],
@@ -465,7 +462,7 @@ def main() -> int:
         )
         candidate_paths[source] = candidate_path
         candidate_counts[source] = candidate_count
-        route_checks[source] = {
+        ranking_checks[source] = {
             "load_counts": load_counts,
             "donor_audit": donor,
             "contexts_with_candidates": len(grouped),
@@ -496,9 +493,9 @@ def main() -> int:
         ),
         "all_wrong_pair_donors_nonself": all(
             payload["donor_audit"]["wrong_pair_self_donors"] == 0
-            for payload in route_checks.values()
+            for payload in ranking_checks.values()
         ),
-        "surface_measurements_available": len(measurements) > 0,
+        "point_mesh_measurements_available": len(measurements) > 0,
     }
     if "expected_candidate_rows" in expected:
         validations["candidate_rows_match_reference"] = (
@@ -513,12 +510,12 @@ def main() -> int:
             "status": status,
             "candidate_fields": list(CANDIDATE_FIELDS),
             "ground_truth_fields": list(GROUND_TRUTH_FIELDS),
-            "identifier_contract": protocol["row_contract"]["identifiers"],
-            "included": protocol["row_contract"]["included"],
-            "excluded": protocol["row_contract"]["excluded"],
-            "redistribution_status": protocol["row_contract"]["redistribution_status"],
+            "identifier_format": protocol["row_format"]["identifiers"],
+            "included": protocol["row_format"]["included"],
+            "excluded": protocol["row_format"]["excluded"],
+            "redistribution_status": protocol["row_format"]["redistribution_status"],
             "hmac_key_fingerprint": hashlib.sha256(
-                paths["id_key"].read_bytes()
+                paths["identifier_key"].read_bytes()
             ).hexdigest(),
         },
     )
@@ -555,17 +552,17 @@ def main() -> int:
                 for name, path in files.items()
             },
             "input_checks": input_checks,
-            "route_checks": route_checks,
+            "ranking_checks": ranking_checks,
             "validations": validations,
-            "redistribution_status": protocol["row_contract"][
+            "redistribution_status": protocol["row_format"][
                 "redistribution_status"
             ],
             "docker_export_command": (
                 "env UID=$(id -u) GID=$(id -g) docker compose "
                 "-f configs/relcompat3d/compose.yaml run --rm "
                 + (
-                    "relcompat3d_export_trained_rows"
-                    if public_mode
+                    "relcompat3d_export_rows"
+                    if local_input_mode
                     else "relcompat3d_export_rows"
                 )
             ),

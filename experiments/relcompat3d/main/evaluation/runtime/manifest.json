@@ -1,0 +1,52 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_runtime",
+  "inputs": {
+    "open3dsg": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/geometry/verification.jsonl",
+      "sha256": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720"
+    },
+    "sgfn": {
+      "path": "experiments/relcompat3d/sources/sgfn/geometry/verification.jsonl",
+      "sha256": "9876656fd93ccca96193aed44f4c271512d21b0848dfd57538ad6599fdebbd32"
+    },
+    "linear_models": {
+      "path": "experiments/relcompat3d/main/fit/linear_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    },
+    "vlsat": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/geometry/verification.jsonl",
+      "sha256": "05a51880f0e86719ff7ca547992c9c491811a1c1828a40af2abdd6becba729cd"
+    }
+  },
+  "outputs": {
+    "summary.json": {
+      "path": "experiments/relcompat3d/main/evaluation/runtime/summary.json",
+      "sha256": "e26acd0d2a3cd758ff9d42945e542a889b0178873223a965cad1c819ce553c68"
+    },
+    "summary.md": {
+      "path": "experiments/relcompat3d/main/evaluation/runtime/summary.md",
+      "sha256": "3d7c8018fb794b7f59a9051273979bb95f7ad1bb3d2d9fbeb72d19747bb41f8d"
+    }
+  },
+  "protocol": {
+    "path": "experiments/relcompat3d/main/protocols/runtime.json",
+    "sha256": "6766b6fb70f170d35d40d08ab41bcec31ef2515b32a4657291e16aeb9a7f8003"
+  },
+  "schema_version": "relcompat3d_relcompat3d_runtime_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "inputs_exist": true,
+    "open3dsg_counts_match": true,
+    "open3dsg_deterministic": true,
+    "open3dsg_family_sequence_exact": true,
+    "open3dsg_support_contact_order_exact": true,
+    "sgfn_counts_match": true,
+    "sgfn_deterministic": true,
+    "sgfn_family_sequence_exact": true,
+    "sgfn_support_contact_order_exact": true,
+    "vlsat_counts_match": true,
+    "vlsat_deterministic": true,
+    "vlsat_family_sequence_exact": true,
+    "vlsat_support_contact_order_exact": true
+  }
+}

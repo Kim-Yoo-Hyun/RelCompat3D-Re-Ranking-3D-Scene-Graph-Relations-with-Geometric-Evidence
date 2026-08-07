@@ -85,7 +85,7 @@ def parse_args() -> argparse.Namespace:
         "--allow-selected-scans-without-positive-rows",
         action="store_true",
         help=(
-            "Keep zero-positive scans in the split firewall without treating their absence "
+            "Keep zero-positive scans in the data split separation without treating their absence "
             "from the row table as an export failure. The selected scan list is unchanged."
         ),
     )

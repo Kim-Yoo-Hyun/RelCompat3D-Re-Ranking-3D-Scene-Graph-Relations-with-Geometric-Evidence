@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate RelCompat3D-MLP under the frozen family-aware ablation contract."""
+"""Evaluate RelCompat3D-MLP under the fixed family-aware ablation contract."""
 
 from __future__ import annotations
 
@@ -11,15 +11,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import evaluate_linear_controls as routed
+import evaluate_linear_controls as linear_controls
 import control_utils as ablation
 import fit_mlp as nonlinear
-import evaluate_train_only as strict
+import evaluate_base_models as model_eval
 
 
 CONDITION_NAMES = {
-    "source_score": "source_score",
-    "structured_product": "relcompat3d_mlp",
+    "source": "source",
+    "all_family_product": "relcompat3d_mlp",
     "wrong_predicate_product": "mlp_wrong_predicate",
     "wrong_pair_product": "mlp_wrong_pair",
     "shuffled_geometry_product": "mlp_shuffled_geometry",
@@ -43,7 +43,7 @@ def rename_metrics(raw: dict[str, Any]) -> dict[str, Any]:
     renamed = {CONDITION_NAMES[name]: raw[name] for name in CONDITION_NAMES}
     renamed["deltas_vs_relcompat3d_mlp"] = {
         CONDITION_NAMES[name]: cells
-        for name, cells in raw["deltas_vs_structured_product"].items()
+        for name, cells in raw["deltas_vs_all_family_product"].items()
     }
     return renamed
 
@@ -60,11 +60,11 @@ def make_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
                         "method": method,
                         "k": k,
                         "recall": cell["recall"]["point"],
-                        "recall_scan_ci95_low": cell["recall"]["scan_cluster_ci95"][0],
-                        "recall_scan_ci95_high": cell["recall"]["scan_cluster_ci95"][1],
+                        "recall_scan_ci95_low": cell["recall"]["bootstrap_intervals_ci95"][0],
+                        "recall_scan_ci95_high": cell["recall"]["bootstrap_intervals_ci95"][1],
                         "violation": cell["violation"]["point"],
-                        "violation_scan_ci95_low": cell["violation"]["scan_cluster_ci95"][0],
-                        "violation_scan_ci95_high": cell["violation"]["scan_cluster_ci95"][1],
+                        "violation_scan_ci95_low": cell["violation"]["bootstrap_intervals_ci95"][0],
+                        "violation_scan_ci95_high": cell["violation"]["bootstrap_intervals_ci95"][1],
                         "selected": cell["selected"],
                     }
                 )
@@ -77,7 +77,7 @@ def markdown(summary: dict[str, Any]) -> str:
         "",
         f"Status: `{summary['status']}`",
         "",
-        "All conditions use the frozen nonlinear compatibility head, public/full 548-context target, and family-aware ranking procedure. Support/contact candidates remain in source order.",
+        "All conditions use the fixed nonlinear compatibility head, public/full 548-context target, and family-aware ranking procedure. Support/contact candidates remain in source order.",
         "",
         "| Predictor | Condition | R@50 | V@50 | R@100 | V@100 |",
         "| --- | --- | ---: | ---: | ---: | ---: |",
@@ -111,12 +111,12 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_relcompat3d_mlp_ablation_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready":
+        raise ValueError("protocol_version_mismatch")
     if tuple(protocol["evaluation"]["ks"]) != KS:
-        raise ValueError("k_contract_mismatch")
+        raise ValueError("rank_cutoffs_mismatch")
     if tuple(protocol["conditions"]) != METHODS:
-        raise ValueError("method_contract_mismatch")
+        raise ValueError("ranking_config_mismatch")
 
     paths: dict[str, Path] = {}
     input_checks: dict[str, Any] = {}
@@ -135,16 +135,16 @@ def main() -> int:
         }
 
     nonlinear_models = json.loads(paths["nonlinear_models"].read_text(encoding="utf-8"))
-    model = nonlinear_models["shared_nonlinear_structured"]
-    feature_contract = model["feature_contract"]
-    if feature_contract["source_score_input"] or feature_contract["source_identity_input"]:
+    model = nonlinear_models["shared_mlp_pairwise"]
+    feature_spec = model["feature_spec"]
+    if feature_spec["source_score_input"] or feature_spec["source_identity_input"]:
         raise ValueError("mlp_model_uses_source")
 
     def scorer(family: str, predicate: str, raw: dict[str, float]) -> float:
         return nonlinear.projected_probability(model, family, predicate, raw)
 
-    gt, _ = strict.load_gt(paths["ground_truth"])
-    context_to_scan = routed.official_context_map(paths["official_context_annotations"])
+    gt, _ = model_eval.load_gt(paths["ground_truth"])
+    context_to_scan = linear_controls.official_context_map(paths["official_context_annotations"])
     contexts = sorted(context_to_scan)
     reference = json.loads(paths["routed_comparator_summary"].read_text(encoding="utf-8"))
     source_paths = {
@@ -159,14 +159,14 @@ def main() -> int:
         donor_audit = ablation.add_scores(
             grouped, scorer, protocol["wrong_predicate_mapping"]
         )
-        routing_audit = routed.add_routed_scores(grouped)
-        weights, scan_counts = routed.scan_weights(
+        routing_audit = linear_controls.add_ranking_scores(grouped)
+        weights, scan_counts = linear_controls.scan_weights(
             contexts,
             context_to_scan,
             int(protocol["evaluation"]["bootstrap_resamples"]),
             int(protocol["evaluation"]["bootstrap_seed"]) + source_index,
         )
-        raw_metrics = routed.evaluate(grouped, gt, contexts, weights)
+        raw_metrics = linear_controls.evaluate(grouped, gt, contexts, weights)
         metrics = rename_metrics(raw_metrics)
         sources[source] = {
             "counts": {
@@ -182,8 +182,8 @@ def main() -> int:
         }
         equivalence[source] = {}
         for current_method, reference_method in (
-            ("source_score", "source_score"),
-            ("relcompat3d_mlp", "routed_matched_mlp"),
+            ("source", "source"),
+            ("relcompat3d_mlp", "relcompat3d_mlp"),
         ):
             equivalence[source][current_method] = {}
             for k in KS:
@@ -202,8 +202,8 @@ def main() -> int:
     expected_rows = protocol["evaluation"]["expected_in_scope_rows"]
     validations = {
         "all_input_hashes_match": len(input_checks) == len(protocol["inputs"]),
-        "mlp_excludes_source_score_and_identity": not feature_contract["source_score_input"]
-        and not feature_contract["source_identity_input"],
+        "mlp_excludes_source_score_and_identity": not feature_spec["source_score_input"]
+        and not feature_spec["source_identity_input"],
         "all_sources_have_548_contexts": all(
             payload["counts"]["contexts"] == 548 for payload in sources.values()
         ),
@@ -277,7 +277,7 @@ def main() -> int:
         "sources": sources,
         "point_equivalence_to_routed_comparator": equivalence,
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
         "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_mlp_ablation",
     }
 

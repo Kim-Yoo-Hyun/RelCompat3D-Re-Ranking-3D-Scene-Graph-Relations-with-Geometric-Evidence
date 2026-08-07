@@ -1,0 +1,34 @@
+{
+  "schema_version": "relcompat3d_training_v1",
+  "status": "ready_for_base_model_fit",
+  "purpose": "Fit compatibility models without using validation examples, source relation scores, or predictor identity.",
+  "data_splits": {
+    "training_scans": 1061,
+    "development_scans": 117,
+    "validation_scans": 157,
+    "fit": "training split only",
+    "development": "diagnostics only",
+    "validation": "evaluation only"
+  },
+  "model": {
+    "families": [
+      "support_contact",
+      "proximity",
+      "relative_vertical"
+    ],
+    "source_score_input": false,
+    "predictor_identity_input": false
+  },
+  "optimization": {
+    "epochs": 800,
+    "learning_rate": 0.2,
+    "l2": 0.0001,
+    "batching": "deterministic_full_batch",
+    "initial_weights": 0.0
+  },
+  "evaluation": {
+    "rank_cutoffs": [5, 10, 20, 50, 100],
+    "bootstrap_resamples": 1000,
+    "bootstrap_unit": "scene"
+  }
+}

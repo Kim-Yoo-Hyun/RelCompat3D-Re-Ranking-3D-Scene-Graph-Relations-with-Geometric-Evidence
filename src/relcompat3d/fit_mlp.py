@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare RelCompat3D with source-excluded, supervision-matched nonlinear models."""
+"""Compare RelCompat3D with source-excluded, supervision-matched MLP models."""
 
 from __future__ import annotations
 
@@ -17,8 +17,8 @@ import numpy as np
 
 import compatibility_features as calibration
 import relation_consistency as algebra
-import evaluate_main as base
-import evaluate_train_only as strict
+import evaluate_all_families as base
+import evaluate_base_models as model_eval
 
 
 FAMILIES = base.FAMILIES
@@ -40,10 +40,10 @@ INPUT_DIM = len(FAMILIES) + len(PREDICATES) + len(RAW_FEATURES) + len(INTERACTIO
 HIDDEN = 2
 PARAMETER_COUNT = HIDDEN * INPUT_DIM + HIDDEN + HIDDEN + 1 + len(PREDICATES)
 METHODS = (
-    "source_score",
-    "structured_product",
-    "shared_nonlinear_bce_product",
-    "shared_nonlinear_structured_product",
+    "source",
+    "all_family_product",
+    "shared_mlp_bce_product",
+    "shared_mlp_pairwise_product",
 )
 
 
@@ -119,7 +119,7 @@ def read_scans(path: Path) -> set[str]:
 
 
 def raw_feature_values(family: str, predicate: str, raw: dict[str, float]) -> list[float | None]:
-    aligned = strict.align_predicate(raw, predicate)
+    aligned = model_eval.align_predicate(raw, predicate)
     overlap_a = aligned.get("projected_subject_overlap_ratio")
     overlap_b = aligned.get("projected_object_overlap_ratio")
     overlap_sum = overlap_a + overlap_b if overlap_a is not None and overlap_b is not None else None
@@ -238,7 +238,7 @@ def serialize_model(params: dict[str, np.ndarray], stats: dict[str, Any], trace:
         "input_dim": INPUT_DIM,
         "hidden_width": HIDDEN,
         "parameter_count": int(sum(value.size for value in params.values())),
-        "feature_contract": {
+        "feature_spec": {
             "family_one_hot": list(FAMILIES),
             "predicate_one_hot": list(PREDICATES),
             "raw_geometry": list(RAW_FEATURES),
@@ -300,19 +300,19 @@ def prepare_training(prepared: list[dict[str, Any]], spec: dict[str, Any]) -> tu
     orbit_pairs = list(original_pairs)
     orbit_pairs.extend((transform_index[pos], transform_index[neg]) for pos, neg in original_pairs if pos in transform_index and neg in transform_index)
     bce_params, bce_trace = fit(original_x, original_y, [], {**spec, "pairwise_weight": 0.0})
-    structured_params, structured_trace = fit(normalize(orbit_values, stats), np.asarray(orbit_labels, dtype=np.float64), orbit_pairs, spec)
+    pairwise_params, pairwise_trace = fit(normalize(orbit_values, stats), np.asarray(orbit_labels, dtype=np.float64), orbit_pairs, spec)
     common = {"train_rows": len(train), "linked_pairs": len(original_pairs), "orbit_rows": len(orbit_values), "orbit_pairs": len(orbit_pairs)}
     return (
         serialize_model(bce_params, stats, bce_trace, {**common, "objective": "BCE"}),
-        serialize_model(structured_params, stats, structured_trace, {**common, "objective": "BCE + linked pairwise margin + relation-algebra augmentation"}),
+        serialize_model(pairwise_params, stats, pairwise_trace, {**common, "objective": "BCE + linked pairwise margin + relation-algebra augmentation"}),
     )
 
 
 def load_candidates(
     path: Path,
-    structured_score: Any,
+    linear_score: Any,
     bce_model: dict[str, Any],
-    nonlinear_structured_model: dict[str, Any],
+    pairwise_model: dict[str, Any],
 ) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     digest = hashlib.sha256()
@@ -328,32 +328,32 @@ def load_candidates(
             if family not in FAMILIES:
                 continue
             in_scope_rows += 1
-            predicate, raw = row["predicate"]["predicate_label"], strict.raw_numeric(row)
-            semantic = strict.finite((row.get("semantic") or {}).get("ranking_score"))
+            predicate, raw = row["predicate"]["predicate_label"], model_eval.raw_numeric(row)
+            semantic = model_eval.finite((row.get("semantic") or {}).get("ranking_score"))
             if semantic is None:
                 raise ValueError(f"missing_semantic:{row['prediction_id']}")
-            c_structured = structured_score(family, predicate, raw)
+            c_linear = linear_score(family, predicate, raw)
             c_bce = probability(bce_model, family, predicate, raw)
-            c_nonlinear_structured = projected_probability(nonlinear_structured_model, family, predicate, raw)
+            c_mlp_pairwise = projected_probability(pairwise_model, family, predicate, raw)
             grouped[row["subgraph_id"]].append({
-                "id": row["prediction_id"], "scan": row["scan_id"], "key": strict.candidate_key(row),
+                "id": row["prediction_id"], "scan": row["scan_id"], "key": model_eval.candidate_key(row),
                 "family": family, "predicate": predicate, "semantic": float(semantic),
-                "structured": float(c_structured), "previous": 0.0, "pooled": 0.0,
+                "linear": float(c_linear), "previous": 0.0, "pooled": 0.0,
                 "status": row.get("verification_status") or (row.get("verification") or {}).get("verification_status"),
                 "point_status": base.point_status(row),
                 "scores": {
-                    "source_score": float(semantic),
-                    "structured_product": float(semantic) * c_structured,
-                    "shared_nonlinear_bce_product": float(semantic) * c_bce,
-                    "shared_nonlinear_structured_product": float(semantic) * c_nonlinear_structured,
+                    "source": float(semantic),
+                    "all_family_product": float(semantic) * c_linear,
+                    "shared_mlp_bce_product": float(semantic) * c_bce,
+                    "shared_mlp_pairwise_product": float(semantic) * c_mlp_pairwise,
                 },
             })
     return grouped, {"input_rows": input_rows, "in_scope_rows": in_scope_rows, "input_sha256": digest.hexdigest()}
 
 
-def evaluate_source(path: Path, gt_path: Path, structured_score: Any, bce_model: dict[str, Any], nonlinear_structured_model: dict[str, Any], seed: int, resamples: int) -> dict[str, Any]:
-    grouped, counts = load_candidates(path, structured_score, bce_model, nonlinear_structured_model)
-    gt, gt_family = strict.load_gt(gt_path)
+def evaluate_source(path: Path, gt_path: Path, linear_score: Any, bce_model: dict[str, Any], pairwise_model: dict[str, Any], seed: int, resamples: int) -> dict[str, Any]:
+    grouped, counts = load_candidates(path, linear_score, bce_model, pairwise_model)
+    gt, gt_family = model_eval.load_gt(gt_path)
     contexts = sorted(set(grouped) | set(gt))
     samples = np.random.default_rng(seed).integers(0, len(contexts), size=(resamples, len(contexts)))
     original_methods = base.METHODS
@@ -364,8 +364,8 @@ def evaluate_source(path: Path, gt_path: Path, structured_score: Any, bce_model:
         add_reference_deltas(
             overall,
             overall_cache,
-            "structured_product",
-            ("shared_nonlinear_bce_product", "shared_nonlinear_structured_product"),
+            "all_family_product",
+            ("shared_mlp_bce_product", "shared_mlp_pairwise_product"),
         )
         within, global_slice = {}, {}
         for family in FAMILIES:
@@ -374,14 +374,14 @@ def evaluate_source(path: Path, gt_path: Path, structured_score: Any, bce_model:
             add_reference_deltas(
                 within[family],
                 within_cache,
-                "structured_product",
-                ("shared_nonlinear_bce_product", "shared_nonlinear_structured_product"),
+                "all_family_product",
+                ("shared_mlp_bce_product", "shared_mlp_pairwise_product"),
             )
             add_reference_deltas(
                 global_slice[family],
                 global_cache,
-                "structured_product",
-                ("shared_nonlinear_bce_product", "shared_nonlinear_structured_product"),
+                "all_family_product",
+                ("shared_mlp_bce_product", "shared_mlp_pairwise_product"),
             )
     finally:
         base.METHODS = original_methods
@@ -410,8 +410,8 @@ def main() -> int:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError(f"nonempty_output:{out}")
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
-    if protocol.get("status") != "frozen_before_supervision_matched_nonlinear_execution":
-        raise ValueError("protocol_not_frozen")
+    if protocol.get("status") != "ready_for_mlp_fit":
+        raise ValueError("protocol_version_mismatch")
     paths = {name: resolve(root, value) for name, value in protocol["inputs"].items()}
     if args.calibration_table is not None:
         paths["calibration_table"] = resolve(root, args.calibration_table)
@@ -420,7 +420,7 @@ def main() -> int:
         for name in (
             "calibration_table",
             "train_scans",
-            "internal_dev_scans",
+            "development_scans",
             "final_validation_scans",
         )
     }
@@ -428,12 +428,12 @@ def main() -> int:
     missing = [name for name, path in required_paths.items() if not path.exists()]
     if missing:
         raise FileNotFoundError(f"missing_inputs:{missing}")
-    train_scans, dev_scans, final_scans = (read_scans(paths[name]) for name in ("train_scans", "internal_dev_scans", "final_validation_scans"))
+    train_scans, dev_scans, final_scans = (read_scans(paths[name]) for name in ("train_scans", "development_scans", "final_validation_scans"))
     if train_scans & dev_scans or train_scans & final_scans or dev_scans & final_scans:
         raise ValueError("split_overlap")
     table_rows = calibration.load_jsonl(paths["calibration_table"])
     prepared, warnings = calibration.prepare_rows(table_rows, train_scans, dev_scans, set(FAMILIES))
-    bce_model, nonlinear_structured_model = prepare_training(prepared, protocol["optimizer"])
+    bce_model, pairwise_model = prepare_training(prepared, protocol["optimizer"])
     if args.fit_only:
         validations = {
             "split_counts_1061_117_157": (
@@ -455,17 +455,17 @@ def main() -> int:
             ) == 6246,
             "parameter_count_69": (
                 bce_model["parameter_count"]
-                == nonlinear_structured_model["parameter_count"]
+                == pairwise_model["parameter_count"]
                 == PARAMETER_COUNT
                 == 69
             ),
             "source_score_excluded": (
-                not bce_model["feature_contract"]["source_score_input"]
-                and not nonlinear_structured_model["feature_contract"]["source_score_input"]
+                not bce_model["feature_spec"]["source_score_input"]
+                and not pairwise_model["feature_spec"]["source_score_input"]
             ),
             "all_parameters_finite": all(
                 math.isfinite(float(value))
-                for model in (bce_model, nonlinear_structured_model)
+                for model in (bce_model, pairwise_model)
                 for array in model["parameters"].values()
                 for value in np.asarray(array).ravel()
             ),
@@ -477,24 +477,24 @@ def main() -> int:
         write_json(
             models_path,
             {
-                "shared_nonlinear_bce": bce_model,
-                "shared_nonlinear_structured": nonlinear_structured_model,
+                "shared_mlp_bce": bce_model,
+                "shared_mlp_pairwise": pairwise_model,
             },
         )
         write_json(
             summary_path,
             {
-                "schema_version": "relcompat3d_nonlinear_fit_v1",
+                "schema_version": "relcompat3d_mlp_fit_v1",
                 "created_at_utc": datetime.now(timezone.utc).isoformat(),
                 "status": status,
                 "training_warnings": warnings,
                 "parameter_count": PARAMETER_COUNT,
-                "internal_dev_calibration": {
-                    "shared_nonlinear_bce": calibration_diagnostic(
+                "development_calibration": {
+                    "shared_mlp_bce": calibration_diagnostic(
                         prepared, bce_model, False
                     ),
-                    "shared_nonlinear_structured": calibration_diagnostic(
-                        prepared, nonlinear_structured_model, True
+                    "shared_mlp_pairwise": calibration_diagnostic(
+                        prepared, pairwise_model, True
                     ),
                 },
                 "validations": validations,
@@ -503,7 +503,7 @@ def main() -> int:
         write_json(
             out / "manifest.json",
             {
-                "schema_version": "relcompat3d_nonlinear_fit_manifest_v1",
+                "schema_version": "relcompat3d_mlp_fit_manifest_v1",
                 "status": status,
                 "protocol": {
                     "path": relpath(root, protocol_path),
@@ -522,16 +522,16 @@ def main() -> int:
         )
         print(json.dumps({"status": status, "validations": validations}))
         return 0 if status == "completed" else 2
-    structured_models = json.loads(paths["structured_models"].read_text(encoding="utf-8"))
-    structured_score = base.make_structured_scorer(structured_models)
+    linear_models = json.loads(paths["linear_models"].read_text(encoding="utf-8"))
+    linear_score = base.make_linear_scorer(linear_models)
     sources = {
-        "internal_dev": (paths["internal_dev_verification"], paths["internal_dev_ground_truth"]),
+        "development": (paths["development_verification"], paths["development_ground_truth"]),
         "vlsat": (paths["vlsat_verification"], paths["final_ground_truth"]),
         "open3dsg": (paths["open3dsg_verification"], paths["final_ground_truth"]),
         "sgfn": (paths["sgfn_verification"], paths["final_ground_truth"]),
     }
     seed, resamples = int(protocol["evaluation"]["bootstrap_seed"]), int(protocol["evaluation"]["bootstrap_resamples"])
-    results = {source: evaluate_source(path, gt_path, structured_score, bce_model, nonlinear_structured_model, seed + index, resamples) for index, (source, (path, gt_path)) in enumerate(sources.items())}
+    results = {source: evaluate_source(path, gt_path, linear_score, bce_model, pairwise_model, seed + index, resamples) for index, (source, (path, gt_path)) in enumerate(sources.items())}
     exact_label_summaries = {source: json.loads(paths[f"exact_label_{source}_summary"].read_text(encoding="utf-8")) for source in ("vlsat", "open3dsg", "sgfn")}
     comparison_rows: list[dict[str, Any]] = []
     paired_rows: list[dict[str, Any]] = []
@@ -541,15 +541,15 @@ def main() -> int:
                 cell = results[source]["overall"][method][str(k)]
                 comparison_rows.append({"source": source, "supervision": "shared constructed compatibility target", "method": method, "k": k, "recall": cell["recall"]["point"], "violation": cell["violation_all"]["point"]})
         for k in KS:
-            cell = exact_label_summaries[source]["metrics"]["nonlinear_rescorer"][str(k)]
-            comparison_rows.append({"source": source, "supervision": "SGFN-specific exact-label correctness", "method": "source_specific_exact_label_nonlinear", "k": k, "recall": cell["recall"]["point"], "violation": cell["violation"]["point"]})
-        for method in ("shared_nonlinear_bce_product", "shared_nonlinear_structured_product"):
+            cell = exact_label_summaries[source]["metrics"]["mlp_reranker"][str(k)]
+            comparison_rows.append({"source": source, "supervision": "SGFN-specific exact-label correctness", "method": "source_specific_exact_label_mlp", "k": k, "recall": cell["recall"]["point"], "violation": cell["violation"]["point"]})
+        for method in ("shared_mlp_bce_product", "shared_mlp_pairwise_product"):
             for k in KS:
-                contrasts = results[source]["overall"]["deltas_vs_structured_product"][method][str(k)]
+                contrasts = results[source]["overall"]["deltas_vs_all_family_product"][method][str(k)]
                 paired_rows.append({
                     "source": source,
                     "method": method,
-                    "reference": "structured_product",
+                    "reference": "all_family_product",
                     "k": k,
                     "delta_recall": contrasts["recall"]["point"],
                     "delta_recall_ci95_low": contrasts["recall"]["paired_ci95"][0],
@@ -563,55 +563,55 @@ def main() -> int:
         "zero_final_rows_in_training_table": not ({row["scan_id"] for row in table_rows} & final_scans),
         "train_rows_60208": sum(row["_role"] == "train" for row in prepared) == 60208,
         "dev_rows_6246": sum(row["_role"] == "dev" for row in prepared) == 6246,
-        "parameter_count_69": bce_model["parameter_count"] == nonlinear_structured_model["parameter_count"] == PARAMETER_COUNT == 69,
-        "source_score_excluded": not bce_model["feature_contract"]["source_score_input"] and not nonlinear_structured_model["feature_contract"]["source_score_input"],
-        "all_sources_context_contract": results["internal_dev"]["counts"]["contexts"] == 354 and all(results[source]["counts"]["contexts"] == 548 for source in ("vlsat", "open3dsg", "sgfn")),
+        "parameter_count_69": bce_model["parameter_count"] == pairwise_model["parameter_count"] == PARAMETER_COUNT == 69,
+        "source_score_excluded": not bce_model["feature_spec"]["source_score_input"] and not pairwise_model["feature_spec"]["source_score_input"],
+        "all_sources_context_count_matches": results["development"]["counts"]["contexts"] == 354 and all(results[source]["counts"]["contexts"] == 548 for source in ("vlsat", "open3dsg", "sgfn")),
         "all_final_gt_denominator_3972": all(results[source]["counts"]["gt_denominator"] == 3972 for source in ("vlsat", "open3dsg", "sgfn")),
-        "all_parameters_finite": all(math.isfinite(float(value)) for model in (bce_model, nonlinear_structured_model) for array in model["parameters"].values() for value in np.asarray(array).ravel()),
+        "all_parameters_finite": all(math.isfinite(float(value)) for model in (bce_model, pairwise_model) for array in model["parameters"].values() for value in np.asarray(array).ravel()),
     }
     status = "completed" if all(validations.values()) else "failed_validation"
     summary = {
-        "schema_version": "relcompat3d_supervision_matched_nonlinear_evaluation_v1",
+        "schema_version": "relcompat3d_relcompat3d_fit_mlp_evaluation_v1",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "training_warnings": warnings,
         "parameter_count": PARAMETER_COUNT,
-        "internal_dev_calibration": {
-            "shared_nonlinear_bce": calibration_diagnostic(prepared, bce_model, False),
-            "shared_nonlinear_structured": calibration_diagnostic(prepared, nonlinear_structured_model, True),
+        "development_calibration": {
+            "shared_mlp_bce": calibration_diagnostic(prepared, bce_model, False),
+            "shared_mlp_pairwise": calibration_diagnostic(prepared, pairwise_model, True),
         },
         "sources": results,
         "exact_label_comparator_provenance": {source: relpath(root, paths[f"exact_label_{source}_summary"]) for source in exact_label_summaries},
         "validations": validations,
-        "claim_boundary": protocol["claim_boundary"],
+        "evaluation_scope": protocol["evaluation_scope"],
     }
     out.mkdir(parents=True, exist_ok=True)
-    write_json(out / "models.json", {"shared_nonlinear_bce": bce_model, "shared_nonlinear_structured": nonlinear_structured_model})
+    write_json(out / "models.json", {"shared_mlp_bce": bce_model, "shared_mlp_pairwise": pairwise_model})
     write_json(out / "summary.json", summary)
     with (out / "comparison.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(comparison_rows[0])); writer.writeheader(); writer.writerows(comparison_rows)
     with (out / "paired_contrasts.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(paired_rows[0])); writer.writeheader(); writer.writerows(paired_rows)
-    lines = ["# Supervision-Matched Nonlinear Comparison", "", f"Status: `{status}`", "", "| Source | Method | Supervision | R@100 | V@100 |", "| --- | --- | --- | ---: | ---: |"]
+    lines = ["# MLP Compatibility Comparison", "", f"Status: `{status}`", "", "| Source | Method | Supervision | R@100 | V@100 |", "| --- | --- | --- | ---: | ---: |"]
     for source in ("vlsat", "open3dsg", "sgfn"):
-        for method in ("structured_product", "shared_nonlinear_bce_product", "shared_nonlinear_structured_product"):
+        for method in ("all_family_product", "shared_mlp_bce_product", "shared_mlp_pairwise_product"):
             cell = results[source]["overall"][method]["100"]
             lines.append(f"| {source} | {method} | shared compatibility target | {cell['recall']['point']:.4f} | {cell['violation_all']['point']:.4f} |")
-        cell = exact_label_summaries[source]["metrics"]["nonlinear_rescorer"]["100"]
-        lines.append(f"| {source} | source-specific nonlinear | SGFN exact-label correctness | {cell['recall']['point']:.4f} | {cell['violation']['point']:.4f} |")
-    lines.extend(["", "## Paired K=100 contrast against the structured product", "", "| Source | Matched nonlinear method | delta Recall (95% CI) | delta V (95% CI) |", "| --- | --- | ---: | ---: |"])
+        cell = exact_label_summaries[source]["metrics"]["mlp_reranker"]["100"]
+        lines.append(f"| {source} | source-specific MLP | SGFN exact-label correctness | {cell['recall']['point']:.4f} | {cell['violation']['point']:.4f} |")
+    lines.extend(["", "## Paired K=100 contrast against the linear product", "", "| Source | Matched MLP method | delta Recall (95% CI) | delta V (95% CI) |", "| --- | --- | ---: | ---: |"])
     for source in ("vlsat", "open3dsg", "sgfn"):
-        for method in ("shared_nonlinear_bce_product", "shared_nonlinear_structured_product"):
-            contrast = results[source]["overall"]["deltas_vs_structured_product"][method]["100"]
+        for method in ("shared_mlp_bce_product", "shared_mlp_pairwise_product"):
+            contrast = results[source]["overall"]["deltas_vs_all_family_product"][method]["100"]
             dr, dv = contrast["recall"], contrast["violation_all"]
             lines.append(
                 f"| {source} | {method} | {dr['point']:+.4f} [{dr['paired_ci95'][0]:+.4f}, {dr['paired_ci95'][1]:+.4f}] | "
                 f"{dv['point']:+.4f} [{dv['paired_ci95'][0]:+.4f}, {dv['paired_ci95'][1]:+.4f}] |"
             )
-    lines.extend(["", "The shared nonlinear compatibility models use no source score or predictor identity and are applied unchanged to all three predictors. The exact-label rescorer is reported separately because it uses stronger, SGFN-specific correctness supervision.", ""])
+    lines.extend(["", "The shared MLP compatibility models use no source score or predictor identity and are applied unchanged to all three predictors. The exact-label rescorer is reported separately because it uses stronger, SGFN-specific correctness supervision.", ""])
     (out / "summary.md").write_text("\n".join(lines), encoding="utf-8")
     outputs = [out / name for name in ("models.json", "summary.json", "summary.md", "comparison.csv", "paired_contrasts.csv")]
-    write_json(out / "manifest.json", {"schema_version": "relcompat3d_supervision_matched_nonlinear_manifest_v1", "status": status, "protocol": {"path": relpath(root, protocol_path), "sha256": sha256(protocol_path)}, "inputs": {name: {"path": relpath(root, path), "sha256": sha256(path)} for name, path in paths.items()}, "outputs": {path.name: {"path": relpath(root, path), "sha256": sha256(path)} for path in outputs}, "validations": validations, "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm supervision_matched_nonlinear"})
+    write_json(out / "manifest.json", {"schema_version": "relcompat3d_relcompat3d_fit_mlp_manifest_v1", "status": status, "protocol": {"path": relpath(root, protocol_path), "sha256": sha256(protocol_path)}, "inputs": {name: {"path": relpath(root, path), "sha256": sha256(path)} for name, path in paths.items()}, "outputs": {path.name: {"path": relpath(root, path), "sha256": sha256(path)} for path in outputs}, "validations": validations, "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_fit_mlp"})
     print(json.dumps({"status": status, "validations": validations}))
     return 0 if status == "completed" else 2
 

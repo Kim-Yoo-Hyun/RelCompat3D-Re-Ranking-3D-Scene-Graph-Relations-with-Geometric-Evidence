@@ -1,0 +1,18 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_bootstrap",
+  "outputs": {
+    "summary.json": "de2e1375cd1991fd757c590a795d794b5b7996f5c3e55a289c0aac4c6a1afcb4",
+    "summary.md": "9a18c71863b8d8e5e38bde48a94f36ae794f9aff3af5551d23aeab2ebc14f470"
+  },
+  "protocol": "experiments/relcompat3d/main/protocols/all_family_bootstrap.json",
+  "schema_version": "relcompat3d_bootstrap_intervals_bootstrap_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_sources_have_157_scans": true,
+    "all_sources_have_548_contexts": true,
+    "k100_recall_ci_nonnegative": true,
+    "k100_violation_ci_below_zero": true,
+    "model_hash_matches": true,
+    "point_estimates_match_reported_results": true
+  }
+}

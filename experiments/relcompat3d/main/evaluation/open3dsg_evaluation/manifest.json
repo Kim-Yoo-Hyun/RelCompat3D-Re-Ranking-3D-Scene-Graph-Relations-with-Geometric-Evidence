@@ -1,0 +1,64 @@
+{
+  "docker_command": "env UID=$(id -u) GID=$(id -g) docker compose -f configs/relcompat3d/compose.yaml run --rm relcompat3d_open3dsg_evaluation",
+  "inputs": {
+    "ground_truth": {
+      "path": "experiments/relcompat3d/sources/vlsat/full_validation/adapter/ground_truth.jsonl",
+      "sha256": "f1b11210efa3bc349e765bfeb11b6f0016c4142667f9afbe48b61df0c5042a5c"
+    },
+    "missing15_diagnosis": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/preprocess_missing15_diagnosis/summary.json",
+      "sha256": "0f3f2a9da190d82e1fdd6b996854029e0774234b5793c6490429852bbfa7df7f"
+    },
+    "official_context_annotations": {
+      "path": "local_dataset/3DSSG_subset/relationships_validation.json",
+      "sha256": "a3b96637df20dac27f03f631bee9db409f4b22f65ec6205ff007ced73e52911e"
+    },
+    "official_verification": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/geometry/verification.jsonl",
+      "sha256": "f1b9585cf560c743e7b35ca90278f961689e52ddcca901ea7a7bed8c8f072720"
+    },
+    "recovered_verification": {
+      "path": "experiments/relcompat3d/sources/open3dsg/full_validation/recovery_relaxed_views_min2/geometry/verification.jsonl",
+      "sha256": "89ab2324654d07e8c2bde2c4aec3b5bdf9b916898b7e0bb40d4f9c582d58c58e"
+    },
+    "base_models": {
+      "path": "experiments/relcompat3d/main/fit/base_models.json",
+      "sha256": "0dcdfd137214ca35074f9215227694c0a72fd4f450905ab39b8b18d66fd5c2f2"
+    },
+    "linear_models": {
+      "path": "experiments/relcompat3d/main/fit/linear_models.json",
+      "sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194"
+    }
+  },
+  "outputs": {
+    "metrics.csv": {
+      "path": "experiments/relcompat3d/main/evaluation/open3dsg_evaluation/metrics.csv",
+      "sha256": "76edbabdfe24c1adc2d9dafcfbd2fca23a811437d144072a3ddb0526b8b917c7"
+    },
+    "summary.json": {
+      "path": "experiments/relcompat3d/main/evaluation/open3dsg_evaluation/summary.json",
+      "sha256": "c291adbf87bf24ef362c74a267bd5292196979753215ea10839b104be00a7fd7"
+    },
+    "summary.md": {
+      "path": "experiments/relcompat3d/main/evaluation/open3dsg_evaluation/summary.md",
+      "sha256": "5b2ae830a5666a24372a9c296ba34ab51dc4a616f676479d3ee0e6b4b8917639"
+    }
+  },
+  "protocol": {
+    "path": "experiments/relcompat3d/main/protocols/open3dsg_evaluation.json",
+    "sha256": "c8c25a69946b289a6292b8636d6ca06b534ecc7c067b7bd8c6ad8c6085294bd9"
+  },
+  "schema_version": "relcompat3d_open3dsg_official_route_manifest_v1",
+  "status": "completed",
+  "validations": {
+    "all_routes_methods_and_k": true,
+    "full_routes_gt_denominator_3972": true,
+    "missing_contexts_15": true,
+    "official_candidate_contexts_533": true,
+    "official_context_universe_548": true,
+    "official_eligible_evaluation_contexts_533": true,
+    "public_gate_is_four_visible_objects": true,
+    "recovered_contexts_548": true,
+    "strict_full_has_15_zero_prediction_contexts": true
+  }
+}

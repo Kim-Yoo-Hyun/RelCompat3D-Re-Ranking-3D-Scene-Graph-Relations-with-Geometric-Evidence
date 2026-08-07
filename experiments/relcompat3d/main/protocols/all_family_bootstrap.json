@@ -1,0 +1,21 @@
+{
+  "bootstrap_resamples": 1000,
+  "bootstrap_seed": 20260714,
+  "bootstrap_unit": "scan_id cluster",
+  "created_at_kst": "2026-07-20",
+  "current_summary": "experiments/relcompat3d/main/evaluation/all_family_comparison/summary.json",
+  "main_protocol": "experiments/relcompat3d/main/protocols/all_family_comparison.json",
+  "model_sha256": "f53a8bdcf1d8dc37d3935fccfbaf9d3c435ddd057848b0ee5e343ddca3ea0194",
+  "model_selection": "experiments/relcompat3d/main/fit/model_selection.json",
+  "purpose": "Test whether the promoted structured-product K=100 paired intervals remain directionally stable when all relation contexts from a sampled scan are resampled together.",
+  "report": [
+    "unchanged point estimates",
+    "source-score and structured-product Recall and verifier-V intervals for every K",
+    "paired structured-product minus source-score intervals",
+    "157-scan and 548-context coverage checks"
+  ],
+  "schema_version": "relcompat3d_bootstrap_intervals_bootstrap_protocol_v1",
+  "scores_and_rankings_changed": false,
+  "selection_or_tuning_allowed": false,
+  "status": "ready"
+}
